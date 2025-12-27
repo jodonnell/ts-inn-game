@@ -2,6 +2,7 @@ git branch -D deploy
 git checkout -b deploy
 npm run build
 mv dist/index.html .
+mkdir -p assets
 cp -R dist/assets/* ./assets/
 git add index.html
 git add assets
