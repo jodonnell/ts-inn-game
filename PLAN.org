@@ -1,0 +1,137 @@
+* Plan
+** Principles (to see results fast)
+*** Definition of done (each slice)
+**** Playable: input → state change → visible feedback.
+**** Restartable: can refresh/restart without manual cleanup.
+**** Small: ≤ 1–3 days of work.
+*** Guardrails
+**** Optimize for “inn gameplay” moments, not infrastructure.
+**** Only make architecture decisions that unblock the next slice.
+**** Cap “tech debt / refactor” time to ~20% per slice.
+
+** Slices (milestones)
+*** TODO Slice A — Movement in a test room
+**** TODO Goal: walk around and feel the game immediately.
+**** TODO ECS scope (minimal, just enough)
+***** TODO Create a world + player entity with `Position` (+ optional `Velocity`).
+***** TODO Input system writes movement intent; movement system updates `Position`.
+***** TODO Render-sync system applies `Position` to the visible player (placeholder is fine).
+**** TODO Tasks (implementation checklist)
+***** TODO Bootstrap loop
+****** TODO Create app init + tick/update loop wiring.
+****** TODO Add pause-free basic timing (dt) and a place to register systems.
+***** TODO Player setup
+****** TODO Spawn player entity with starting `Position`.
+****** TODO Create a visible player placeholder (sprite/graphics) and attach to scene.
+***** TODO Input + movement
+****** TODO Map keyboard → movement vector (and optional gamepad).
+****** TODO Apply movement with basic collision against a couple of test walls.
+**** TODO Acceptance criteria
+***** TODO Player is visibly rendered (placeholder is fine) and position updates while moving.
+***** TODO Player moves with keyboard (and a basic gamepad mapping if easy).
+***** TODO Camera behaves (follow or fixed), collisions work, and you can’t walk through walls.
+***** TODO Visible interact prompt appears near an interaction point (even if it does nothing yet).
+**** TODO Can wait
+***** TODO Full ECS/event model polish, fancy animations, audio.
+*** TODO Slice B — Load one room from Tiled
+**** TODO Goal: stop building throwaway maps; use real content early.
+**** TODO ECS scope (room representation)
+***** TODO Treat the loaded room as room-scoped data/entities (collision solids + spawn marker).
+***** TODO Initialize player `Position` from the Tiled spawn object.
+**** TODO Tasks (implementation checklist)
+***** TODO Pick an export format + conventions
+****** TODO Decide: Tiled JSON export (recommended early) and layer naming conventions.
+****** TODO Define required layers/objects: collision, spawn, (optional) doors.
+***** TODO Loader
+****** TODO Load map data, tilesets, and textures/atlas needed for rendering.
+****** TODO Build render layers/containers for the map.
+***** TODO Collision + spawn integration
+****** TODO Generate collision geometry/grid from the collision layer.
+****** TODO Read `player_spawn` object and place the player.
+**** TODO Acceptance criteria
+***** TODO Load and render a Tiled-exported map (format to be chosen) as the room background/tiles.
+***** TODO Collision comes from a Tiled layer (tile layer or object layer).
+***** TODO Spawn point comes from a Tiled object (e.g., “player_spawn”).
+**** TODO Can wait
+***** TODO Multiple rooms, NPCs, save/load.
+
+*** TODO Slice C — Doors/triggers: transition between Tiled rooms
+**** TODO Goal: make the inn feel like an actual place with rooms.
+**** TODO ECS scope (lifecycle + triggers)
+***** TODO Door triggers are entities (or room data) with destination map + destination spawn id.
+***** TODO Room-scoped entities are destroyed/unloaded on transition; player (and global) entities persist.
+**** TODO Tasks (implementation checklist)
+***** TODO Door triggers
+****** TODO Define a Tiled object format for doors (dest map + dest spawn id).
+****** TODO Detect player overlap/interaction with door triggers.
+***** TODO Room lifecycle
+****** TODO Create `loadRoom(mapId)` / `unloadRoom()` flow.
+****** TODO Ensure room-scoped sprites/entities are cleaned up on unload.
+***** TODO Spawn placement
+****** TODO On load, use destination spawn marker to place the player.
+****** TODO Basic transition UX (instant is fine): optional fade later.
+**** TODO Acceptance criteria
+***** TODO Door trigger (Tiled object) transitions to another map.
+***** TODO Scene lifecycle is clean: old room entities/sprites unload, new room loads without duplicates.
+***** TODO Player spawns at the destination spawn marker.
+**** TODO Can wait
+***** TODO Streaming loads, fancy transitions, pathfinding.
+
+*** TODO Slice D — “Clean the guest room” loop v1
+**** TODO Goal: a core inn task with clear feedback.
+**** TODO ECS scope (task state)
+***** TODO Represent room state as data (`dirty/cleaning/clean`) and a cleaning interaction hotspot.
+***** TODO Cleaning progress is derived from components/state updated by a system.
+**** TODO Tasks (implementation checklist)
+***** TODO Room state
+****** TODO Add `RoomState` data (dirty/cleaning/clean) for the current room.
+****** TODO Add a cleaning hotspot (Tiled object) or a fixed position.
+***** TODO Cleaning interaction
+****** TODO Interact near hotspot starts cleaning; show progress UI.
+****** TODO Completing progress flips state to `clean`.
+***** TODO Visual feedback
+****** TODO Dirty visuals: show a decal/overlay; clean visuals: hide/remove it.
+****** TODO Optional: add a simple sound/particle later (can wait).
+**** TODO Acceptance criteria
+***** TODO Room has state: dirty → cleaning → clean.
+***** TODO Player can start cleaning at a hotspot; progress is shown (bar/timer) and finishes reliably.
+***** TODO Visual feedback changes when the room becomes clean (e.g., decals removed / status indicator).
+**** TODO Can wait
+***** TODO Multiple cleaning tools, scoring, advanced UI.
+
+*** TODO Slice E — Guests v1 (end-to-end)
+**** TODO Goal: a complete loop: guest arrives → room assigned → success/fail.
+**** TODO ECS scope (guests + simple orchestration)
+***** TODO Guest is an entity with state (arriving/going-to-room/staying/leaving).
+***** TODO Room assignment is a simple system/rule; keep it deterministic and easy to extend later.
+**** TODO Tasks (implementation checklist)
+***** TODO Guest lifecycle
+****** TODO Spawn a guest at an entry point.
+****** TODO Advance guest state over time (arrive → go to room → stay → leave).
+***** TODO Room assignment
+****** TODO Track room availability and pick the first free room.
+****** TODO Fail if no rooms are available (simple feedback).
+***** TODO Success/fail feedback
+****** TODO Success: guest leaves happy if room is clean on arrival.
+****** TODO Fail: guest leaves unhappy if room is dirty (or cleaning not finished).
+**** TODO Acceptance criteria
+***** TODO A guest “arrives” (spawn in lobby or entry).
+***** TODO Assign a room (simple rule is fine: first available).
+***** TODO Guest reaches/stays/leaves (can be teleport now; pathing later).
+***** TODO Success/fail feedback is obvious (clean on time vs not).
+**** TODO Can wait
+***** TODO Complex AI, schedules, economy.
+
+** Backlog (defer until needed)
+*** Multiplayer/networking (authoritative server model)
+*** Save/load and persistent IDs (do after a fun loop exists)
+*** Full UI framework choice (Pixi-only vs DOM/React overlay)
+*** Audio system (add once actions exist to “juice”)
+*** Content validation (schemas, build-time checks)
+*** Performance budgets and pooling (only when you hit stutters)
+
+** Outstanding decisions (don’t block slices unless necessary)
+*** Single source of truth: see `ARCHITECTURE.md` → “Outstanding decisions (early + hard-to-change)”
+*** Decide “just-in-time” per slice
+**** Slice B/C will force decisions around Tiled export format + layer conventions.
+**** Slice D/E will force decisions around interaction targeting and simple state/event representation.
