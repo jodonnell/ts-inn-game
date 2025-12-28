@@ -8,6 +8,7 @@ import {
 } from "pixi.js"
 import type { SpritesheetData } from "pixi.js"
 import atlasData from "@/assets/spritesheets/pieces-spritesheet.json"
+import { installDebugPerfOverlay } from "@/src/debug/perf"
 
 const base = import.meta.env.DEV ? "../.." : "."
 const spritesheetData = atlasData as SpritesheetData
@@ -46,6 +47,8 @@ export const test = async (): Promise<void> => {
   const app = new Application()
   await app.init({ background: "#000000", resizeTo: window })
   document.body.appendChild(app.canvas)
+
+  if (import.meta.env.DEV) installDebugPerfOverlay(app)
 
   await load()
 
