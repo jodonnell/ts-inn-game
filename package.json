@@ -16,6 +16,7 @@
   "author": "Jacob",
   "license": "ISC",
   "dependencies": {
+    "bitecs": "^0.3.40",
     "codex": "^0.2.3",
     "pixi.js": "^8.14.3"
   },
