@@ -18,7 +18,12 @@ describe("interaction prompt system", () => {
       createPrompt: () => prompt,
       addPrompt: () => {},
     }
-    const interaction: InteractionPoint = { x: 10, y: 0, radius: 5 }
+    const interaction: InteractionPoint = {
+      x: 10,
+      y: 0,
+      radius: 5,
+      bounds: { x: 10, y: 0, width: 0, height: 0 },
+    }
 
     const system = createInteractionPromptSystem(player, store, interaction)
     system(world, 0)
@@ -41,5 +46,27 @@ describe("interaction prompt system", () => {
     system(world, 0)
 
     expect(prompt.visible).toBe(false)
+  })
+
+  it("shows the prompt near the interaction bounds", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 90, y: 116 })
+    const prompt = { x: 0, y: 0, visible: false }
+    const store: PromptStore = {
+      prompt: null,
+      createPrompt: () => prompt,
+      addPrompt: () => {},
+    }
+    const interaction: InteractionPoint = {
+      x: 116,
+      y: 116,
+      radius: 12,
+      bounds: { x: 100, y: 100, width: 32, height: 32 },
+    }
+
+    const system = createInteractionPromptSystem(player, store, interaction)
+    system(world, 0)
+
+    expect(prompt.visible).toBe(true)
   })
 })

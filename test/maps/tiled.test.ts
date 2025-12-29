@@ -118,10 +118,16 @@ describe("tiled map helpers", () => {
     }
 
     expect(findInteractionPoint(map, "bell")).toEqual({
-      x: 100,
-      y: 120,
+      x: 110,
+      y: 125,
       radius: 10,
       offsetY: 16,
+      bounds: {
+        x: 100,
+        y: 120,
+        width: 20,
+        height: 10,
+      },
     })
   })
 })

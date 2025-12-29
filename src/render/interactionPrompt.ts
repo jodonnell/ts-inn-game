@@ -20,6 +20,12 @@ export type InteractionPoint = {
   y: number
   radius: number
   offsetY?: number
+  bounds: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
 }
 
 export const createPromptStore = (
@@ -49,8 +55,12 @@ const ensurePrompt = (store: PromptStore): PromptLike => {
 }
 
 const isWithinRange = (x: number, y: number, interaction: InteractionPoint) => {
-  const dx = x - interaction.x
-  const dy = y - interaction.y
+  const minX = interaction.bounds.x
+  const maxX = interaction.bounds.x + interaction.bounds.width
+  const minY = interaction.bounds.y
+  const maxY = interaction.bounds.y + interaction.bounds.height
+  const dx = Math.max(minX - x, 0, x - maxX)
+  const dy = Math.max(minY - y, 0, y - maxY)
   return Math.hypot(dx, dy) <= interaction.radius
 }
 

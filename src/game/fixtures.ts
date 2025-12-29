@@ -11,4 +11,10 @@ export const createDefaultInteractionPoint = (): InteractionPoint => ({
   y: 180,
   radius: 40,
   offsetY: 16,
+  bounds: {
+    x: 184,
+    y: 164,
+    width: 32,
+    height: 32,
+  },
 })

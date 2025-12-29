@@ -80,7 +80,7 @@
                 {
                  "height":640,
                  "id":1,
-                 "name":"",
+                 "name":"lakewest",
                  "properties":[
                         {
                          "name":"collision",
@@ -97,7 +97,7 @@
                 {
                  "height":64,
                  "id":4,
-                 "name":"",
+                 "name":"lakesouth",
                  "properties":[
                         {
                          "name":"collision",
@@ -114,7 +114,7 @@
                 {
                  "height":576,
                  "id":7,
-                 "name":"",
+                 "name":"lakeeast",
                  "properties":[
                         {
                          "name":"collision",
@@ -131,7 +131,7 @@
                 {
                  "height":64,
                  "id":8,
-                 "name":"",
+                 "name":"lake",
                  "properties":[
                         {
                          "name":"collision",
@@ -146,20 +146,9 @@
                  "y":0
                 }, 
                 {
-                 "height":0,
-                 "id":9,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":96,
-                 "y":-64
-                }, 
-                {
                  "height":32,
                  "id":11,
-                 "name":"",
+                 "name":"bell",
                  "properties":[
                         {
                          "name":"collision",
@@ -177,6 +166,23 @@
                  "width":32,
                  "x":384,
                  "y":192
+                }, 
+                {
+                 "height":32,
+                 "id":12,
+                 "name":"teleport",
+                 "properties":[
+                        {
+                         "name":"teleport",
+                         "type":"string",
+                         "value":"room1"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":64,
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -184,8 +190,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":4,
- "nextobjectid":12,
+ "nextlayerid":5,
+ "nextobjectid":13,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

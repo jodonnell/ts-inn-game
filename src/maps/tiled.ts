@@ -121,7 +121,20 @@ export const findInteractionPoint = (
     )
     if (!match) continue
     const radius = Math.max(match.width, match.height) / 2
-    return { x: match.x, y: match.y, radius, offsetY: 16 }
+    const centerX = match.x + match.width / 2
+    const centerY = match.y + match.height / 2
+    return {
+      x: centerX,
+      y: centerY,
+      radius,
+      offsetY: 16,
+      bounds: {
+        x: match.x,
+        y: match.y,
+        width: match.width,
+        height: match.height,
+      },
+    }
   }
   return null
 }
