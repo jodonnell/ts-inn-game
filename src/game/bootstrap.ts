@@ -1,6 +1,12 @@
-import { createLoop } from "@/src/ecs/loop"
-import { createGameWorld, spawnPlayer } from "@/src/ecs/world"
+import { createLoop } from "@/src/ecs/systems/loop"
+import {
+  createInputSystem,
+  createMovementSystem,
+} from "@/src/ecs/systems/movement"
+import { createGameWorld } from "@/src/ecs/world"
+import { spawnPlayer } from "@/src/ecs/entities/player"
 import { installDebugPerfOverlay } from "@/src/debug/perf"
+import { createKeyboardInputState } from "@/src/input/keyboard"
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import {
   createPixiApp,
@@ -16,10 +22,15 @@ export const startGame = async () => {
   const renderStore = createPixiRenderStore(app, spritesheet)
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 160, y: 200 })
+  const input = createKeyboardInputState()
 
   const loop = createLoop({
     world,
-    systems: [createPlayerRenderSystem(player, renderStore)],
+    systems: [
+      createInputSystem(player, input),
+      createMovementSystem(player),
+      createPlayerRenderSystem(player, renderStore),
+    ],
   })
   loop.start()
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { createLoop } from "@/src/ecs/loop"
+import { createLoop } from "@/src/ecs/systems/loop"
 import { createGameWorld } from "@/src/ecs/world"
 
 describe("ecs loop", () => {

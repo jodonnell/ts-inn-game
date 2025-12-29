@@ -24,7 +24,8 @@ export const installDebugPerfOverlay = (app: Application): (() => void) => {
 
   const pruneOld = (now: number) => {
     const cutoff = now - windowMs
-    while (pauseEvents.length > 0 && pauseEvents[0]!.at < cutoff) pauseEvents.shift()
+    while (pauseEvents.length > 0 && pauseEvents[0]!.at < cutoff)
+      pauseEvents.shift()
   }
 
   const updateOverlay = (ticker: { FPS: number }, now: number) => {
@@ -33,7 +34,10 @@ export const installDebugPerfOverlay = (app: Application): (() => void) => {
     overlay.setFps(ticker.FPS)
 
     const count10s = pauseEvents.length
-    const maxMs10s = pauseEvents.reduce((max, e) => Math.max(max, e.durationMs), 0)
+    const maxMs10s = pauseEvents.reduce(
+      (max, e) => Math.max(max, e.durationMs),
+      0,
+    )
     const lastPauseMs = pauseEvents[count10s - 1]?.durationMs ?? 0
 
     overlay.setPause({
@@ -72,4 +76,3 @@ export const installDebugPerfOverlay = (app: Application): (() => void) => {
     overlay.destroy()
   }
 }
-

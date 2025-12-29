@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { hasComponent } from "bitecs"
-import { createGameWorld, spawnPlayer } from "@/src/ecs/world"
+import { createGameWorld } from "@/src/ecs/world"
+import { spawnPlayer } from "@/src/ecs/entities/player"
 import { Position } from "@/src/ecs/components"
 
 describe("ecs world", () => {

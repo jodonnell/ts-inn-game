@@ -1,10 +1,4 @@
-import {
-  Application,
-  Assets,
-  Sprite,
-  Spritesheet,
-  Texture,
-} from "pixi.js"
+import { Application, Assets, Sprite, Spritesheet, Texture } from "pixi.js"
 import type { SpritesheetData } from "pixi.js"
 import managerSheetData from "@/assets/spritesheets/manager-sheet.json"
 import type { RenderStore, SpriteLike } from "@/src/render/playerRender"

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
-import { createGameWorld, spawnPlayer } from "@/src/ecs/world"
+import { createGameWorld } from "@/src/ecs/world"
+import { spawnPlayer } from "@/src/ecs/entities/player"
 import { Position } from "@/src/ecs/components"
 import {
   MANAGER_SPRITE_FRAME,

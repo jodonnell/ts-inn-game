@@ -13,7 +13,7 @@
 *** TODO Slice A — Movement in a test room
 **** TODO Goal: walk around and feel the game immediately.
 **** TODO ECS scope (minimal, just enough)
-***** TODO Create a world + player entity with `Position` (+ optional `Velocity`).
+***** DONE Create a world + player entity with `Position` (+ optional `Velocity`).
 ***** TODO Input system writes movement intent; movement system updates `Position`.
 ***** TODO Render-sync system applies `Position` to the visible player (placeholder is fine).
 **** TODO Tasks (implementation checklist)

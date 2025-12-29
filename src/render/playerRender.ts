@@ -1,8 +1,7 @@
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
 
-export const MANAGER_SPRITE_FRAME =
-  "0001-manager-all-frames_frontidle_0001.png"
+export const MANAGER_SPRITE_FRAME = "0001-manager-all-frames_frontidle_0001.png"
 
 export type SpriteLike = {
   x: number
@@ -17,6 +16,8 @@ export type RenderStore = {
 
 export const createPlayerRenderSystem =
   (player: number, store: RenderStore) => (world: GameWorld, _dt: number) => {
+    void world
+    void _dt
     let sprite = store.sprites.get(player)
     if (!sprite) {
       sprite = store.createSprite(MANAGER_SPRITE_FRAME)
