@@ -31,6 +31,20 @@ describe("keyboard input", () => {
     input.dispose()
   })
 
+  it("prevents default scrolling for arrow keys", () => {
+    const input = createKeyboardInputState({ target: window })
+
+    const event = new KeyboardEvent("keydown", {
+      key: "ArrowDown",
+      cancelable: true,
+    })
+    window.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
+
+    input.dispose()
+  })
+
   it("clears movement on blur", () => {
     const input = createKeyboardInputState({ target: window })
 

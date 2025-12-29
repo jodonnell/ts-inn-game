@@ -29,6 +29,9 @@ export const createKeyboardInputState = (
   const onKeyDown = (event: KeyboardEvent) => {
     const key = normalizeKey(event)
     if (!movementKeys.has(key)) return
+    if (event.key.startsWith("Arrow")) {
+      event.preventDefault()
+    }
     pressed.add(key)
   }
 
