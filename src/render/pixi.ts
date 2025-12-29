@@ -22,6 +22,12 @@ export const loadManagerSpritesheet = async (): Promise<Spritesheet> => {
   return spritesheet
 }
 
+export const loadTileSheetTexture = async (): Promise<Texture> => {
+  const sheetPath = `${base}/assets/spritesheets/tile-sheet.png`
+  await Assets.load(sheetPath)
+  return Texture.from(sheetPath)
+}
+
 export const createPixiRenderStore = (
   app: Application,
   spritesheet: Spritesheet,
