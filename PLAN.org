@@ -12,19 +12,19 @@
 ** Slices (milestones)
 *** TODO Slice A — Movement in a test room
 **** TODO Goal: walk around and feel the game immediately.
-**** TODO ECS scope (minimal, just enough)
+**** DONE ECS scope (minimal, just enough)
 ***** DONE Create a world + player entity with `Position` (+ optional `Velocity`).
-***** TODO Input system writes movement intent; movement system updates `Position`.
-***** TODO Render-sync system applies `Position` to the visible player (placeholder is fine).
+***** DONE Input system writes movement intent; movement system updates `Position`.
+***** DONE Render-sync system applies `Position` to the visible player (placeholder is fine).
 **** TODO Tasks (implementation checklist)
-***** TODO Bootstrap loop
-****** TODO Create app init + tick/update loop wiring.
-****** TODO Add pause-free basic timing (dt) and a place to register systems.
-***** TODO Player setup
-****** TODO Spawn player entity with starting `Position`.
-****** TODO Create a visible player placeholder (sprite/graphics) and attach to scene.
+***** DONE Bootstrap loop
+****** DONE Create app init + tick/update loop wiring.
+****** DONE Add pause-free basic timing (dt) and a place to register systems.
+***** DONE Player setup
+****** DONE Spawn player entity with starting `Position`.
+****** DONE Create a visible player placeholder (sprite/graphics) and attach to scene.
 ***** TODO Input + movement
-****** TODO Map keyboard → movement vector (and optional gamepad).
+****** DONE Map keyboard → movement vector (and optional gamepad).
 ****** TODO Apply movement with basic collision against a couple of test walls.
 **** TODO Acceptance criteria
 ***** TODO Player is visibly rendered (placeholder is fine) and position updates while moving.

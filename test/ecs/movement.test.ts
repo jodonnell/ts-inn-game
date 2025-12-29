@@ -38,4 +38,23 @@ describe("movement systems", () => {
     expect(Position.x[player]).toBeCloseTo(5)
     expect(Position.y[player]).toBeCloseTo(-10)
   })
+
+  it("prevents movement into collision walls", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+
+    Velocity.x[player] = 20
+    Velocity.y[player] = 0
+
+    const walls = [
+      { x: 5, y: -5, width: 10, height: 10 },
+      { x: -15, y: 8, width: 30, height: 6 },
+    ]
+
+    const system = createMovementSystem(player, walls)
+    system(world, 0.5)
+
+    expect(Position.x[player]).toBe(0)
+    expect(Position.y[player]).toBe(0)
+  })
 })

@@ -23,12 +23,16 @@ export const startGame = async () => {
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 160, y: 200 })
   const input = createKeyboardInputState()
+  const collisionWalls = [
+    { x: 120, y: 240, width: 200, height: 20 },
+    { x: 320, y: 80, width: 20, height: 200 },
+  ]
 
   const loop = createLoop({
     world,
     systems: [
       createInputSystem(player, input),
-      createMovementSystem(player),
+      createMovementSystem(player, collisionWalls),
       createPlayerRenderSystem(player, renderStore),
     ],
   })
