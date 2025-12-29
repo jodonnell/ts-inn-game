@@ -1,5 +1,7 @@
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
+import { Text } from "pixi.js"
+import type { Application } from "pixi.js"
 
 export type PromptLike = {
   x: number
@@ -19,6 +21,24 @@ export type InteractionPoint = {
   radius: number
   offsetY?: number
 }
+
+export const createPromptStore = (
+  app: Application,
+  options: { text?: string; color?: string; fontSize?: number } = {},
+): PromptStore => ({
+  prompt: null,
+  createPrompt: () => {
+    const prompt = new Text(options.text ?? "Press E", {
+      fill: options.color ?? "#ffffff",
+      fontSize: options.fontSize ?? 12,
+    })
+    prompt.anchor.set(0.5, 1)
+    return prompt
+  },
+  addPrompt: (prompt) => {
+    app.stage.addChild(prompt)
+  },
+})
 
 const ensurePrompt = (store: PromptStore): PromptLike => {
   if (store.prompt) return store.prompt

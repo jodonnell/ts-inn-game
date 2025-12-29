@@ -49,11 +49,17 @@ vi.mock("@/src/render/playerRender", () => ({
 }))
 
 vi.mock("@/src/render/camera", () => ({
+  createCameraAdapter: vi.fn(() => ({ setPosition: vi.fn() })),
   createCameraFollowSystem: vi.fn(() => cameraSystem),
 }))
 
 vi.mock("@/src/render/interactionPrompt", () => ({
   createInteractionPromptSystem: vi.fn(() => promptSystem),
+  createPromptStore: vi.fn(() => ({
+    prompt: null,
+    createPrompt: vi.fn(),
+    addPrompt: vi.fn(),
+  })),
 }))
 
 vi.mock("@/src/render/pixi", () => ({
