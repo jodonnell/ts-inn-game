@@ -23,16 +23,16 @@
 ***** DONE Player setup
 ****** DONE Spawn player entity with starting `Position`.
 ****** DONE Create a visible player placeholder (sprite/graphics) and attach to scene.
-***** TODO Input + movement
+***** DONE Input + movement
 ****** DONE Map keyboard → movement vector (and optional gamepad).
-****** TODO Apply movement with basic collision against a couple of test walls.
-**** TODO Acceptance criteria
-***** TODO Player is visibly rendered (placeholder is fine) and position updates while moving.
-***** TODO Player moves with keyboard (and a basic gamepad mapping if easy).
-***** TODO Camera behaves (follow or fixed), collisions work, and you can’t walk through walls.
-***** TODO Visible interact prompt appears near an interaction point (even if it does nothing yet).
-**** TODO Can wait
-***** TODO Full ECS/event model polish, fancy animations, audio.
+****** DONE Apply movement with basic collision against a couple of test walls.
+**** DONE Acceptance criteria
+***** DONE Player is visibly rendered (placeholder is fine) and position updates while moving.
+***** DONE Player moves with keyboard (and a basic gamepad mapping if easy).
+***** DONE Camera behaves (follow or fixed), collisions work, and you can’t walk through walls.
+***** DONE Visible interact prompt appears near an interaction point (even if it does nothing yet).
+**** DONE Can wait
+***** DONE Full ECS/event model polish, fancy animations, audio.
 *** TODO Slice B — Load one room from Tiled
 **** TODO Goal: stop building throwaway maps; use real content early.
 **** TODO ECS scope (room representation)

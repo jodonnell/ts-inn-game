@@ -3,12 +3,8 @@ import { startGame } from "@/src/game/bootstrap"
 import { createLoop } from "@/src/ecs/systems/loop"
 import { createCameraFollowSystem } from "@/src/render/camera"
 import { createInteractionPromptSystem } from "@/src/render/interactionPrompt"
-import { renderTileLayer } from "@/src/render/tilemap"
-import {
-  extractCollisionWalls,
-  findInteractionPoint,
-  findSpawnPoint,
-} from "@/src/maps/tiled"
+import { createTeleportSystem } from "@/src/ecs/systems/teleport"
+import { createRoomLoader } from "@/src/game/roomLoader"
 
 const loopStart = vi.fn()
 const loopStop = vi.fn()
@@ -18,10 +14,12 @@ const world = {}
 const player = 1
 const inputSystem = vi.fn()
 const movementSystem = vi.fn()
+const teleportSystem = vi.fn()
 const renderSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const tileSpriteFactory = vi.fn()
+const loadRoom = vi.fn()
 const map = vi.hoisted(() => ({
   width: 2,
   height: 2,
@@ -74,6 +72,10 @@ vi.mock("@/src/ecs/systems/movement", () => ({
   createMovementSystem: vi.fn(() => movementSystem),
 }))
 
+vi.mock("@/src/ecs/systems/teleport", () => ({
+  createTeleportSystem: vi.fn(() => teleportSystem),
+}))
+
 vi.mock("@/src/render/playerRender", () => ({
   createPlayerRenderSystem: vi.fn(() => renderSystem),
 }))
@@ -112,22 +114,14 @@ vi.mock("@/src/render/pixi", () => ({
 
 vi.mock("@/src/render/tilemap", () => ({
   createPixiTileSpriteFactory: vi.fn(() => tileSpriteFactory),
-  renderTileLayer: vi.fn(),
 }))
 
-vi.mock("@/src/maps/tiled", () => ({
-  buildTilePlacements: vi.fn(),
-  extractCollisionWalls: vi.fn(() => [{ x: 1, y: 2, width: 3, height: 4 }]),
-  findInteractionPoint: vi.fn(() => ({
-    x: 10,
-    y: 20,
-    radius: 12,
-    offsetY: 16,
-  })),
-  findSpawnPoint: vi.fn(() => ({ x: 5, y: 7 })),
+vi.mock("@/src/game/roomLoader", () => ({
+  createRoomLoader: vi.fn(() => loadRoom),
 }))
 
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
+vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
 
 vi.mock("@/src/debug/perf", () => ({
   installDebugPerfOverlay: vi.fn(),
@@ -136,6 +130,7 @@ vi.mock("@/src/debug/perf", () => ({
 vi.mock("pixi.js", () => ({
   Container: class {
     addChild = vi.fn()
+    removeChildren = vi.fn()
   },
   Text: class {
     x = 0
@@ -149,27 +144,14 @@ describe("game bootstrap", () => {
   it("wires map rendering and gameplay systems into the loop", async () => {
     await startGame()
 
-    expect(vi.mocked(findSpawnPoint)).toHaveBeenCalledWith(map, "player_spawn")
-    expect(vi.mocked(extractCollisionWalls)).toHaveBeenCalledWith(map)
-    expect(vi.mocked(findInteractionPoint)).toHaveBeenCalledWith(map, "bell")
-
-    expect(vi.mocked(renderTileLayer)).toHaveBeenCalledWith(
-      map.layers[0],
-      map.tilewidth,
-      map.tileheight,
-      map.tilesets[0].firstgid,
-      tileSpriteFactory,
-      expect.any(Function),
+    expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mapsByKey: { inn: map, room1: map },
+        player,
+        tileSpriteFactory,
+      }),
     )
-
-    expect(vi.mocked(renderTileLayer)).toHaveBeenCalledWith(
-      map.layers[1],
-      map.tilewidth,
-      map.tileheight,
-      map.tilesets[0].firstgid,
-      tileSpriteFactory,
-      expect.any(Function),
-    )
+    expect(loadRoom).toHaveBeenCalledWith("inn")
 
     expect(vi.mocked(createCameraFollowSystem)).toHaveBeenCalledWith(
       player,
@@ -183,7 +165,13 @@ describe("game bootstrap", () => {
         createPrompt: expect.any(Function),
         addPrompt: expect.any(Function),
       }),
-      expect.objectContaining({ x: 10, y: 20 }),
+      expect.objectContaining({ x: 200, y: 180 }),
+    )
+
+    expect(vi.mocked(createTeleportSystem)).toHaveBeenCalledWith(
+      player,
+      expect.objectContaining({ zones: [] }),
+      loadRoom,
     )
 
     expect(vi.mocked(createLoop)).toHaveBeenCalledWith({
@@ -191,6 +179,7 @@ describe("game bootstrap", () => {
       systems: [
         inputSystem,
         movementSystem,
+        teleportSystem,
         cameraSystem,
         renderSystem,
         promptSystem,

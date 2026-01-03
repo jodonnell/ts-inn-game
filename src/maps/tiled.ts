@@ -48,6 +48,14 @@ export type TiledMap = {
   tilesets: TiledTilesetRef[]
 }
 
+export type TeleportZone = {
+  x: number
+  y: number
+  width: number
+  height: number
+  targetMapKey: string
+}
+
 export type TilePlacement = {
   x: number
   y: number
@@ -82,7 +90,7 @@ export const extractCollisionWalls = (map: TiledMap): CollisionWall[] => {
     if (layer.type !== "objectgroup") continue
     for (const object of layer.objects) {
       const collisionFlag = getObjectProperty(object, "collision")
-      const shouldCollide = layer.name === "collision" || collisionFlag === true
+      const shouldCollide = collisionFlag === true
       if (!shouldCollide) continue
       if (object.width <= 0 || object.height <= 0) continue
       walls.push({
@@ -137,4 +145,24 @@ export const findInteractionPoint = (
     }
   }
   return null
+}
+
+export const extractTeleportZones = (map: TiledMap): TeleportZone[] => {
+  const zones: TeleportZone[] = []
+  for (const layer of map.layers) {
+    if (layer.type !== "objectgroup") continue
+    for (const object of layer.objects) {
+      const targetMapKey = getObjectProperty(object, "teleport")
+      if (typeof targetMapKey !== "string") continue
+      if (object.width <= 0 || object.height <= 0) continue
+      zones.push({
+        x: object.x,
+        y: object.y,
+        width: object.width,
+        height: object.height,
+        targetMapKey,
+      })
+    }
+  }
+  return zones
 }

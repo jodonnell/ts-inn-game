@@ -3,16 +3,15 @@ import {
   createInputSystem,
   createMovementSystem,
 } from "@/src/ecs/systems/movement"
+import type { CollisionWall } from "@/src/ecs/systems/movement"
+import {
+  createTeleportSystem,
+  type TeleportState,
+} from "@/src/ecs/systems/teleport"
 import { createGameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
 import { installDebugPerfOverlay } from "@/src/debug/perf"
 import { createKeyboardInputState } from "@/src/input/keyboard"
-import type { TiledTileLayer } from "@/src/maps/tiled"
-import {
-  extractCollisionWalls,
-  findInteractionPoint,
-  findSpawnPoint,
-} from "@/src/maps/tiled"
 import {
   createCameraAdapter,
   createCameraFollowSystem,
@@ -22,81 +21,58 @@ import {
   createPromptStore,
 } from "@/src/render/interactionPrompt"
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
-import {
-  createPixiTileSpriteFactory,
-  renderTileLayer,
-} from "@/src/render/tilemap"
+import { createPixiTileSpriteFactory } from "@/src/render/tilemap"
 import {
   createPixiApp,
   createPixiRenderStore,
   loadManagerSpritesheet,
   loadTileSheetTexture,
 } from "@/src/render/pixi"
-import {
-  createDefaultCollisionWalls,
-  createDefaultInteractionPoint,
-} from "@/src/game/fixtures"
+import { createDefaultInteractionPoint } from "@/src/game/fixtures"
+import { createRoomLoader } from "@/src/game/roomLoader"
 import innMap from "@/assets/maps/inn.json"
+import room1Map from "@/assets/maps/room1.json"
 import { Container } from "pixi.js"
 
 export const startGame = async () => {
   const app = await createPixiApp()
   if (import.meta.env.DEV) installDebugPerfOverlay(app)
 
-  const map = innMap
   const spritesheet = await loadManagerSpritesheet()
   const tilesetTexture = await loadTileSheetTexture()
   const renderStore = createPixiRenderStore(app, spritesheet)
   const world = createGameWorld()
-  const spawn = findSpawnPoint(map, "player_spawn") ?? { x: 160, y: 200 }
-  const player = spawnPlayer(world, spawn)
+  const player = spawnPlayer(world, { x: 0, y: 0 })
   const input = createKeyboardInputState()
-  const mapWalls = extractCollisionWalls(map)
-  const collisionWalls =
-    mapWalls.length > 0 ? mapWalls : createDefaultCollisionWalls()
+  const collisionWalls: CollisionWall[] = []
   const camera = createCameraAdapter(app)
   const promptStore = createPromptStore(app)
-  const interactionPoint =
-    findInteractionPoint(map, "bell") ?? createDefaultInteractionPoint()
+  const interactionPoint = createDefaultInteractionPoint()
+  const teleportState: TeleportState = { zones: [] }
   const mapContainer = new Container()
   app.stage.addChild(mapContainer)
-  const tileLayers = map.layers.filter(
-    (layer): layer is TiledTileLayer => layer.type === "tilelayer",
-  )
-  const firstGid = map.tilesets[0]?.firstgid ?? 1
   const tileSpriteFactory = createPixiTileSpriteFactory(
     tilesetTexture,
-    map.tilewidth,
-    map.tileheight,
+    innMap.tilewidth,
+    innMap.tileheight,
   )
-  const groundLayer = tileLayers.find((layer) => layer.name === "ground")
-  const decorLayer = tileLayers.find((layer) => layer.name === "decor")
-  if (groundLayer) {
-    renderTileLayer(
-      groundLayer,
-      map.tilewidth,
-      map.tileheight,
-      firstGid,
-      tileSpriteFactory,
-      (sprite) => mapContainer.addChild(sprite),
-    )
-  }
-  if (decorLayer) {
-    renderTileLayer(
-      decorLayer,
-      map.tilewidth,
-      map.tileheight,
-      firstGid,
-      tileSpriteFactory,
-      (sprite) => mapContainer.addChild(sprite),
-    )
-  }
+  const roomLoader = createRoomLoader({
+    mapsByKey: { inn: innMap, room1: room1Map },
+    player,
+    mapContainer,
+    tileSpriteFactory,
+    collisionWalls,
+    interactionPoint,
+    teleportState,
+  })
+  roomLoader("inn")
 
   const loop = createLoop({
     world,
     systems: [
       createInputSystem(player, input),
       createMovementSystem(player, collisionWalls),
+      createTeleportSystem(player, teleportState, roomLoader),
       createCameraFollowSystem(player, camera),
       createPlayerRenderSystem(player, renderStore),
       createInteractionPromptSystem(player, promptStore, interactionPoint),

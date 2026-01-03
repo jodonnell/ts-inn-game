@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   buildTilePlacements,
   extractCollisionWalls,
+  extractTeleportZones,
   findInteractionPoint,
   findSpawnPoint,
   type TiledMap,
@@ -39,7 +40,7 @@ describe("tiled map helpers", () => {
     ])
   })
 
-  it("extracts collision walls from a collision object layer", () => {
+  it("extracts collision walls only when collision property is true", () => {
     const map: TiledMap = {
       width: 1,
       height: 1,
@@ -56,6 +57,16 @@ describe("tiled map helpers", () => {
               y: 20,
               width: 30,
               height: 40,
+              properties: [
+                { name: "teleport", type: "string", value: "room1" },
+              ],
+            },
+            {
+              id: 2,
+              x: 50,
+              y: 60,
+              width: 12,
+              height: 14,
               properties: [{ name: "collision", type: "bool", value: true }],
             },
           ],
@@ -65,8 +76,65 @@ describe("tiled map helpers", () => {
     }
 
     expect(extractCollisionWalls(map)).toEqual([
-      { x: 10, y: 20, width: 30, height: 40 },
+      { x: 50, y: 60, width: 12, height: 14 },
     ])
+  })
+
+  it("ignores teleport objects without collision property", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "collision",
+          objects: [
+            {
+              id: 1,
+              x: 10,
+              y: 20,
+              width: 30,
+              height: 40,
+              properties: [
+                { name: "teleport", type: "string", value: "room1" },
+              ],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    expect(extractCollisionWalls(map)).toEqual([])
+  })
+
+  it("ignores objects without collision property even in collision layers", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "collision",
+          objects: [
+            {
+              id: 1,
+              x: 10,
+              y: 20,
+              width: 30,
+              height: 40,
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    expect(extractCollisionWalls(map)).toEqual([])
   })
 
   it("finds the player spawn point by name or type", () => {
@@ -129,5 +197,37 @@ describe("tiled map helpers", () => {
         height: 10,
       },
     })
+  })
+
+  it("extracts teleport zones with target map keys", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "triggers",
+          objects: [
+            {
+              id: 1,
+              x: 10,
+              y: 20,
+              width: 32,
+              height: 24,
+              properties: [
+                { name: "teleport", type: "string", value: "room1" },
+              ],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    expect(extractTeleportZones(map)).toEqual([
+      { x: 10, y: 20, width: 32, height: 24, targetMapKey: "room1" },
+    ])
   })
 })
