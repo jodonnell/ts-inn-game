@@ -114,6 +114,18 @@ const formatTime = (minutes: number) => {
   return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`
 }
 
+const SEASONS = ["Spring", "Summer", "Fall", "Winter"]
+const DAYS_PER_SEASON = 31
+const DAYS_PER_YEAR = DAYS_PER_SEASON * SEASONS.length
+
+const formatDate = (daysPassed: number) => {
+  const normalizedDays =
+    ((daysPassed % DAYS_PER_YEAR) + DAYS_PER_YEAR) % DAYS_PER_YEAR
+  const seasonIndex = Math.floor(normalizedDays / DAYS_PER_SEASON)
+  const dayInSeason = (normalizedDays % DAYS_PER_SEASON) + 1
+  return `${SEASONS[seasonIndex]} ${dayInSeason}`
+}
+
 export const createTimeDisplaySystem =
   (
     time: GameTimeState,
@@ -126,7 +138,7 @@ export const createTimeDisplaySystem =
     const display = ensureDisplay(store)
     display.x = options.x ?? 12
     display.y = options.y ?? 12
-    display.text = formatTime(time.minutes)
+    display.text = `${formatDate(time.daysPassed)} ${formatTime(time.minutes)}`
     display.visible = true
     display.layout?.()
   }
