@@ -22,4 +22,14 @@ describe("ecs time system", () => {
 
     expect(state.minutes).toBeCloseTo(10)
   })
+
+  it("increments days passed when time wraps", () => {
+    const world = createGameWorld()
+    const state = createGameTimeState(1430)
+    const system = createTimeSystem(state, { realMinutesPerDay: 24 })
+
+    system(world, 20)
+
+    expect((state as { daysPassed: number }).daysPassed).toBe(1)
+  })
 })

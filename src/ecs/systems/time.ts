@@ -5,14 +5,19 @@ export const DEFAULT_REAL_MINUTES_PER_GAME_DAY = 15
 
 export type GameTimeState = {
   minutes: number
+  daysPassed: number
 }
 
 export type GameTimeConfig = {
   realMinutesPerDay?: number
 }
 
+const normalizeMinutes = (minutes: number) =>
+  ((minutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+
 export const createGameTimeState = (startMinutes = 0): GameTimeState => ({
-  minutes: ((startMinutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY,
+  minutes: normalizeMinutes(startMinutes),
+  daysPassed: 0,
 })
 
 const resolveGameMinutesPerSecond = (realMinutesPerDay: number) =>
@@ -27,5 +32,8 @@ export const createTimeSystem =
     const gameMinutesPerSecond =
       resolveGameMinutesPerSecond(realMinutesPerDay)
     const nextMinutes = state.minutes + dt * gameMinutesPerSecond
-    state.minutes = nextMinutes % MINUTES_PER_DAY
+    if (nextMinutes >= MINUTES_PER_DAY) {
+      state.daysPassed += Math.floor(nextMinutes / MINUTES_PER_DAY)
+    }
+    state.minutes = normalizeMinutes(nextMinutes)
   }
