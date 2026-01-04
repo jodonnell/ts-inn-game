@@ -8,6 +8,7 @@ import {
   createTeleportSystem,
   type TeleportState,
 } from "@/src/ecs/systems/teleport"
+import { createGameTimeState, createTimeSystem } from "@/src/ecs/systems/time"
 import { createGameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
 import { installDebugPerfOverlay } from "@/src/debug/perf"
@@ -49,6 +50,7 @@ export const startGame = async () => {
   const promptStore = createPromptStore(app)
   const interactionPoint = createDefaultInteractionPoint()
   const teleportState: TeleportState = { zones: [] }
+  const gameTime = createGameTimeState()
   const mapContainer = new Container()
   app.stage.addChild(mapContainer)
   const tileSpriteFactory = createPixiTileSpriteFactory(
@@ -73,6 +75,7 @@ export const startGame = async () => {
       createInputSystem(player, input),
       createMovementSystem(player, collisionWalls),
       createTeleportSystem(player, teleportState, roomLoader),
+      createTimeSystem(gameTime),
       createCameraFollowSystem(player, camera),
       createPlayerRenderSystem(player, renderStore),
       createInteractionPromptSystem(player, promptStore, interactionPoint),

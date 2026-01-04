@@ -18,6 +18,8 @@ const teleportSystem = vi.fn()
 const renderSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
+const timeSystem = vi.fn()
+const timeState = { minutes: 0 }
 const tileSpriteFactory = vi.fn()
 const loadRoom = vi.fn()
 const map = vi.hoisted(() => ({
@@ -74,6 +76,11 @@ vi.mock("@/src/ecs/systems/movement", () => ({
 
 vi.mock("@/src/ecs/systems/teleport", () => ({
   createTeleportSystem: vi.fn(() => teleportSystem),
+}))
+
+vi.mock("@/src/ecs/systems/time", () => ({
+  createGameTimeState: vi.fn(() => timeState),
+  createTimeSystem: vi.fn(() => timeSystem),
 }))
 
 vi.mock("@/src/render/playerRender", () => ({
@@ -180,6 +187,7 @@ describe("game bootstrap", () => {
         inputSystem,
         movementSystem,
         teleportSystem,
+        timeSystem,
         cameraSystem,
         renderSystem,
         promptSystem,
