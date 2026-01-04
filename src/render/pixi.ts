@@ -1,4 +1,11 @@
-import { Application, Assets, Sprite, Spritesheet, Texture } from "pixi.js"
+import {
+  Application,
+  Assets,
+  Container,
+  Sprite,
+  Spritesheet,
+  Texture,
+} from "pixi.js"
 import type { SpritesheetData } from "pixi.js"
 import managerSheetData from "@/assets/spritesheets/manager-sheet.json"
 import type { RenderStore, SpriteLike } from "@/src/render/playerRender"
@@ -31,6 +38,7 @@ export const loadTileSheetTexture = async (): Promise<Texture> => {
 export const createPixiRenderStore = (
   app: Application,
   spritesheet: Spritesheet,
+  container: Container,
 ): RenderStore => {
   const sprites = new Map<number, SpriteLike>()
 
@@ -46,7 +54,7 @@ export const createPixiRenderStore = (
       return sprite
     },
     addSprite: (sprite) => {
-      app.stage.addChild(sprite as Sprite)
+      container.addChild(sprite as Sprite)
     },
   }
 }

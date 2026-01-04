@@ -1,10 +1,19 @@
 import { describe, expect, it, vi } from "vitest"
 import { startGame } from "@/src/game/bootstrap"
 import { createLoop } from "@/src/ecs/systems/loop"
-import { createCameraFollowSystem } from "@/src/render/camera"
-import { createInteractionPromptSystem } from "@/src/render/interactionPrompt"
+import {
+  createCameraAdapter,
+  createCameraFollowSystem,
+} from "@/src/render/camera"
+import {
+  createInteractionPromptSystem,
+  createPromptStore,
+} from "@/src/render/interactionPrompt"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
+import { createTimeDisplayStore } from "@/src/render/timeDisplay"
+import { createPixiRenderStore } from "@/src/render/pixi"
+import { Container } from "pixi.js"
 
 const loopStart = vi.fn()
 const loopStop = vi.fn()
@@ -20,6 +29,7 @@ const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const timeSystem = vi.fn()
 const timeState = { minutes: 0 }
+const timeDisplaySystem = vi.fn()
 const tileSpriteFactory = vi.fn()
 const loadRoom = vi.fn()
 const map = vi.hoisted(() => ({
@@ -127,6 +137,15 @@ vi.mock("@/src/game/roomLoader", () => ({
   createRoomLoader: vi.fn(() => loadRoom),
 }))
 
+vi.mock("@/src/render/timeDisplay", () => ({
+  createTimeDisplayStore: vi.fn(() => ({
+    display: null,
+    createDisplay: vi.fn(),
+    addDisplay: vi.fn(),
+  })),
+  createTimeDisplaySystem: vi.fn(() => timeDisplaySystem),
+}))
+
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
 
@@ -191,7 +210,26 @@ describe("game bootstrap", () => {
         cameraSystem,
         renderSystem,
         promptSystem,
+        timeDisplaySystem,
       ],
     })
+
+    expect(vi.mocked(createTimeDisplayStore)).toHaveBeenCalledWith(
+      expect.any(Container),
+    )
+
+    const [, worldContainer] = vi.mocked(createCameraAdapter).mock.calls[0]
+    const [uiContainer] = vi.mocked(createTimeDisplayStore).mock.calls[0]
+
+    expect(worldContainer).toBeInstanceOf(Container)
+    expect(uiContainer).toBeInstanceOf(Container)
+    expect(uiContainer).not.toBe(worldContainer)
+
+    expect(vi.mocked(createPixiRenderStore)).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Object),
+      worldContainer,
+    )
+    expect(vi.mocked(createPromptStore)).toHaveBeenCalledWith(worldContainer)
   })
 })

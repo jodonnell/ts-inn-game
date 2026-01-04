@@ -1,7 +1,7 @@
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
 import { Text } from "pixi.js"
-import type { Application } from "pixi.js"
+import type { Container } from "pixi.js"
 
 export type PromptLike = {
   x: number
@@ -29,7 +29,7 @@ export type InteractionPoint = {
 }
 
 export const createPromptStore = (
-  app: Application,
+  container: Container,
   options: { text?: string; color?: string; fontSize?: number } = {},
 ): PromptStore => ({
   prompt: null,
@@ -42,7 +42,7 @@ export const createPromptStore = (
     return prompt
   },
   addPrompt: (prompt) => {
-    app.stage.addChild(prompt)
+    container.addChild(prompt)
   },
 })
 

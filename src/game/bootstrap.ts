@@ -24,6 +24,10 @@ import {
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import { createPixiTileSpriteFactory } from "@/src/render/tilemap"
 import {
+  createTimeDisplayStore,
+  createTimeDisplaySystem,
+} from "@/src/render/timeDisplay"
+import {
   createPixiApp,
   createPixiRenderStore,
   loadManagerSpritesheet,
@@ -41,18 +45,23 @@ export const startGame = async () => {
 
   const spritesheet = await loadManagerSpritesheet()
   const tilesetTexture = await loadTileSheetTexture()
-  const renderStore = createPixiRenderStore(app, spritesheet)
+  const worldContainer = new Container()
+  const uiContainer = new Container()
+  app.stage.addChild(worldContainer)
+  app.stage.addChild(uiContainer)
+  const renderStore = createPixiRenderStore(app, spritesheet, worldContainer)
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 0, y: 0 })
   const input = createKeyboardInputState()
   const collisionWalls: CollisionWall[] = []
-  const camera = createCameraAdapter(app)
-  const promptStore = createPromptStore(app)
+  const camera = createCameraAdapter(app, worldContainer)
+  const promptStore = createPromptStore(worldContainer)
+  const timeDisplayStore = createTimeDisplayStore(uiContainer)
   const interactionPoint = createDefaultInteractionPoint()
   const teleportState: TeleportState = { zones: [] }
   const gameTime = createGameTimeState()
   const mapContainer = new Container()
-  app.stage.addChild(mapContainer)
+  worldContainer.addChild(mapContainer)
   const tileSpriteFactory = createPixiTileSpriteFactory(
     tilesetTexture,
     innMap.tilewidth,
@@ -79,6 +88,7 @@ export const startGame = async () => {
       createCameraFollowSystem(player, camera),
       createPlayerRenderSystem(player, renderStore),
       createInteractionPromptSystem(player, promptStore, interactionPoint),
+      createTimeDisplaySystem(gameTime, timeDisplayStore),
     ],
   })
   loop.start()

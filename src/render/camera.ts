@@ -1,17 +1,20 @@
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
-import type { Application } from "pixi.js"
+import type { Application, Container } from "pixi.js"
 
 export type CameraLike = {
   setPosition: (x: number, y: number) => void
 }
 
-export const createCameraAdapter = (app: Application): CameraLike => ({
+export const createCameraAdapter = (
+  app: Application,
+  container: Container,
+): CameraLike => ({
   setPosition: (x, y) => {
-    app.stage.pivot.x = x
-    app.stage.pivot.y = y
-    app.stage.position.x = app.screen.width / 2
-    app.stage.position.y = app.screen.height / 2
+    container.pivot.x = x
+    container.pivot.y = y
+    container.position.x = app.screen.width / 2
+    container.position.y = app.screen.height / 2
   },
 })
 
