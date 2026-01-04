@@ -33,6 +33,10 @@ import {
   loadManagerSpritesheet,
   loadTileSheetTexture,
 } from "@/src/render/pixi"
+import {
+  createNightOverlayStore,
+  createNightOverlaySystem,
+} from "@/src/render/nightOverlay"
 import { createDefaultInteractionPoint } from "@/src/game/fixtures"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import innMap from "@/assets/maps/inn.json"
@@ -46,8 +50,10 @@ export const startGame = async () => {
   const spritesheet = await loadManagerSpritesheet()
   const tilesetTexture = await loadTileSheetTexture()
   const worldContainer = new Container()
+  const overlayContainer = new Container()
   const uiContainer = new Container()
   app.stage.addChild(worldContainer)
+  app.stage.addChild(overlayContainer)
   app.stage.addChild(uiContainer)
   const renderStore = createPixiRenderStore(app, spritesheet, worldContainer)
   const world = createGameWorld()
@@ -57,6 +63,7 @@ export const startGame = async () => {
   const camera = createCameraAdapter(app, worldContainer)
   const promptStore = createPromptStore(worldContainer)
   const timeDisplayStore = createTimeDisplayStore(uiContainer)
+  const nightOverlayStore = createNightOverlayStore(overlayContainer)
   const interactionPoint = createDefaultInteractionPoint()
   const teleportState: TeleportState = { zones: [] }
   const gameTime = createGameTimeState()
@@ -85,6 +92,12 @@ export const startGame = async () => {
       createMovementSystem(player, collisionWalls),
       createTeleportSystem(player, teleportState, roomLoader),
       createTimeSystem(gameTime),
+      createNightOverlaySystem(gameTime, nightOverlayStore, {
+        sizeProvider: () => ({
+          width: app.screen.width,
+          height: app.screen.height,
+        }),
+      }),
       createCameraFollowSystem(player, camera),
       createPlayerRenderSystem(player, renderStore),
       createInteractionPromptSystem(player, promptStore, interactionPoint),

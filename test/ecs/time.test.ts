@@ -5,7 +5,7 @@ import { createGameTimeState, createTimeSystem } from "@/src/ecs/systems/time"
 describe("ecs time system", () => {
   it("advances game minutes based on real minutes per day", () => {
     const world = createGameWorld()
-    const state = createGameTimeState()
+    const state = createGameTimeState(0)
     const system = createTimeSystem(state, { realMinutesPerDay: 15 })
 
     system(world, 60)

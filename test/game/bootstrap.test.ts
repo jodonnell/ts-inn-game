@@ -12,6 +12,7 @@ import {
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
+import { createNightOverlayStore } from "@/src/render/nightOverlay"
 import { createPixiRenderStore } from "@/src/render/pixi"
 import { Container } from "pixi.js"
 
@@ -30,6 +31,7 @@ const promptSystem = vi.fn()
 const timeSystem = vi.fn()
 const timeState = { minutes: 0 }
 const timeDisplaySystem = vi.fn()
+const nightOverlaySystem = vi.fn()
 const tileSpriteFactory = vi.fn()
 const loadRoom = vi.fn()
 const map = vi.hoisted(() => ({
@@ -146,6 +148,15 @@ vi.mock("@/src/render/timeDisplay", () => ({
   createTimeDisplaySystem: vi.fn(() => timeDisplaySystem),
 }))
 
+vi.mock("@/src/render/nightOverlay", () => ({
+  createNightOverlayStore: vi.fn(() => ({
+    overlay: null,
+    createOverlay: vi.fn(),
+    addOverlay: vi.fn(),
+  })),
+  createNightOverlaySystem: vi.fn(() => nightOverlaySystem),
+}))
+
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
 
@@ -207,6 +218,7 @@ describe("game bootstrap", () => {
         movementSystem,
         teleportSystem,
         timeSystem,
+        nightOverlaySystem,
         cameraSystem,
         renderSystem,
         promptSystem,
@@ -217,13 +229,20 @@ describe("game bootstrap", () => {
     expect(vi.mocked(createTimeDisplayStore)).toHaveBeenCalledWith(
       expect.any(Container),
     )
+    expect(vi.mocked(createNightOverlayStore)).toHaveBeenCalledWith(
+      expect.any(Container),
+    )
 
     const [, worldContainer] = vi.mocked(createCameraAdapter).mock.calls[0]
     const [uiContainer] = vi.mocked(createTimeDisplayStore).mock.calls[0]
+    const [overlayContainer] = vi.mocked(createNightOverlayStore).mock.calls[0]
 
     expect(worldContainer).toBeInstanceOf(Container)
     expect(uiContainer).toBeInstanceOf(Container)
+    expect(overlayContainer).toBeInstanceOf(Container)
     expect(uiContainer).not.toBe(worldContainer)
+    expect(overlayContainer).not.toBe(worldContainer)
+    expect(overlayContainer).not.toBe(uiContainer)
 
     expect(vi.mocked(createPixiRenderStore)).toHaveBeenCalledWith(
       expect.any(Object),

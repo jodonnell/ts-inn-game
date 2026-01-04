@@ -15,7 +15,7 @@ export type GameTimeConfig = {
 const normalizeMinutes = (minutes: number) =>
   ((minutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
 
-export const createGameTimeState = (startMinutes = 0): GameTimeState => ({
+export const createGameTimeState = (startMinutes = 60 * 4): GameTimeState => ({
   minutes: normalizeMinutes(startMinutes),
   daysPassed: 0,
 })
