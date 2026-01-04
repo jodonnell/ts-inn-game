@@ -1,4 +1,5 @@
 import {
+  AnimatedSprite,
   Application,
   Assets,
   Container,
@@ -41,16 +42,24 @@ export const createPixiRenderStore = (
   container: Container,
 ): RenderStore => {
   const sprites = new Map<number, SpriteLike>()
+  const getTexture = (frame: string): Texture => {
+    const texture = spritesheet.textures[frame]
+    if (!texture) {
+      throw new Error(`Missing sprite frame: ${frame}`)
+    }
+    return texture
+  }
 
   return {
     sprites,
-    createSprite: (frame) => {
-      const texture = spritesheet.textures[frame]
-      if (!texture) {
-        throw new Error(`Missing sprite frame: ${frame}`)
-      }
-      const sprite = new Sprite(texture)
+    createAnimatedSprite: (frames) => {
+      const textures = frames.map(getTexture)
+      const sprite = new AnimatedSprite(textures) as AnimatedSprite & SpriteLike
       sprite.anchor.set(0.5, 1)
+      sprite.animationSpeed = 0.15
+      sprite.setFrames = (nextFrames) => {
+        sprite.textures = nextFrames.map(getTexture)
+      }
       return sprite
     },
     addSprite: (sprite) => {

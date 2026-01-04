@@ -126,7 +126,7 @@ vi.mock("@/src/render/pixi", () => ({
   loadTileSheetTexture: vi.fn(async () => ({})),
   createPixiRenderStore: vi.fn(() => ({
     sprites: new Map(),
-    createSprite: vi.fn(),
+    createAnimatedSprite: vi.fn(),
     addSprite: vi.fn(),
   })),
 }))
