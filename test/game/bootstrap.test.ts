@@ -116,12 +116,15 @@ vi.mock("@/src/render/interactionPrompt", () => ({
 
 vi.mock("@/src/render/pixi", () => ({
   createPixiApp: vi.fn(async () => ({
-    stage: {
-      pivot: { x: 0, y: 0 },
-      position: { x: 0, y: 0 },
-      addChild: vi.fn(),
+    app: {
+      stage: {
+        pivot: { x: 0, y: 0 },
+        position: { x: 0, y: 0 },
+        addChild: vi.fn(),
+      },
+      screen: { width: 800, height: 600 },
     },
-    screen: { width: 800, height: 600 },
+    destroy: vi.fn(),
   })),
   loadManagerSpritesheet: vi.fn(async () => ({})),
   loadTileSheetTexture: vi.fn(async () => ({})),

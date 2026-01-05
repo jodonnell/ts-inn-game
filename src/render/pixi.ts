@@ -14,11 +14,25 @@ import type { RenderStore, SpriteLike } from "@/src/render/playerRender"
 const base = import.meta.env.DEV ? "../.." : "."
 const spritesheetData = managerSheetData as SpritesheetData
 
-export const createPixiApp = async (): Promise<Application> => {
+export type PixiAppHandle = {
+  app: Application
+  destroy: () => void
+}
+
+export const createPixiApp = async (
+  options: { mount?: HTMLElement } = {},
+): Promise<PixiAppHandle> => {
   const app = new Application()
   await app.init({ background: "#000000", resizeTo: window })
-  document.body.appendChild(app.canvas)
-  return app
+  const mount = options.mount ?? document.body
+  mount.appendChild(app.canvas)
+
+  const destroy = () => {
+    app.canvas.remove()
+    app.destroy?.()
+  }
+
+  return { app, destroy }
 }
 
 export const loadManagerSpritesheet = async (): Promise<Spritesheet> => {

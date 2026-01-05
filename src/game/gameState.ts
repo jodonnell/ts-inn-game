@@ -38,7 +38,7 @@ export type GameState = {
 }
 
 export const initializeGame = async (): Promise<GameState> => {
-  const app = await createPixiApp()
+  const { app } = await createPixiApp()
   if (import.meta.env.DEV) installDebugPerfOverlay(app)
 
   const spritesheet = await loadManagerSpritesheet()
