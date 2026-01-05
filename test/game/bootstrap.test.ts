@@ -13,7 +13,10 @@ import {
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
-import { createNightOverlayStore } from "@/src/render/nightOverlay"
+import {
+  createNightOverlayStore,
+  createNightOverlaySystem,
+} from "@/src/render/nightOverlay"
 import { createPixiRenderStore } from "@/src/render/pixi"
 import { Container } from "pixi.js"
 
@@ -260,6 +263,16 @@ describe("game bootstrap", () => {
         timeDisplaySystem,
       ],
     })
+  })
+
+  it("sizes the night overlay using the app screen", async () => {
+    const state = await initializeGame()
+
+    createGameLoop(state)
+
+    const [, , options] =
+      vi.mocked(createNightOverlaySystem).mock.calls[0] ?? []
+    expect(options.sizeProvider()).toEqual({ width: 800, height: 600 })
   })
 
   it("starts the loop after initialization", async () => {
