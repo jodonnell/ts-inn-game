@@ -55,12 +55,10 @@ export const createTimeDisplayStore = (
       const width = label.width + padding * 2
       const height = label.height + padding * 2
       background.clear()
-      background.beginFill(
-        options.backgroundColor ?? 0x111111,
-        options.backgroundAlpha ?? 0.7,
-      )
-      background.roundRect(0, 0, width, height, radius)
-      background.endFill()
+      background.roundRect(0, 0, width, height, radius).fill({
+        color: options.backgroundColor ?? 0x111111,
+        alpha: options.backgroundAlpha ?? 0.7,
+      })
     }
 
     layout()

@@ -69,9 +69,7 @@ export const createNightOverlayStore = (
     const color = options.color ?? 0x000000
     overlay.layout = (width: number, height: number) => {
       overlay.clear()
-      overlay.beginFill(color, 1)
-      overlay.drawRect(0, 0, width, height)
-      overlay.endFill()
+      overlay.rect(0, 0, width, height).fill({ color })
     }
     overlay.alpha = 0
     return overlay

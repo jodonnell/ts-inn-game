@@ -16,8 +16,9 @@ vi.mock("pixi.js", () => {
     clear = vi.fn()
     beginFill = vi.fn()
     drawRoundedRect = vi.fn()
-    roundRect = vi.fn()
+    roundRect = vi.fn().mockReturnThis()
     endFill = vi.fn()
+    fill = vi.fn().mockReturnThis()
   }
   class Text {
     text: string
@@ -69,5 +70,18 @@ describe("time display store", () => {
     const [background] = display.container.children as [Graphics]
 
     expect(background.roundRect).toHaveBeenCalledWith(0, 0, 52, 22, 6)
+  })
+
+  it("fills the background using the new api", () => {
+    const app = { stage: { addChild: vi.fn() } } as never
+    const store = createTimeDisplayStore(app)
+
+    const display = store.createDisplay()
+    const [background] = display.container.children as [Graphics]
+
+    expect(background.fill).toHaveBeenCalledWith({
+      color: 0x111111,
+      alpha: 0.7,
+    })
   })
 })

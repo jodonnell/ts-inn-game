@@ -19,6 +19,8 @@ vi.mock("pixi.js", () => {
     beginFill = vi.fn()
     drawRect = vi.fn()
     endFill = vi.fn()
+    rect = vi.fn().mockReturnThis()
+    fill = vi.fn().mockReturnThis()
     x = 0
     y = 0
     alpha = 0
@@ -83,5 +85,17 @@ describe("night overlay store", () => {
 
     expect(overlay).toBeInstanceOf(Graphics)
     expect(container.addChild).toHaveBeenCalledWith(overlay)
+  })
+
+  it("lays out the overlay using rect and fill", () => {
+    const container = { addChild: vi.fn() }
+    const store = createNightOverlayStore(container)
+
+    const overlay = store.createOverlay()
+    overlay.layout?.(120, 80)
+
+    expect(overlay.clear).toHaveBeenCalled()
+    expect(overlay.rect).toHaveBeenCalledWith(0, 0, 120, 80)
+    expect(overlay.fill).toHaveBeenCalledWith({ color: 0x000000 })
   })
 })
