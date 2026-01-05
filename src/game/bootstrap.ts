@@ -3,108 +3,47 @@ import {
   createInputSystem,
   createMovementSystem,
 } from "@/src/ecs/systems/movement"
-import type { CollisionWall } from "@/src/ecs/systems/movement"
-import {
-  createTeleportSystem,
-  type TeleportState,
-} from "@/src/ecs/systems/teleport"
-import { createGameTimeState, createTimeSystem } from "@/src/ecs/systems/time"
-import { createGameWorld } from "@/src/ecs/world"
-import { spawnPlayer } from "@/src/ecs/entities/player"
-import { installDebugPerfOverlay } from "@/src/debug/perf"
-import { createKeyboardInputState } from "@/src/input/keyboard"
-import {
-  createCameraAdapter,
-  createCameraFollowSystem,
-} from "@/src/render/camera"
-import {
-  createInteractionPromptSystem,
-  createPromptStore,
-} from "@/src/render/interactionPrompt"
+import { createTeleportSystem } from "@/src/ecs/systems/teleport"
+import { createTimeSystem } from "@/src/ecs/systems/time"
+import { createCameraFollowSystem } from "@/src/render/camera"
+import { createInteractionPromptSystem } from "@/src/render/interactionPrompt"
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
-import { createPixiTileSpriteFactory } from "@/src/render/tilemap"
-import {
-  createTimeDisplayStore,
-  createTimeDisplaySystem,
-} from "@/src/render/timeDisplay"
-import {
-  createPixiApp,
-  createPixiRenderStore,
-  loadManagerSpritesheet,
-  loadTileSheetTexture,
-} from "@/src/render/pixi"
-import {
-  createNightOverlayStore,
-  createNightOverlaySystem,
-} from "@/src/render/nightOverlay"
-import { createDefaultInteractionPoint } from "@/src/game/fixtures"
-import { createRoomLoader } from "@/src/game/roomLoader"
-import innMap from "@/assets/maps/inn.json"
-import room1Map from "@/assets/maps/room1.json"
-import { Container } from "pixi.js"
+import { createNightOverlaySystem } from "@/src/render/nightOverlay"
+import { createTimeDisplaySystem } from "@/src/render/timeDisplay"
+import { type GameState, initializeGame } from "@/src/game/gameState"
 
-export const startGame = async () => {
-  const app = await createPixiApp()
-  if (import.meta.env.DEV) installDebugPerfOverlay(app)
-
-  const spritesheet = await loadManagerSpritesheet()
-  const tilesetTexture = await loadTileSheetTexture()
-  const worldContainer = new Container()
-  const overlayContainer = new Container()
-  const uiContainer = new Container()
-  app.stage.addChild(worldContainer)
-  app.stage.addChild(overlayContainer)
-  app.stage.addChild(uiContainer)
-  const renderStore = createPixiRenderStore(app, spritesheet, worldContainer)
-  const world = createGameWorld()
-  const player = spawnPlayer(world, { x: 0, y: 0 })
-  const input = createKeyboardInputState()
-  const collisionWalls: CollisionWall[] = []
-  const camera = createCameraAdapter(app, worldContainer)
-  const promptStore = createPromptStore(worldContainer)
-  const timeDisplayStore = createTimeDisplayStore(uiContainer)
-  const nightOverlayStore = createNightOverlayStore(overlayContainer)
-  const interactionPoint = createDefaultInteractionPoint()
-  const teleportState: TeleportState = { zones: [] }
-  const gameTime = createGameTimeState()
-  const mapContainer = new Container()
-  worldContainer.addChild(mapContainer)
-  const tileSpriteFactory = createPixiTileSpriteFactory(
-    tilesetTexture,
-    innMap.tilewidth,
-    innMap.tileheight,
-  )
-  const roomLoader = createRoomLoader({
-    mapsByKey: { inn: innMap, room1: room1Map },
-    player,
-    mapContainer,
-    tileSpriteFactory,
-    collisionWalls,
-    interactionPoint,
-    teleportState,
-  })
-  roomLoader("inn")
-
+export const createGameLoop = (state: GameState) => {
   const loop = createLoop({
-    world,
+    world: state.world,
     systems: [
-      createInputSystem(player, input),
-      createMovementSystem(player, collisionWalls),
-      createTeleportSystem(player, teleportState, roomLoader),
-      createTimeSystem(gameTime),
-      createNightOverlaySystem(gameTime, nightOverlayStore, {
+      createInputSystem(state.player, state.input),
+      createMovementSystem(state.player, state.collisionWalls),
+      createTeleportSystem(state.player, state.teleportState, state.roomLoader),
+      createTimeSystem(state.gameTime),
+      createNightOverlaySystem(state.gameTime, state.nightOverlayStore, {
         sizeProvider: () => ({
-          width: app.screen.width,
-          height: app.screen.height,
+          width: state.app.screen.width,
+          height: state.app.screen.height,
         }),
       }),
-      createCameraFollowSystem(player, camera),
-      createPlayerRenderSystem(player, renderStore),
-      createInteractionPromptSystem(player, promptStore, interactionPoint),
-      createTimeDisplaySystem(gameTime, timeDisplayStore),
+      createCameraFollowSystem(state.player, state.camera),
+      createPlayerRenderSystem(state.player, state.renderStore),
+      createInteractionPromptSystem(
+        state.player,
+        state.promptStore,
+        state.interactionPoint,
+      ),
+      createTimeDisplaySystem(state.gameTime, state.timeDisplayStore),
     ],
   })
+
+  return loop
+}
+
+export const startGame = async () => {
+  const state = await initializeGame()
+  const loop = createGameLoop(state)
   loop.start()
 
-  return { app, world, loop }
+  return { app: state.app, world: state.world, loop }
 }

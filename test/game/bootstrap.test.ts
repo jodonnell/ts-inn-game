@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
-import { startGame } from "@/src/game/bootstrap"
+import { createGameLoop, startGame } from "@/src/game/bootstrap"
+import { initializeGame } from "@/src/game/gameState"
 import { createLoop } from "@/src/ecs/systems/loop"
 import {
   createCameraAdapter,
@@ -178,8 +179,8 @@ vi.mock("pixi.js", () => ({
 }))
 
 describe("game bootstrap", () => {
-  it("wires map rendering and gameplay systems into the loop", async () => {
-    await startGame()
+  it("initializes the game state and loads the default room", async () => {
+    await initializeGame()
 
     expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -189,6 +190,37 @@ describe("game bootstrap", () => {
       }),
     )
     expect(loadRoom).toHaveBeenCalledWith("inn")
+
+    expect(vi.mocked(createTimeDisplayStore)).toHaveBeenCalledWith(
+      expect.any(Container),
+    )
+    expect(vi.mocked(createNightOverlayStore)).toHaveBeenCalledWith(
+      expect.any(Container),
+    )
+
+    const [, worldContainer] = vi.mocked(createCameraAdapter).mock.calls[0]
+    const [uiContainer] = vi.mocked(createTimeDisplayStore).mock.calls[0]
+    const [overlayContainer] = vi.mocked(createNightOverlayStore).mock.calls[0]
+
+    expect(worldContainer).toBeInstanceOf(Container)
+    expect(uiContainer).toBeInstanceOf(Container)
+    expect(overlayContainer).toBeInstanceOf(Container)
+    expect(uiContainer).not.toBe(worldContainer)
+    expect(overlayContainer).not.toBe(worldContainer)
+    expect(overlayContainer).not.toBe(uiContainer)
+
+    expect(vi.mocked(createPixiRenderStore)).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Object),
+      worldContainer,
+    )
+    expect(vi.mocked(createPromptStore)).toHaveBeenCalledWith(worldContainer)
+  })
+
+  it("wires map rendering and gameplay systems into the loop", async () => {
+    const state = await initializeGame()
+
+    createGameLoop(state)
 
     expect(vi.mocked(createCameraFollowSystem)).toHaveBeenCalledWith(
       player,
@@ -225,30 +257,16 @@ describe("game bootstrap", () => {
         timeDisplaySystem,
       ],
     })
+  })
 
-    expect(vi.mocked(createTimeDisplayStore)).toHaveBeenCalledWith(
-      expect.any(Container),
-    )
-    expect(vi.mocked(createNightOverlayStore)).toHaveBeenCalledWith(
-      expect.any(Container),
-    )
+  it("starts the loop after initialization", async () => {
+    const result = await startGame()
 
-    const [, worldContainer] = vi.mocked(createCameraAdapter).mock.calls[0]
-    const [uiContainer] = vi.mocked(createTimeDisplayStore).mock.calls[0]
-    const [overlayContainer] = vi.mocked(createNightOverlayStore).mock.calls[0]
-
-    expect(worldContainer).toBeInstanceOf(Container)
-    expect(uiContainer).toBeInstanceOf(Container)
-    expect(overlayContainer).toBeInstanceOf(Container)
-    expect(uiContainer).not.toBe(worldContainer)
-    expect(overlayContainer).not.toBe(worldContainer)
-    expect(overlayContainer).not.toBe(uiContainer)
-
-    expect(vi.mocked(createPixiRenderStore)).toHaveBeenCalledWith(
-      expect.any(Object),
-      expect.any(Object),
-      worldContainer,
-    )
-    expect(vi.mocked(createPromptStore)).toHaveBeenCalledWith(worldContainer)
+    expect(loopStart).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({
+      app: expect.any(Object),
+      world,
+      loop: result.loop,
+    })
   })
 })
