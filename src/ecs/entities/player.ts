@@ -7,8 +7,8 @@ export const spawnPlayer = (
   position: { x: number; y: number },
 ): number => {
   const entity = addEntity(world)
-  addComponent(world, Position, entity)
-  addComponent(world, Velocity, entity)
+  addComponent(world, entity, Position)
+  addComponent(world, entity, Velocity)
   Position.x[entity] = position.x
   Position.y[entity] = position.y
   Velocity.x[entity] = 0

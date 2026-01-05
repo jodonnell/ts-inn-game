@@ -9,7 +9,7 @@ describe("ecs world", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 12, y: 34 })
 
-    expect(hasComponent(world, Position, player)).toBe(true)
+    expect(hasComponent(world, player, Position)).toBe(true)
     expect(Position.x[player]).toBe(12)
     expect(Position.y[player]).toBe(34)
   })
