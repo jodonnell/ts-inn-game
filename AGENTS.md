@@ -2,6 +2,7 @@
 
 ## Repository expectations
 
+- Always run `nvm use` (Node 22) before running any commands.
 - Run `npm run prettier; npm run lint; npm run test` after every change.
 - Please be considerate that I need to review the PRs after you finish a turn.  A PR should be atomic.
 - You should always implement code using strict TDD (Kent Beck):
