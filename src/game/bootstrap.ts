@@ -17,8 +17,12 @@ export const createGameLoop = (state: GameState) => {
     world: state.world,
     systems: [
       createInputSystem(state.player, state.input),
-      createMovementSystem(state.player, state.collisionWalls),
-      createTeleportSystem(state.player, state.teleportState, state.roomLoader),
+      createMovementSystem(state.player, state.roomState.collisionWalls),
+      createTeleportSystem(
+        state.player,
+        state.roomState.teleportState,
+        state.roomLoader,
+      ),
       createTimeSystem(state.gameTime),
       createNightOverlaySystem(state.gameTime, state.nightOverlayStore, {
         sizeProvider: () => ({
@@ -31,7 +35,7 @@ export const createGameLoop = (state: GameState) => {
       createInteractionPromptSystem(
         state.player,
         state.promptStore,
-        state.interactionPoint,
+        state.roomState.interactionPoint,
       ),
       createTimeDisplaySystem(state.gameTime, state.timeDisplayStore),
     ],

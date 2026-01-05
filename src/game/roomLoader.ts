@@ -1,7 +1,6 @@
 import { Position } from "@/src/ecs/components"
 import type { CollisionWall } from "@/src/ecs/systems/movement"
 import type { InteractionPoint } from "@/src/render/interactionPrompt"
-import type { TeleportState } from "@/src/ecs/systems/teleport"
 import type { TiledMap, TiledTileLayer } from "@/src/maps/tiled"
 import {
   extractCollisionWalls,
@@ -13,6 +12,7 @@ import {
   createDefaultCollisionWalls,
   createDefaultInteractionPoint,
 } from "@/src/game/fixtures"
+import type { RoomState } from "@/src/game/roomState"
 import type { TileSpriteFactory, TileSpriteLike } from "@/src/render/tilemap"
 import { renderTileLayer } from "@/src/render/tilemap"
 
@@ -28,32 +28,11 @@ type RoomLoaderOptions<TSprite extends TileSpriteLike> = {
   player: number
   mapContainer: MapContainerLike<TSprite>
   tileSpriteFactory: TileSpriteFactory<TSprite>
-  collisionWalls: CollisionWall[]
-  interactionPoint: InteractionPoint
-  teleportState: TeleportState
+  roomState: RoomState
   fallbackSpawn?: { x: number; y: number }
   interactionId?: string
   fallbackCollisionWalls?: CollisionWall[]
   fallbackInteractionPoint?: InteractionPoint
-}
-
-const copyInteractionPoint = (
-  target: InteractionPoint,
-  source: InteractionPoint,
-) => {
-  target.x = source.x
-  target.y = source.y
-  target.radius = source.radius
-  target.offsetY = source.offsetY
-  target.bounds.x = source.bounds.x
-  target.bounds.y = source.bounds.y
-  target.bounds.width = source.bounds.width
-  target.bounds.height = source.bounds.height
-}
-
-const replaceArray = <T>(target: T[], items: T[]) => {
-  target.length = 0
-  target.push(...items)
 }
 
 export const createRoomLoader = <TSprite extends TileSpriteLike>({
@@ -61,9 +40,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   player,
   mapContainer,
   tileSpriteFactory,
-  collisionWalls,
-  interactionPoint,
-  teleportState,
+  roomState,
   fallbackSpawn,
   interactionId,
   fallbackCollisionWalls,
@@ -104,16 +81,15 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     Position.y[player] = spawn.y
 
     const nextWalls = extractCollisionWalls(map)
-    replaceArray(
-      collisionWalls,
+    roomState.replaceCollisionWalls(
       nextWalls.length > 0 ? nextWalls : collisionFallback,
     )
 
     const nextInteraction =
       findInteractionPoint(map, interactionKey) ?? interactionFallback
-    copyInteractionPoint(interactionPoint, nextInteraction)
+    roomState.replaceInteractionPoint(nextInteraction)
 
-    replaceArray(teleportState.zones, extractTeleportZones(map))
+    roomState.replaceTeleportZones(extractTeleportZones(map))
 
     return true
   }

@@ -1,6 +1,4 @@
 import { type InputState } from "@/src/ecs/systems/movement"
-import type { CollisionWall } from "@/src/ecs/systems/movement"
-import { type TeleportState } from "@/src/ecs/systems/teleport"
 import { createGameTimeState, type GameTimeState } from "@/src/ecs/systems/time"
 import { createGameWorld, type GameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
@@ -17,8 +15,8 @@ import {
   loadTileSheetTexture,
 } from "@/src/render/pixi"
 import { createNightOverlayStore } from "@/src/render/nightOverlay"
-import { createDefaultInteractionPoint } from "@/src/game/fixtures"
 import { createRoomLoader } from "@/src/game/roomLoader"
+import { createRoomState, type RoomState } from "@/src/game/roomState"
 import innMap from "@/assets/maps/inn.json"
 import room1Map from "@/assets/maps/room1.json"
 import type { Application } from "pixi.js"
@@ -29,14 +27,12 @@ export type GameState = {
   world: GameWorld
   player: number
   input: InputState & { dispose: () => void }
-  collisionWalls: CollisionWall[]
   camera: ReturnType<typeof createCameraAdapter>
   promptStore: ReturnType<typeof createPromptStore>
   timeDisplayStore: ReturnType<typeof createTimeDisplayStore>
   nightOverlayStore: ReturnType<typeof createNightOverlayStore>
-  interactionPoint: ReturnType<typeof createDefaultInteractionPoint>
-  teleportState: TeleportState
   gameTime: GameTimeState
+  roomState: RoomState
   roomLoader: ReturnType<typeof createRoomLoader>
   renderStore: ReturnType<typeof createPixiRenderStore>
 }
@@ -57,14 +53,12 @@ export const initializeGame = async (): Promise<GameState> => {
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 0, y: 0 })
   const input = createKeyboardInputState()
-  const collisionWalls: CollisionWall[] = []
   const camera = createCameraAdapter(app, worldContainer)
   const promptStore = createPromptStore(worldContainer)
   const timeDisplayStore = createTimeDisplayStore(uiContainer)
   const nightOverlayStore = createNightOverlayStore(overlayContainer)
-  const interactionPoint = createDefaultInteractionPoint()
-  const teleportState: TeleportState = { zones: [] }
   const gameTime = createGameTimeState()
+  const roomState = createRoomState()
   const mapContainer = new Container()
   worldContainer.addChild(mapContainer)
   const tileSpriteFactory = createPixiTileSpriteFactory(
@@ -77,9 +71,7 @@ export const initializeGame = async (): Promise<GameState> => {
     player,
     mapContainer,
     tileSpriteFactory,
-    collisionWalls,
-    interactionPoint,
-    teleportState,
+    roomState,
   })
   roomLoader("inn")
 
@@ -88,14 +80,12 @@ export const initializeGame = async (): Promise<GameState> => {
     world,
     player,
     input,
-    collisionWalls,
     camera,
     promptStore,
     timeDisplayStore,
     nightOverlayStore,
-    interactionPoint,
-    teleportState,
     gameTime,
+    roomState,
     roomLoader,
     renderStore,
   }

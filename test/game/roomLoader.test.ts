@@ -3,10 +3,8 @@ import { createRoomLoader } from "@/src/game/roomLoader"
 import { createGameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
 import { Position } from "@/src/ecs/components"
-import type { CollisionWall } from "@/src/ecs/systems/movement"
-import type { TeleportState } from "@/src/ecs/systems/teleport"
-import type { InteractionPoint } from "@/src/render/interactionPrompt"
 import type { TiledMap } from "@/src/maps/tiled"
+import { createRoomState } from "@/src/game/roomState"
 
 describe("room loader", () => {
   it("loads map data into room state and moves the player", () => {
@@ -69,20 +67,7 @@ describe("room loader", () => {
 
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
-    const collisionWalls: CollisionWall[] = []
-    const interactionPoint: InteractionPoint = {
-      x: 0,
-      y: 0,
-      radius: 0,
-      offsetY: 0,
-      bounds: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-      },
-    }
-    const teleportState: TeleportState = { zones: [] }
+    const roomState = createRoomState()
     const mapContainer = {
       addChild: vi.fn(),
       removeChildren: vi.fn(),
@@ -93,9 +78,7 @@ describe("room loader", () => {
       player,
       mapContainer,
       tileSpriteFactory,
-      collisionWalls,
-      interactionPoint,
-      teleportState,
+      roomState,
     })
 
     const loaded = loadRoom("room1")
@@ -103,11 +86,13 @@ describe("room loader", () => {
     expect(loaded).toBe(true)
     expect(Position.x[player]).toBe(100)
     expect(Position.y[player]).toBe(120)
-    expect(collisionWalls).toEqual([{ x: 40, y: 50, width: 30, height: 10 }])
-    expect(teleportState.zones).toEqual([
+    expect(roomState.collisionWalls).toEqual([
+      { x: 40, y: 50, width: 30, height: 10 },
+    ])
+    expect(roomState.teleportState.zones).toEqual([
       { x: 10, y: 20, width: 16, height: 16, targetMapKey: "inn" },
     ])
-    expect(interactionPoint).toEqual({
+    expect(roomState.interactionPoint).toEqual({
       x: 210,
       y: 225,
       radius: 10,
@@ -143,20 +128,7 @@ describe("room loader", () => {
 
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
-    const collisionWalls: CollisionWall[] = []
-    const interactionPoint: InteractionPoint = {
-      x: 0,
-      y: 0,
-      radius: 0,
-      offsetY: 0,
-      bounds: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-      },
-    }
-    const teleportState: TeleportState = { zones: [] }
+    const roomState = createRoomState()
     const mapContainer = {
       addChild: vi.fn(),
       removeChildren: vi.fn(),
@@ -167,9 +139,7 @@ describe("room loader", () => {
       player,
       mapContainer,
       tileSpriteFactory,
-      collisionWalls,
-      interactionPoint,
-      teleportState,
+      roomState,
     })
 
     const loaded = loadRoom("room1")
