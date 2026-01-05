@@ -35,11 +35,11 @@ vi.mock("pixi.js", () => {
 })
 
 describe("tile sprite factory", () => {
-  it("builds textures from the base texture with the expected tile frame", () => {
-    const baseTexture = { id: "base" }
-    const tilesetTexture = { width: 64, baseTexture } as unknown as {
+  it("builds textures from the texture source with the expected tile frame", () => {
+    const textureSource = { id: "source" }
+    const tilesetTexture = { width: 64, source: textureSource } as unknown as {
       width: number
-      baseTexture: unknown
+      source: unknown
     }
 
     const factory = createPixiTileSpriteFactory(tilesetTexture as never, 16, 16)
@@ -47,7 +47,7 @@ describe("tile sprite factory", () => {
 
     expect(createdTextures).toHaveLength(1)
     const { source, frame } = createdTextures[0]
-    expect(source).toBe(baseTexture)
+    expect(source).toBe(textureSource)
     expect(frame).toEqual({ x: 16, y: 16, width: 16, height: 16 })
   })
 })

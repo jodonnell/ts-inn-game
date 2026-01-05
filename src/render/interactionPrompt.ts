@@ -34,9 +34,12 @@ export const createPromptStore = (
 ): PromptStore => ({
   prompt: null,
   createPrompt: () => {
-    const prompt = new Text(options.text ?? "Press E", {
-      fill: options.color ?? "#ffffff",
-      fontSize: options.fontSize ?? 12,
+    const prompt = new Text({
+      text: options.text ?? "Press E",
+      style: {
+        fill: options.color ?? "#ffffff",
+        fontSize: options.fontSize ?? 12,
+      },
     })
     prompt.anchor.set(0.5, 1)
     return prompt

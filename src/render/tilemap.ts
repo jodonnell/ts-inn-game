@@ -34,7 +34,7 @@ export const createPixiTileSpriteFactory = (
   tileHeight: number,
 ): TileSpriteFactory<Sprite> => {
   const columns = Math.floor(tilesetTexture.width / tileWidth)
-  const baseTexture = tilesetTexture.baseTexture
+  const baseTexture = tilesetTexture.source
   const cache = new Map<number, Texture>()
 
   return (tileId) => {

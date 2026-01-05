@@ -1,14 +1,48 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { createGameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
 import { Position } from "@/src/ecs/components"
 import {
   createInteractionPromptSystem,
+  createPromptStore,
   type InteractionPoint,
   type PromptStore,
 } from "@/src/render/interactionPrompt"
 
+const { textConstructor } = vi.hoisted(() => ({
+  textConstructor: vi.fn(),
+}))
+
+vi.mock("pixi.js", () => {
+  class Text {
+    text = ""
+    anchor = { set: vi.fn() }
+    constructor(...args: unknown[]) {
+      textConstructor(...args)
+      const first = args[0] as { text?: string } | string | undefined
+      this.text = typeof first === "string" ? first : (first?.text ?? "")
+    }
+  }
+  return { Text }
+})
+
 describe("interaction prompt system", () => {
+  it("creates prompt text using the new pixi signature", () => {
+    const container = { addChild: vi.fn() } as never
+    const store = createPromptStore(container, {
+      text: "Hello",
+      color: "#abc",
+      fontSize: 14,
+    })
+
+    store.createPrompt()
+
+    expect(textConstructor).toHaveBeenCalledWith({
+      text: "Hello",
+      style: { fill: "#abc", fontSize: 14 },
+    })
+  })
+
   it("shows the prompt near the interaction point and hides it otherwise", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })

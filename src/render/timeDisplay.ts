@@ -38,9 +38,12 @@ export const createTimeDisplayStore = (
     const background = new Graphics()
     const padding = options.padding ?? 6
     const radius = options.radius ?? 6
-    const label = new Text("00:00", {
-      fill: options.color ?? "#ffffff",
-      fontSize: options.fontSize ?? 14,
+    const label = new Text({
+      text: "00:00",
+      style: {
+        fill: options.color ?? "#ffffff",
+        fontSize: options.fontSize ?? 14,
+      },
     })
     label.anchor.set(0, 0)
     label.x = padding
@@ -56,7 +59,7 @@ export const createTimeDisplayStore = (
         options.backgroundColor ?? 0x111111,
         options.backgroundAlpha ?? 0.7,
       )
-      background.drawRoundedRect(0, 0, width, height, radius)
+      background.roundRect(0, 0, width, height, radius)
       background.endFill()
     }
 
