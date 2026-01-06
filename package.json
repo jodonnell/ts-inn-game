@@ -17,11 +17,12 @@
   "license": "ISC",
   "dependencies": {
     "bitecs": "^0.4.0",
-    "codex": "^0.2.3",
+    "howler": "^2.2.4",
     "pixi.js": "^8.14.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "codex": "^0.2.3",
     "eslint": "^9.39.2",
     "jsdom": "^27.4.0",
     "prettier": "^3.7.4",

@@ -2,6 +2,10 @@ import { type InputState } from "@/src/ecs/systems/movement"
 import { createGameTimeState, type GameTimeState } from "@/src/ecs/systems/time"
 import { createGameWorld, type GameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
+import type {
+  InteractionInput,
+  InteractionSound,
+} from "@/src/ecs/systems/interaction"
 import { installDebugPerfOverlay } from "@/src/debug/perf"
 import { createKeyboardInputState } from "@/src/input/keyboard"
 import { createCameraAdapter } from "@/src/render/camera"
@@ -19,14 +23,16 @@ import { createRoomLoader } from "@/src/game/roomLoader"
 import { createRoomState, type RoomState } from "@/src/game/roomState"
 import innMap from "@/assets/maps/inn.json"
 import room1Map from "@/assets/maps/room1.json"
+import bellSfx from "@/assets/sfx/bell.mp3"
 import type { Application } from "pixi.js"
 import { Container } from "pixi.js"
+import { Howl } from "howler"
 
 export type GameState = {
   app: Application
   world: GameWorld
   player: number
-  input: InputState & { dispose: () => void }
+  input: InputState & InteractionInput & { dispose: () => void }
   camera: ReturnType<typeof createCameraAdapter>
   promptStore: ReturnType<typeof createPromptStore>
   timeDisplayStore: ReturnType<typeof createTimeDisplayStore>
@@ -35,6 +41,7 @@ export type GameState = {
   roomState: RoomState
   roomLoader: ReturnType<typeof createRoomLoader>
   renderStore: ReturnType<typeof createPixiRenderStore>
+  bellSound: InteractionSound
 }
 
 export const initializeGame = async (): Promise<GameState> => {
@@ -59,6 +66,7 @@ export const initializeGame = async (): Promise<GameState> => {
   const nightOverlayStore = createNightOverlayStore(overlayContainer)
   const gameTime = createGameTimeState()
   const roomState = createRoomState()
+  const bellSound = new Howl({ src: [bellSfx] })
   const mapContainer = new Container()
   worldContainer.addChild(mapContainer)
   const tileSpriteFactory = createPixiTileSpriteFactory(
@@ -88,5 +96,6 @@ export const initializeGame = async (): Promise<GameState> => {
     roomState,
     roomLoader,
     renderStore,
+    bellSound,
   }
 }

@@ -68,4 +68,16 @@ describe("keyboard input", () => {
     dispatchKey(window, "keydown", "s")
     expect(input.getMovement()).toEqual({ x: 0, y: 0 })
   })
+
+  it("consumes interaction input once per press", () => {
+    const input = createKeyboardInputState({ target: window })
+
+    expect(input.consumeInteraction()).toBe(false)
+
+    dispatchKey(window, "keydown", "e")
+    expect(input.consumeInteraction()).toBe(true)
+    expect(input.consumeInteraction()).toBe(false)
+
+    input.dispose()
+  })
 })

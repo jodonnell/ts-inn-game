@@ -3,6 +3,7 @@ import {
   createInputSystem,
   createMovementSystem,
 } from "@/src/ecs/systems/movement"
+import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createTimeSystem } from "@/src/ecs/systems/time"
 import { createCameraFollowSystem } from "@/src/render/camera"
@@ -36,6 +37,12 @@ export const createGameLoop = (state: GameState) => {
         state.player,
         state.promptStore,
         state.roomState.interactionPoint,
+      ),
+      createInteractionSystem(
+        state.player,
+        state.input,
+        state.roomState.interactionPoint,
+        state.bellSound,
       ),
       createTimeDisplaySystem(state.gameTime, state.timeDisplayStore),
     ],

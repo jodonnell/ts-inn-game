@@ -10,6 +10,7 @@ import {
   createInteractionPromptSystem,
   createPromptStore,
 } from "@/src/render/interactionPrompt"
+import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
@@ -32,6 +33,7 @@ const teleportSystem = vi.fn()
 const renderSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
+const interactionSystem = vi.fn()
 const timeSystem = vi.fn()
 const timeState = { minutes: 0 }
 const timeDisplaySystem = vi.fn()
@@ -81,6 +83,7 @@ vi.mock("@/src/ecs/entities/player", () => ({
 vi.mock("@/src/input/keyboard", () => ({
   createKeyboardInputState: vi.fn(() => ({
     getMovement: () => ({ x: 0, y: 0 }),
+    consumeInteraction: vi.fn(() => false),
     dispose: vi.fn(),
   })),
 }))
@@ -88,6 +91,10 @@ vi.mock("@/src/input/keyboard", () => ({
 vi.mock("@/src/ecs/systems/movement", () => ({
   createInputSystem: vi.fn(() => inputSystem),
   createMovementSystem: vi.fn(() => movementSystem),
+}))
+
+vi.mock("@/src/ecs/systems/interaction", () => ({
+  createInteractionSystem: vi.fn(() => interactionSystem),
 }))
 
 vi.mock("@/src/ecs/systems/teleport", () => ({
@@ -166,9 +173,16 @@ vi.mock("@/src/render/nightOverlay", () => ({
 
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
+vi.mock("@/assets/sfx/bell.mp3", () => ({ default: "bell.mp3" }))
 
 vi.mock("@/src/debug/perf", () => ({
   installDebugPerfOverlay: vi.fn(),
+}))
+
+vi.mock("howler", () => ({
+  Howl: class {
+    play = vi.fn()
+  },
 }))
 
 vi.mock("pixi.js", () => ({
@@ -243,6 +257,17 @@ describe("game bootstrap", () => {
       expect.objectContaining({ x: 200, y: 180 }),
     )
 
+    expect(vi.mocked(createInteractionSystem)).toHaveBeenCalledWith(
+      player,
+      expect.objectContaining({
+        getMovement: expect.any(Function),
+        consumeInteraction: expect.any(Function),
+        dispose: expect.any(Function),
+      }),
+      expect.objectContaining({ x: 200, y: 180 }),
+      expect.any(Object),
+    )
+
     expect(vi.mocked(createTeleportSystem)).toHaveBeenCalledWith(
       player,
       expect.objectContaining({ zones: [] }),
@@ -260,6 +285,7 @@ describe("game bootstrap", () => {
         cameraSystem,
         renderSystem,
         promptSystem,
+        interactionSystem,
         timeDisplaySystem,
       ],
     })
