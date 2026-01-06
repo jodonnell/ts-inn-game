@@ -10,8 +10,8 @@
 **** Cap “tech debt / refactor” time to ~20% per slice.
 
 ** Slices (milestones)
-*** TODO Slice A — Movement in a test room
-**** TODO Goal: walk around and feel the game immediately.
+*** DONE Slice A — Movement in a test room
+**** DONE Goal: walk around and feel the game immediately.
 **** DONE ECS scope (minimal, just enough)
 ***** DONE Create a world + player entity with `Position` (+ optional `Velocity`).
 ***** DONE Input system writes movement intent; movement system updates `Position`.
@@ -33,38 +33,38 @@
 ***** DONE Visible interact prompt appears near an interaction point (even if it does nothing yet).
 **** DONE Can wait
 ***** DONE Full ECS/event model polish, fancy animations, audio.
-*** TODO Slice B — Load one room from Tiled
-**** TODO Goal: stop building throwaway maps; use real content early.
-**** TODO ECS scope (room representation)
-***** TODO Treat the loaded room as room-scoped data/entities (collision solids + spawn marker).
-***** TODO Initialize player `Position` from the Tiled spawn object.
-**** TODO Tasks (implementation checklist)
-***** TODO Pick an export format + conventions
-****** TODO Decide: Tiled JSON export (recommended early) and layer naming conventions.
-****** TODO Define required layers/objects: collision, spawn, (optional) doors.
-***** TODO Loader
-****** TODO Load map data, tilesets, and textures/atlas needed for rendering.
-****** TODO Build render layers/containers for the map.
-***** TODO Collision + spawn integration
-****** TODO Generate collision geometry/grid from the collision layer.
-****** TODO Read `player_spawn` object and place the player.
-**** TODO Acceptance criteria
-***** TODO Load and render a Tiled-exported map (format to be chosen) as the room background/tiles.
-***** TODO Collision comes from a Tiled layer (tile layer or object layer).
-***** TODO Spawn point comes from a Tiled object (e.g., “player_spawn”).
-**** TODO Can wait
-***** TODO Multiple rooms, NPCs, save/load.
+*** DONE Slice B — Load one room from Tiled
+**** DONE Goal: stop building throwaway maps; use real content early.
+**** DONE ECS scope (room representation)
+***** DONE Treat the loaded room as room-scoped data/entities (collision solids + spawn marker).
+***** DONE Initialize player `Position` from the Tiled spawn object.
+**** DONE Tasks (implementation checklist)
+***** DONE Pick an export format + conventions
+****** DONE Decide: Tiled JSON export (recommended early) and layer naming conventions.
+****** DONE Define required layers/objects: collision, spawn, (optional) doors.
+***** DONE Loader
+****** DONE Load map data, tilesets, and textures/atlas needed for rendering.
+****** DONE Build render layers/containers for the map.
+***** DONE Collision + spawn integration
+****** DONE Generate collision geometry/grid from the collision layer.
+****** DONE Read `player_spawn` object and place the player.
+**** DONE Acceptance criteria
+***** DONE Load and render a Tiled-exported map (format to be chosen) as the room background/tiles.
+***** DONE Collision comes from a Tiled layer (tile layer or object layer).
+***** DONE Spawn point comes from a Tiled object (e.g., “player_spawn”).
+**** DONE Can wait
+***** DONE Multiple rooms, NPCs, save/load.
 
 *** TODO Slice C — Doors/triggers: transition between Tiled rooms
 **** TODO Goal: make the inn feel like an actual place with rooms.
 **** TODO ECS scope (lifecycle + triggers)
 ***** DONE Door triggers are entities (or room data) with destination map.
-***** TODO Door triggers include destination spawn id.
+***** DONE Door triggers include destination spawn id.
 ***** TODO Room-scoped entities are destroyed/unloaded on transition; player (and global) entities persist.
 **** TODO Tasks (implementation checklist)
 ***** TODO Door triggers
 ****** DONE Define a Tiled object format for doors (dest map key via `teleport` property).
-****** TODO Add destination spawn id to door objects.
+****** DONE Add destination spawn id to door objects.
 ****** DONE Detect player overlap/interaction with door triggers.
 ***** TODO Room lifecycle
 ****** DONE Create `loadRoom(mapId)` flow.
@@ -72,12 +72,12 @@
 ****** TODO Ensure room-scoped sprites/entities are cleaned up on unload.
 ****** DONE Tilemap layers clear/reload without duplicates.
 ***** TODO Spawn placement
-****** TODO On load, use destination spawn marker to place the player.
+****** DONE On load, use destination spawn marker to place the player.
 ****** DONE Basic transition UX (instant is fine): optional fade later.
 **** TODO Acceptance criteria
 ***** DONE Door trigger (Tiled object) transitions to another map.
 ***** TODO Scene lifecycle is clean: old room entities/sprites unload, new room loads without duplicates.
-***** TODO Player spawns at the destination spawn marker.
+***** DONE Player spawns at the destination spawn marker.
 **** TODO Can wait
 ***** TODO Streaming loads, fancy transitions, pathfinding.
 
