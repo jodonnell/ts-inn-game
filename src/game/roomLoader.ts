@@ -35,6 +35,10 @@ type RoomLoaderOptions<TSprite extends TileSpriteLike> = {
   fallbackInteractionPoint?: InteractionPoint
 }
 
+export type RoomLoader = ((mapKey: string, spawnId?: string) => boolean) & {
+  unloadRoom: () => void
+}
+
 export const createRoomLoader = <TSprite extends TileSpriteLike>({
   mapsByKey,
   player,
@@ -54,8 +58,17 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   const interactionKey = interactionId ?? "bell"
   let activeMapKey: string | null = null
 
-  return (mapKey: string, spawnId?: string): boolean => {
+  const unloadRoom = () => {
+    activeMapKey = null
+    mapContainer.removeChildren()
+    roomState.replaceCollisionWalls(collisionFallback)
+    roomState.replaceInteractionPoint(interactionFallback)
+    roomState.replaceTeleportZones([])
+  }
+
+  const loadRoom = ((mapKey, spawnId) => {
     if (mapKey === activeMapKey) return false
+    if (activeMapKey) loadRoom.unloadRoom()
     const map = mapsByKey[mapKey]
     if (!map) return false
     activeMapKey = mapKey
@@ -95,5 +108,9 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     roomState.replaceTeleportZones(extractTeleportZones(map))
 
     return true
-  }
+  }) as RoomLoader
+
+  loadRoom.unloadRoom = unloadRoom
+
+  return loadRoom
 }

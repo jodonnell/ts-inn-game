@@ -68,15 +68,15 @@
 ****** DONE Detect player overlap/interaction with door triggers.
 ***** TODO Room lifecycle
 ****** DONE Create `loadRoom(mapId)` flow.
-****** TODO Create `unloadRoom()` flow for non-map entities.
-****** TODO Ensure room-scoped sprites/entities are cleaned up on unload.
+****** DONE Create `unloadRoom()` flow for non-map entities.
+****** DONE Ensure room-scoped sprites/entities are cleaned up on unload.
 ****** DONE Tilemap layers clear/reload without duplicates.
 ***** TODO Spawn placement
 ****** DONE On load, use destination spawn marker to place the player.
 ****** DONE Basic transition UX (instant is fine): optional fade later.
 **** TODO Acceptance criteria
 ***** DONE Door trigger (Tiled object) transitions to another map.
-***** TODO Scene lifecycle is clean: old room entities/sprites unload, new room loads without duplicates.
+***** DONE Scene lifecycle is clean: old room entities/sprites unload, new room loads without duplicates.
 ***** DONE Player spawns at the destination spawn marker.
 **** TODO Can wait
 ***** TODO Streaming loads, fancy transitions, pathfinding.

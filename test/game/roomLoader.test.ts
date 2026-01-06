@@ -206,4 +206,187 @@ describe("room loader", () => {
     expect(Position.x[player]).toBe(300)
     expect(Position.y[player]).toBe(340)
   })
+
+  it("unloads room state and allows reloading the same map", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "objects",
+          objects: [
+            {
+              id: 1,
+              name: "player_spawn",
+              x: 100,
+              y: 120,
+              width: 0,
+              height: 0,
+            },
+            {
+              id: 2,
+              x: 10,
+              y: 20,
+              width: 16,
+              height: 16,
+              properties: [{ name: "teleport", type: "string", value: "inn" }],
+            },
+            {
+              id: 3,
+              x: 200,
+              y: 220,
+              width: 20,
+              height: 10,
+              properties: [
+                { name: "interaction", type: "string", value: "bell" },
+              ],
+            },
+            {
+              id: 4,
+              x: 40,
+              y: 50,
+              width: 30,
+              height: 10,
+              properties: [{ name: "collision", type: "bool", value: true }],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const fallbackInteraction = {
+      x: 8,
+      y: 12,
+      radius: 10,
+      offsetY: 16,
+      bounds: { x: 4, y: 6, width: 8, height: 8 },
+    }
+    const fallbackWalls = [{ x: 1, y: 2, width: 3, height: 4 }]
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi.fn(() => ({ x: 0, y: 0 }))
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: map },
+      player,
+      mapContainer,
+      tileSpriteFactory,
+      roomState,
+      fallbackInteractionPoint: fallbackInteraction,
+      fallbackCollisionWalls: fallbackWalls,
+    })
+
+    const loaded = loadRoom("room1")
+    expect(loaded).toBe(true)
+
+    loadRoom.unloadRoom()
+
+    expect(roomState.collisionWalls).toEqual(fallbackWalls)
+    expect(roomState.teleportState.zones).toEqual([])
+    expect(roomState.interactionPoint).toEqual(fallbackInteraction)
+    expect(mapContainer.removeChildren).toHaveBeenCalledTimes(2)
+
+    const loadedAgain = loadRoom("room1")
+    expect(loadedAgain).toBe(true)
+  })
+
+  it("unloads before loading a different map", () => {
+    const mapOne: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "objects",
+          objects: [
+            {
+              id: 1,
+              name: "player_spawn",
+              x: 100,
+              y: 120,
+              width: 0,
+              height: 0,
+            },
+            {
+              id: 2,
+              x: 40,
+              y: 50,
+              width: 30,
+              height: 10,
+              properties: [{ name: "collision", type: "bool", value: true }],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+    const mapTwo: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "objects",
+          objects: [
+            {
+              id: 1,
+              name: "player_spawn",
+              x: 10,
+              y: 20,
+              width: 0,
+              height: 0,
+            },
+            {
+              id: 2,
+              x: 5,
+              y: 6,
+              width: 7,
+              height: 8,
+              properties: [{ name: "collision", type: "bool", value: true }],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi.fn(() => ({ x: 0, y: 0 }))
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: mapOne, room2: mapTwo },
+      player,
+      mapContainer,
+      tileSpriteFactory,
+      roomState,
+    })
+
+    const unloadSpy = vi.spyOn(loadRoom, "unloadRoom")
+
+    expect(loadRoom("room1")).toBe(true)
+    expect(loadRoom("room2")).toBe(true)
+
+    expect(roomState.collisionWalls).toEqual([
+      { x: 5, y: 6, width: 7, height: 8 },
+    ])
+    expect(unloadSpy).toHaveBeenCalledTimes(1)
+  })
 })
