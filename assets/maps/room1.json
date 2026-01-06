@@ -175,6 +175,11 @@
                          "name":"teleport",
                          "type":"string",
                          "value":"inn"
+                        }, 
+                        {
+                         "name":"teleport_spawn",
+                         "type":"string",
+                         "value":"pointA"
                         }],
                  "rotation":0,
                  "type":"",
@@ -182,6 +187,23 @@
                  "width":32,
                  "x":64,
                  "y":64
+                }, 
+                {
+                 "height":32,
+                 "id":13,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"player_spawn",
+                         "type":"string",
+                         "value":"pointA"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":96,
+                 "y":224
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -190,7 +212,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":13,
+ "nextobjectid":14,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

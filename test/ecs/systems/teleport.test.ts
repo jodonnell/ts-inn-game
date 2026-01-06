@@ -10,7 +10,14 @@ describe("teleport system", () => {
     const player = spawnPlayer(world, { x: 0, y: 0 })
     const teleportState = {
       zones: [
-        { x: 10, y: 10, width: 20, height: 20, targetMapKey: "room1" },
+        {
+          x: 10,
+          y: 10,
+          width: 20,
+          height: 20,
+          targetMapKey: "room1",
+          spawnId: "pointA",
+        },
       ],
     }
     const teleportTo = vi.fn()
@@ -34,6 +41,6 @@ describe("teleport system", () => {
     system(world, 0.016)
 
     expect(teleportTo).toHaveBeenCalledTimes(2)
-    expect(teleportTo).toHaveBeenCalledWith("room1")
+    expect(teleportTo).toHaveBeenCalledWith("room1", "pointA")
   })
 })

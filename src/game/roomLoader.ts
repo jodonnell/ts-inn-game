@@ -54,7 +54,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   const interactionKey = interactionId ?? "bell"
   let activeMapKey: string | null = null
 
-  return (mapKey: string): boolean => {
+  return (mapKey: string, spawnId?: string): boolean => {
     if (mapKey === activeMapKey) return false
     const map = mapsByKey[mapKey]
     if (!map) return false
@@ -76,7 +76,10 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
       )
     }
 
-    const spawn = findSpawnPoint(map, "player_spawn") ?? spawnFallback
+    const spawn =
+      (spawnId ? findSpawnPoint(map, spawnId) : null) ??
+      findSpawnPoint(map, "player_spawn") ??
+      spawnFallback
     Position.x[player] = spawn.x
     Position.y[player] = spawn.y
 

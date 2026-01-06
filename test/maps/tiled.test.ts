@@ -158,6 +158,36 @@ describe("tiled map helpers", () => {
     expect(findSpawnPoint(map, "player_spawn")).toEqual({ x: 64, y: 96 })
   })
 
+  it("finds the player spawn point by property value", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "spawns",
+          objects: [
+            {
+              id: 1,
+              x: 128,
+              y: 96,
+              width: 0,
+              height: 0,
+              properties: [
+                { name: "player_spawn", type: "string", value: "pointA" },
+              ],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    expect(findSpawnPoint(map, "pointA")).toEqual({ x: 128, y: 96 })
+  })
+
   it("finds interaction points by property and builds a radius", () => {
     const map: TiledMap = {
       width: 1,
@@ -199,7 +229,7 @@ describe("tiled map helpers", () => {
     })
   })
 
-  it("extracts teleport zones with target map keys", () => {
+  it("extracts teleport zones with target map keys and spawn ids", () => {
     const map: TiledMap = {
       width: 1,
       height: 1,
@@ -218,6 +248,7 @@ describe("tiled map helpers", () => {
               height: 24,
               properties: [
                 { name: "teleport", type: "string", value: "room1" },
+                { name: "teleport_spawn", type: "string", value: "pointA" },
               ],
             },
           ],
@@ -227,7 +258,14 @@ describe("tiled map helpers", () => {
     }
 
     expect(extractTeleportZones(map)).toEqual([
-      { x: 10, y: 20, width: 32, height: 24, targetMapKey: "room1" },
+      {
+        x: 10,
+        y: 20,
+        width: 32,
+        height: 24,
+        targetMapKey: "room1",
+        spawnId: "pointA",
+      },
     ])
   })
 })

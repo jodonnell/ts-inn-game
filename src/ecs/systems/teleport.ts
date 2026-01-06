@@ -7,7 +7,7 @@ export type TeleportState = {
   wasInside?: boolean
 }
 
-export type TeleportHandler = (targetMapKey: string) => void
+export type TeleportHandler = (targetMapKey: string, spawnId?: string) => void
 
 const isInsideZone = (x: number, y: number, zone: TeleportZone) =>
   x >= zone.x &&
@@ -28,7 +28,7 @@ export const createTeleportSystem =
 
     const wasInside = state.wasInside ?? false
     if (activeZone && !wasInside) {
-      teleportTo(activeZone.targetMapKey)
+      teleportTo(activeZone.targetMapKey, activeZone.spawnId)
     }
 
     state.wasInside = Boolean(activeZone)

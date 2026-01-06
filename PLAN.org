@@ -58,20 +58,24 @@
 *** TODO Slice C — Doors/triggers: transition between Tiled rooms
 **** TODO Goal: make the inn feel like an actual place with rooms.
 **** TODO ECS scope (lifecycle + triggers)
-***** TODO Door triggers are entities (or room data) with destination map + destination spawn id.
+***** DONE Door triggers are entities (or room data) with destination map.
+***** TODO Door triggers include destination spawn id.
 ***** TODO Room-scoped entities are destroyed/unloaded on transition; player (and global) entities persist.
 **** TODO Tasks (implementation checklist)
 ***** TODO Door triggers
-****** TODO Define a Tiled object format for doors (dest map + dest spawn id).
-****** TODO Detect player overlap/interaction with door triggers.
+****** DONE Define a Tiled object format for doors (dest map key via `teleport` property).
+****** TODO Add destination spawn id to door objects.
+****** DONE Detect player overlap/interaction with door triggers.
 ***** TODO Room lifecycle
-****** TODO Create `loadRoom(mapId)` / `unloadRoom()` flow.
+****** DONE Create `loadRoom(mapId)` flow.
+****** TODO Create `unloadRoom()` flow for non-map entities.
 ****** TODO Ensure room-scoped sprites/entities are cleaned up on unload.
+****** DONE Tilemap layers clear/reload without duplicates.
 ***** TODO Spawn placement
 ****** TODO On load, use destination spawn marker to place the player.
-****** TODO Basic transition UX (instant is fine): optional fade later.
+****** DONE Basic transition UX (instant is fine): optional fade later.
 **** TODO Acceptance criteria
-***** TODO Door trigger (Tiled object) transitions to another map.
+***** DONE Door trigger (Tiled object) transitions to another map.
 ***** TODO Scene lifecycle is clean: old room entities/sprites unload, new room loads without duplicates.
 ***** TODO Player spawns at the destination spawn marker.
 **** TODO Can wait

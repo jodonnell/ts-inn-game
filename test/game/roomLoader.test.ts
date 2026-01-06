@@ -148,4 +148,62 @@ describe("room loader", () => {
     expect(Position.x[player]).toBe(200)
     expect(Position.y[player]).toBe(200)
   })
+
+  it("uses a named spawn when provided", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "objects",
+          objects: [
+            {
+              id: 1,
+              name: "player_spawn",
+              x: 100,
+              y: 120,
+              width: 0,
+              height: 0,
+            },
+            {
+              id: 2,
+              x: 300,
+              y: 340,
+              width: 0,
+              height: 0,
+              properties: [
+                { name: "player_spawn", type: "string", value: "pointA" },
+              ],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi.fn(() => ({ x: 0, y: 0 }))
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: map },
+      player,
+      mapContainer,
+      tileSpriteFactory,
+      roomState,
+    })
+
+    const loaded = loadRoom("room1", "pointA")
+
+    expect(loaded).toBe(true)
+    expect(Position.x[player]).toBe(300)
+    expect(Position.y[player]).toBe(340)
+  })
 })

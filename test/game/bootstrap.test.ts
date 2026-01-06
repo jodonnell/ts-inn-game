@@ -13,6 +13,7 @@ import {
 import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
+import { installGameTestApi } from "@/src/game/testHooks"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
 import {
   createNightOverlayStore,
@@ -151,6 +152,10 @@ vi.mock("@/src/render/tilemap", () => ({
 
 vi.mock("@/src/game/roomLoader", () => ({
   createRoomLoader: vi.fn(() => loadRoom),
+}))
+
+vi.mock("@/src/game/testHooks", () => ({
+  installGameTestApi: vi.fn(),
 }))
 
 vi.mock("@/src/render/timeDisplay", () => ({
@@ -310,5 +315,21 @@ describe("game bootstrap", () => {
       world,
       loop: result.loop,
     })
+  })
+
+  it("installs the game test api when e2e mode is enabled", async () => {
+    const originalWindow = globalThis.window
+    globalThis.window = {
+      location: { search: "?e2e=1" },
+    } as typeof window
+
+    await startGame()
+
+    expect(installGameTestApi).toHaveBeenCalledWith(
+      expect.objectContaining({ player }),
+      globalThis.window,
+    )
+
+    globalThis.window = originalWindow
   })
 })

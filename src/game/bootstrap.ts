@@ -12,6 +12,7 @@ import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import { createNightOverlaySystem } from "@/src/render/nightOverlay"
 import { createTimeDisplaySystem } from "@/src/render/timeDisplay"
 import { type GameState, initializeGame } from "@/src/game/gameState"
+import { installGameTestApi } from "@/src/game/testHooks"
 
 export const createGameLoop = (state: GameState) => {
   const loop = createLoop({
@@ -55,6 +56,13 @@ export const startGame = async () => {
   const state = await initializeGame()
   const loop = createGameLoop(state)
   loop.start()
+
+  if (import.meta.env.MODE !== "production" && typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has("e2e")) {
+      installGameTestApi(state, window)
+    }
+  }
 
   return { app: state.app, world: state.world, loop }
 }

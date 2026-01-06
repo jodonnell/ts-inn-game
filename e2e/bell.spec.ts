@@ -3,6 +3,9 @@ import { expect, test } from "@playwright/test"
 declare global {
   interface Window {
     __audioPlayCount?: number
+    __gameTestApi?: {
+      movePlayerToInteraction: () => void
+    }
   }
 }
 
@@ -23,12 +26,12 @@ test("rings the bell when interacting", async ({ page }) => {
     }
   })
 
-  await page.goto("/")
+  await page.goto("/?e2e=1")
   await page.waitForTimeout(500)
 
-  await page.keyboard.down("d")
-  await page.waitForTimeout(2000)
-  await page.keyboard.up("d")
+  await page.waitForFunction(() => Boolean(window.__gameTestApi))
+  await page.evaluate(() => window.__gameTestApi?.movePlayerToInteraction())
+  await page.waitForTimeout(100)
 
   const playCountBefore = await page.evaluate(
     () => window.__audioPlayCount ?? 0,

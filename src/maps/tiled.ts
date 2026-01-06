@@ -54,6 +54,7 @@ export type TeleportZone = {
   width: number
   height: number
   targetMapKey: string
+  spawnId?: string
 }
 
 export type TilePlacement = {
@@ -110,9 +111,13 @@ export const findSpawnPoint = (
 ): { x: number; y: number } | null => {
   for (const layer of map.layers) {
     if (layer.type !== "objectgroup") continue
-    const match = layer.objects.find(
-      (object) => object.name === spawnId || object.type === spawnId,
-    )
+    const match = layer.objects.find((object) => {
+      if (object.name === spawnId || object.type === spawnId) return true
+      const spawnProperty = getObjectProperty(object, "player_spawn")
+      if (typeof spawnProperty !== "string") return false
+      if (spawnId === "player_spawn") return true
+      return spawnProperty === spawnId
+    })
     if (match) return { x: match.x, y: match.y }
   }
   return null
@@ -155,13 +160,18 @@ export const extractTeleportZones = (map: TiledMap): TeleportZone[] => {
       const targetMapKey = getObjectProperty(object, "teleport")
       if (typeof targetMapKey !== "string") continue
       if (object.width <= 0 || object.height <= 0) continue
-      zones.push({
+      const zone: TeleportZone = {
         x: object.x,
         y: object.y,
         width: object.width,
         height: object.height,
         targetMapKey,
-      })
+      }
+      const spawnId = getObjectProperty(object, "teleport_spawn")
+      if (typeof spawnId === "string") {
+        zone.spawnId = spawnId
+      }
+      zones.push(zone)
     }
   }
   return zones
