@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
-    "prettier": "prettier -w src/**/*.ts *.ts test/**/*.ts",
-    "lint": "eslint src/**/*.ts test/**/*.ts main.ts vite.config.ts",
+    "test:e2e": "playwright test",
+    "prettier": "prettier -w src/**/*.ts *.ts test/**/*.ts e2e/**/*.ts",
+    "lint": "eslint src/**/*.ts test/**/*.ts e2e/**/*.ts main.ts vite.config.ts",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -21,6 +22,7 @@
     "pixi.js": "^8.14.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/node": "^22.10.1",
     "codex": "^0.2.3",
     "eslint": "^9.39.2",
