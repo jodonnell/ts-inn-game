@@ -55,31 +55,32 @@
 **** DONE Can wait
 ***** DONE Multiple rooms, NPCs, save/load.
 
-*** TODO Slice C — Doors/triggers: transition between Tiled rooms
-**** TODO Goal: make the inn feel like an actual place with rooms.
-**** TODO ECS scope (lifecycle + triggers)
+*** DONE Slice C — Doors/triggers: transition between Tiled rooms
+**** DONE Goal: make the inn feel like an actual place with rooms.
+**** DONE ECS scope (lifecycle + triggers)
 ***** DONE Door triggers are entities (or room data) with destination map.
 ***** DONE Door triggers include destination spawn id.
-***** TODO Room-scoped entities are destroyed/unloaded on transition; player (and global) entities persist.
-**** TODO Tasks (implementation checklist)
-***** TODO Door triggers
+***** DONE Room-scoped entities are destroyed/unloaded on transition; player (and global) entities persist.
+**** DONE Tasks (implementation checklist)
+***** DONE Door triggers
 ****** DONE Define a Tiled object format for doors (dest map key via `teleport` property).
 ****** DONE Add destination spawn id to door objects.
 ****** DONE Detect player overlap/interaction with door triggers.
-***** TODO Room lifecycle
+***** DONE Room lifecycle
 ****** DONE Create `loadRoom(mapId)` flow.
 ****** DONE Create `unloadRoom()` flow for non-map entities.
 ****** DONE Ensure room-scoped sprites/entities are cleaned up on unload.
 ****** DONE Tilemap layers clear/reload without duplicates.
-***** TODO Spawn placement
+****** DONE Room transitions automatically unload before loading new room.
+***** DONE Spawn placement
 ****** DONE On load, use destination spawn marker to place the player.
 ****** DONE Basic transition UX (instant is fine): optional fade later.
-**** TODO Acceptance criteria
+**** DONE Acceptance criteria
 ***** DONE Door trigger (Tiled object) transitions to another map.
 ***** DONE Scene lifecycle is clean: old room entities/sprites unload, new room loads without duplicates.
 ***** DONE Player spawns at the destination spawn marker.
-**** TODO Can wait
-***** TODO Streaming loads, fancy transitions, pathfinding.
+**** DONE Can wait
+***** DONE Streaming loads, fancy transitions, pathfinding.
 
 *** TODO Slice D — “Clean the guest room” loop v1
 **** TODO Goal: a core inn task with clear feedback.
