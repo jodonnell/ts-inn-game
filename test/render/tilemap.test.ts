@@ -11,18 +11,18 @@ describe("tilemap renderer", () => {
       height: 2,
       data: [1, 0, 2, 3],
     }
-    const created: Array<{ x: number; y: number; tileId: number }> = []
-    const addSprite = (sprite: { x: number; y: number; tileId: number }) => {
+    const created: Array<{ x: number; y: number; gid: number }> = []
+    const addSprite = (sprite: { x: number; y: number; gid: number }) => {
       created.push(sprite)
     }
-    const createSprite = (tileId: number) => ({ x: 0, y: 0, tileId })
+    const createSprite = (gid: number) => ({ x: 0, y: 0, gid })
 
-    renderTileLayer(layer, 16, 16, 1, createSprite, addSprite)
+    renderTileLayer(layer, 16, 16, createSprite, addSprite)
 
     expect(created).toEqual([
-      { x: 0, y: 0, tileId: 0 },
-      { x: 0, y: 16, tileId: 1 },
-      { x: 16, y: 16, tileId: 2 },
+      { x: 0, y: 0, gid: 1 },
+      { x: 0, y: 16, gid: 2 },
+      { x: 16, y: 16, gid: 3 },
     ])
   })
 })

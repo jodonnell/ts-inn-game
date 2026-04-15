@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest"
-import { createPixiTileSpriteFactory } from "@/src/render/tilemap"
+import {
+  createPixiTileSpriteFactory,
+  createPixiMultiTilesetSpriteFactory,
+} from "@/src/render/tilemap"
 
 const createdTextures: Array<{ source?: unknown; frame?: unknown }> = []
 
@@ -36,6 +39,7 @@ vi.mock("pixi.js", () => {
 
 describe("tile sprite factory", () => {
   it("builds textures from the texture source with the expected tile frame", () => {
+    createdTextures.length = 0
     const textureSource = { id: "source" }
     const tilesetTexture = { width: 64, source: textureSource } as unknown as {
       width: number
@@ -49,5 +53,25 @@ describe("tile sprite factory", () => {
     const { source, frame } = createdTextures[0]
     expect(source).toBe(textureSource)
     expect(frame).toEqual({ x: 16, y: 16, width: 16, height: 16 })
+  })
+
+  it("builds tiles from the matching tileset based on gid", () => {
+    createdTextures.length = 0
+    const tilesets = [
+      { firstgid: 1, texture: { width: 32, source: "set-a" } },
+      { firstgid: 5, texture: { width: 32, source: "set-b" } },
+    ]
+
+    const factory = createPixiMultiTilesetSpriteFactory(
+      tilesets as never,
+      16,
+      16,
+    )
+    factory(6)
+
+    expect(createdTextures).toHaveLength(1)
+    const { source, frame } = createdTextures[0]
+    expect(source).toBe("set-b")
+    expect(frame).toEqual({ x: 16, y: 0, width: 16, height: 16 })
   })
 })

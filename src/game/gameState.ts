@@ -10,20 +10,21 @@ import { installDebugPerfOverlay } from "@/src/debug/perf"
 import { createKeyboardInputState } from "@/src/input/keyboard"
 import { createCameraAdapter } from "@/src/render/camera"
 import { createPromptStore } from "@/src/render/interactionPrompt"
-import { createPixiTileSpriteFactory } from "@/src/render/tilemap"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
 import {
   createPixiApp,
   createPixiRenderStore,
+  loadTilesetTextures,
   loadManagerSpritesheet,
-  loadTileSheetTexture,
 } from "@/src/render/pixi"
 import { createNightOverlayStore } from "@/src/render/nightOverlay"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { createRoomState, type RoomState } from "@/src/game/roomState"
 import innMap from "@/assets/maps/inn.json"
 import room1Map from "@/assets/maps/room1.json"
+import tiledRoomMap from "@/assets/tiled/room.json"
 import bellSfx from "@/assets/sfx/bell.mp3"
+import { createPixiMultiTilesetSpriteFactory } from "@/src/render/tilemap"
 import type { Application } from "pixi.js"
 import { Container } from "pixi.js"
 import { Howl } from "howler"
@@ -47,9 +48,9 @@ export type GameState = {
 export const initializeGame = async (): Promise<GameState> => {
   const { app } = await createPixiApp()
   if (import.meta.env.DEV) installDebugPerfOverlay(app)
+  const assetBase = import.meta.env.DEV ? "../.." : "."
 
   const spritesheet = await loadManagerSpritesheet()
-  const tilesetTexture = await loadTileSheetTexture()
   const worldContainer = new Container()
   const overlayContainer = new Container()
   const uiContainer = new Container()
@@ -69,19 +70,39 @@ export const initializeGame = async (): Promise<GameState> => {
   const bellSound = new Howl({ src: [bellSfx] })
   const mapContainer = new Container()
   worldContainer.addChild(mapContainer)
-  const tileSpriteFactory = createPixiTileSpriteFactory(
-    tilesetTexture,
-    innMap.tilewidth,
-    innMap.tileheight,
+  const mapsByKey = { inn: innMap, room1: room1Map, tiledRoom: tiledRoomMap }
+  const tilesetBaseByKey = {
+    inn: `${assetBase}/assets/maps`,
+    room1: `${assetBase}/assets/maps`,
+    tiledRoom: `${assetBase}/assets/tiled`,
+  }
+  const tileSpriteFactories = Object.fromEntries(
+    await Promise.all(
+      Object.entries(mapsByKey).map(async ([key, map]) => {
+        const textures = await loadTilesetTextures({
+          tilesets: map.tilesets,
+          tilesetBasePath:
+            tilesetBaseByKey[key as keyof typeof tilesetBaseByKey],
+        })
+        return [
+          key,
+          createPixiMultiTilesetSpriteFactory(
+            textures,
+            map.tilewidth,
+            map.tileheight,
+          ),
+        ] as const
+      }),
+    ),
   )
   const roomLoader = createRoomLoader({
-    mapsByKey: { inn: innMap, room1: room1Map },
+    mapsByKey,
     player,
     mapContainer,
-    tileSpriteFactory,
+    tileSpriteFactories,
     roomState,
   })
-  roomLoader("inn")
+  roomLoader("tiledRoom")
 
   return {
     app,

@@ -77,7 +77,7 @@ describe("room loader", () => {
       mapsByKey: { room1: map },
       player,
       mapContainer,
-      tileSpriteFactory,
+      tileSpriteFactories: { room1: tileSpriteFactory },
       roomState,
     })
 
@@ -138,7 +138,7 @@ describe("room loader", () => {
       mapsByKey: { room1: map },
       player,
       mapContainer,
-      tileSpriteFactory,
+      tileSpriteFactories: { room1: tileSpriteFactory },
       roomState,
     })
 
@@ -196,7 +196,7 @@ describe("room loader", () => {
       mapsByKey: { room1: map },
       player,
       mapContainer,
-      tileSpriteFactory,
+      tileSpriteFactories: { room1: tileSpriteFactory },
       roomState,
     })
 
@@ -279,7 +279,7 @@ describe("room loader", () => {
       mapsByKey: { room1: map },
       player,
       mapContainer,
-      tileSpriteFactory,
+      tileSpriteFactories: { room1: tileSpriteFactory },
       roomState,
       fallbackInteractionPoint: fallbackInteraction,
       fallbackCollisionWalls: fallbackWalls,
@@ -375,7 +375,10 @@ describe("room loader", () => {
       mapsByKey: { room1: mapOne, room2: mapTwo },
       player,
       mapContainer,
-      tileSpriteFactory,
+      tileSpriteFactories: {
+        room1: tileSpriteFactory,
+        room2: tileSpriteFactory,
+      },
       roomState,
     })
 

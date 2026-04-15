@@ -27,7 +27,7 @@ type RoomLoaderOptions<TSprite extends TileSpriteLike> = {
   mapsByKey: RoomRegistry
   player: number
   mapContainer: MapContainerLike<TSprite>
-  tileSpriteFactory: TileSpriteFactory<TSprite>
+  tileSpriteFactories: Record<string, TileSpriteFactory<TSprite>>
   roomState: RoomState
   fallbackSpawn?: { x: number; y: number }
   interactionId?: string
@@ -43,7 +43,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   mapsByKey,
   player,
   mapContainer,
-  tileSpriteFactory,
+  tileSpriteFactories,
   roomState,
   fallbackSpawn,
   interactionId,
@@ -71,19 +71,19 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     if (activeMapKey) loadRoom.unloadRoom()
     const map = mapsByKey[mapKey]
     if (!map) return false
+    const tileSpriteFactory = tileSpriteFactories[mapKey]
+    if (!tileSpriteFactory) return false
     activeMapKey = mapKey
 
     mapContainer.removeChildren()
     const tileLayers = map.layers.filter(
       (layer): layer is TiledTileLayer => layer.type === "tilelayer",
     )
-    const firstGid = map.tilesets[0]?.firstgid ?? 1
     for (const layer of tileLayers) {
       renderTileLayer(
         layer,
         map.tilewidth,
         map.tileheight,
-        firstGid,
         tileSpriteFactory,
         (sprite) => mapContainer.addChild(sprite),
       )

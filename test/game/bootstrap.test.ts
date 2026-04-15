@@ -138,7 +138,7 @@ vi.mock("@/src/render/pixi", () => ({
     destroy: vi.fn(),
   })),
   loadManagerSpritesheet: vi.fn(async () => ({})),
-  loadTileSheetTexture: vi.fn(async () => ({})),
+  loadTilesetTextures: vi.fn(async () => []),
   createPixiRenderStore: vi.fn(() => ({
     sprites: new Map(),
     createAnimatedSprite: vi.fn(),
@@ -147,7 +147,7 @@ vi.mock("@/src/render/pixi", () => ({
 }))
 
 vi.mock("@/src/render/tilemap", () => ({
-  createPixiTileSpriteFactory: vi.fn(() => tileSpriteFactory),
+  createPixiMultiTilesetSpriteFactory: vi.fn(() => tileSpriteFactory),
 }))
 
 vi.mock("@/src/game/roomLoader", () => ({
@@ -178,6 +178,7 @@ vi.mock("@/src/render/nightOverlay", () => ({
 
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
+vi.mock("@/assets/tiled/room.json", () => ({ default: map }))
 vi.mock("@/assets/sfx/bell.mp3", () => ({ default: "bell.mp3" }))
 
 vi.mock("@/src/debug/perf", () => ({
@@ -209,12 +210,16 @@ describe("game bootstrap", () => {
 
     expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
       expect.objectContaining({
-        mapsByKey: { inn: map, room1: map },
+        mapsByKey: { inn: map, room1: map, tiledRoom: map },
         player,
-        tileSpriteFactory,
+        tileSpriteFactories: {
+          inn: tileSpriteFactory,
+          room1: tileSpriteFactory,
+          tiledRoom: tileSpriteFactory,
+        },
       }),
     )
-    expect(loadRoom).toHaveBeenCalledWith("inn")
+    expect(loadRoom).toHaveBeenCalledWith("tiledRoom")
 
     expect(vi.mocked(createTimeDisplayStore)).toHaveBeenCalledWith(
       expect.any(Container),

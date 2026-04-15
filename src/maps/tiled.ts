@@ -63,6 +63,11 @@ export type TilePlacement = {
   tileId: number
 }
 
+export type TilesetResolution = {
+  tileset: TiledTilesetRef
+  tileId: number
+}
+
 const getObjectProperty = (object: TiledObject, name: string) =>
   object.properties?.find((property) => property.name === name)?.value
 
@@ -85,13 +90,35 @@ export const buildTilePlacements = (
   return placements
 }
 
+export const resolveTilesetForGid = (
+  tilesets: TiledTilesetRef[],
+  gid: number,
+): TilesetResolution | null => {
+  if (gid <= 0) return null
+  let match: TiledTilesetRef | null = null
+  for (const tileset of tilesets) {
+    if (gid < tileset.firstgid) continue
+    if (!match || tileset.firstgid > match.firstgid) {
+      match = tileset
+    }
+  }
+  if (!match) return null
+  return { tileset: match, tileId: gid - match.firstgid }
+}
+
+export const parseTilesetImageSource = (tilesetXml: string): string | null => {
+  const match = tilesetXml.match(/<image[^>]*source="([^"]+)"/)
+  return match ? match[1] : null
+}
+
 export const extractCollisionWalls = (map: TiledMap): CollisionWall[] => {
   const walls: CollisionWall[] = []
   for (const layer of map.layers) {
     if (layer.type !== "objectgroup") continue
     for (const object of layer.objects) {
       const collisionFlag = getObjectProperty(object, "collision")
-      const shouldCollide = collisionFlag === true
+      const collidableFlag = getObjectProperty(object, "collidable")
+      const shouldCollide = collisionFlag === true || collidableFlag === true
       if (!shouldCollide) continue
       if (object.width <= 0 || object.height <= 0) continue
       walls.push({
@@ -118,7 +145,7 @@ export const findSpawnPoint = (
       if (spawnId === "player_spawn") return true
       return spawnProperty === spawnId
     })
-    if (match) return { x: match.x, y: match.y }
+    if (match) return { x: match.x, y: match.y + match.height }
   }
   return null
 }
