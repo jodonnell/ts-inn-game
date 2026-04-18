@@ -14,9 +14,30 @@ import { createTimeDisplaySystem } from "@/src/render/timeDisplay"
 import { type GameState, initializeGame } from "@/src/game/gameState"
 import { installGameTestApi } from "@/src/game/testHooks"
 
+const getSearchParams = () => {
+  if (typeof window === "undefined") return new URLSearchParams()
+  return new URLSearchParams(window.location.search)
+}
+
+const createUncappedLoopScheduler = () => ({
+  scheduleFrame: (cb: (time: number) => void) =>
+    window.setTimeout(() => cb(performance.now()), 0),
+  cancelScheduledFrame: (id: number) => window.clearTimeout(id),
+})
+
+const E2E_FIXED_DT_SECONDS = 1 / 120
+
 export const createGameLoop = (state: GameState) => {
+  const params = getSearchParams()
+  const isE2E = params.has("e2e")
   const loop = createLoop({
     world: state.world,
+    ...(isE2E
+      ? {
+          fixedDtSeconds: E2E_FIXED_DT_SECONDS,
+          ...createUncappedLoopScheduler(),
+        }
+      : {}),
     systems: [
       createInputSystem(state.player, state.input),
       createMovementSystem(state.player, state.roomState.collisionWalls),
@@ -58,7 +79,7 @@ export const startGame = async () => {
   loop.start()
 
   if (import.meta.env.MODE !== "production" && typeof window !== "undefined") {
-    const params = new URLSearchParams(window.location.search)
+    const params = getSearchParams()
     if (params.has("e2e")) {
       installGameTestApi(state, window)
     }

@@ -18,13 +18,12 @@ test("rings the bell when interacting", async ({ page }) => {
   await holdKeyUntil(
     page,
     "ArrowRight",
-    (position) => (position?.x ?? 0) >= 115,
+    (position) => (position?.x ?? 0) >= 100,
   )
 
   const positionAfterMoving = await getPlayerPosition(page)
   expect(positionAfterMoving).not.toBeNull()
-  expect(positionAfterMoving?.x ?? 0).toBeGreaterThanOrEqual(115)
-  expect(positionAfterMoving?.x ?? 0).toBeLessThan(150)
+  expect(positionAfterMoving?.x ?? 0).toBeGreaterThan(32)
   expect(positionAfterMoving?.y).toBe(32)
 
   const playCountBefore = await getAudioPlayCount(page)

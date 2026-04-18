@@ -11,7 +11,6 @@ declare global {
 
 export const gotoGame = async (page: Page, fixture: string) => {
   await page.goto(`/?e2e=1&fixture=${fixture}`)
-  await page.waitForTimeout(500)
   await page.waitForFunction(() => Boolean(window.__gameTestApi))
 }
 

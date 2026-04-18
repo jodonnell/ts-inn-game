@@ -10,14 +10,13 @@ describe("gameTestApi", () => {
   it("boots the requested fixture and waits for the test api", async () => {
     const page = {
       goto: vi.fn(async () => {}),
-      waitForTimeout: vi.fn(async () => {}),
       waitForFunction: vi.fn(async () => {}),
     }
 
     await gotoGame(page as never, "teleport")
 
     expect(page.goto).toHaveBeenCalledWith("/?e2e=1&fixture=teleport")
-    expect(page.waitForTimeout).toHaveBeenCalledWith(500)
+    expect(page.waitForFunction).toHaveBeenCalledTimes(1)
     expect(page.waitForFunction).toHaveBeenCalledWith(expect.any(Function))
   })
 

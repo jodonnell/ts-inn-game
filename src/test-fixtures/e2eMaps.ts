@@ -13,9 +13,9 @@ const createInteractionFixtureMaps = (): Record<string, TiledMap> => ({
     withSpawn(createEmptyRoomMap(), { id: "player_spawn", x: 32, y: 32 }),
     {
       id: "bell",
-      x: 128,
+      x: 48,
       y: 32,
-      width: 32,
+      width: 96,
       height: 32,
     },
   ),

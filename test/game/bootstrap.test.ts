@@ -383,4 +383,25 @@ describe("game bootstrap", () => {
 
     globalThis.window = originalWindow
   })
+
+  it("uses the uncapped fixed-step loop in e2e mode", async () => {
+    const originalWindow = globalThis.window
+    globalThis.window = {
+      location: { search: "?e2e=1" },
+    } as typeof window
+
+    const state = await initializeGame()
+
+    createGameLoop(state)
+
+    expect(vi.mocked(createLoop)).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        fixedDtSeconds: 1 / 120,
+        scheduleFrame: expect.any(Function),
+        cancelScheduledFrame: expect.any(Function),
+      }),
+    )
+
+    globalThis.window = originalWindow
+  })
 })
