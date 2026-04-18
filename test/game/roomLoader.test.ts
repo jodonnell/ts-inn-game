@@ -207,6 +207,43 @@ describe("room loader", () => {
     expect(Position.y[player]).toBe(340)
   })
 
+  it("reports the active map key", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi.fn(() => ({ x: 0, y: 0 }))
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: map },
+      player,
+      mapContainer,
+      tileSpriteFactories: { room1: tileSpriteFactory },
+      roomState,
+    })
+
+    expect(loadRoom.getCurrentMapKey()).toBeNull()
+
+    loadRoom("room1")
+
+    expect(loadRoom.getCurrentMapKey()).toBe("room1")
+
+    loadRoom.unloadRoom()
+
+    expect(loadRoom.getCurrentMapKey()).toBeNull()
+  })
+
   it("unloads room state and allows reloading the same map", () => {
     const map: TiledMap = {
       width: 1,

@@ -62,6 +62,21 @@ describe("game test hooks", () => {
     expect(api.getPlayerPosition()).toEqual({ x: 120, y: 80 })
   })
 
+  it("reports the current map key", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const roomLoader = Object.assign(
+      vi.fn(() => true),
+      {
+        getCurrentMapKey: vi.fn(() => "room1"),
+      },
+    )
+    const api = createGameTestApi({ player, roomState, roomLoader })
+
+    expect(api.getCurrentMapKey()).toBe("room1")
+  })
+
   it("installs the test api on the provided target", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
@@ -77,6 +92,7 @@ describe("game test hooks", () => {
         teleportTo: expect.any(Function),
         movePlayerToInteraction: expect.any(Function),
         getPlayerPosition: expect.any(Function),
+        getCurrentMapKey: expect.any(Function),
       }),
     )
   })

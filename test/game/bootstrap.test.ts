@@ -64,6 +64,32 @@ const map = vi.hoisted(() => ({
   ],
   tilesets: [{ firstgid: 1 }],
 }))
+const fixtureMaps = vi.hoisted(() => ({
+  inn: {
+    width: 1,
+    height: 1,
+    tilewidth: 32,
+    tileheight: 32,
+    layers: [],
+    tilesets: [],
+  },
+  room1: {
+    width: 1,
+    height: 1,
+    tilewidth: 32,
+    tileheight: 32,
+    layers: [],
+    tilesets: [],
+  },
+  tiledRoom: {
+    width: 1,
+    height: 1,
+    tilewidth: 32,
+    tileheight: 32,
+    layers: [],
+    tilesets: [],
+  },
+}))
 
 vi.mock("@/src/ecs/systems/loop", () => ({
   createLoop: vi.fn(() => ({
@@ -180,6 +206,9 @@ vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
 vi.mock("@/assets/tiled/room.json", () => ({ default: map }))
 vi.mock("@/assets/sfx/bell.mp3", () => ({ default: "bell.mp3" }))
+vi.mock("@/src/test-fixtures/e2eMaps", () => ({
+  getE2EMapFixture: vi.fn(() => fixtureMaps),
+}))
 
 vi.mock("@/src/debug/perf", () => ({
   installDebugPerfOverlay: vi.fn(),
@@ -245,6 +274,23 @@ describe("game bootstrap", () => {
       worldContainer,
     )
     expect(vi.mocked(createPromptStore)).toHaveBeenCalledWith(worldContainer)
+  })
+
+  it("uses e2e fixture maps when requested by query string", async () => {
+    const originalWindow = globalThis.window
+    globalThis.window = {
+      location: { search: "?e2e=1&fixture=bell" },
+    } as typeof window
+
+    await initializeGame()
+
+    expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mapsByKey: fixtureMaps,
+      }),
+    )
+
+    globalThis.window = originalWindow
   })
 
   it("wires map rendering and gameplay systems into the loop", async () => {

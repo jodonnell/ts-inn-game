@@ -4,7 +4,10 @@ import type { RoomState } from "@/src/game/roomState"
 export type GameTestState = {
   player: number
   roomState: RoomState
-  roomLoader: (mapKey: string, spawnId?: string) => boolean
+  roomLoader: {
+    (mapKey: string, spawnId?: string): boolean
+    getCurrentMapKey: () => string | null
+  }
 }
 
 export type GameTestApi = {
@@ -12,6 +15,7 @@ export type GameTestApi = {
   teleportTo: (mapKey: string, spawnId?: string) => boolean
   movePlayerToInteraction: () => void
   getPlayerPosition: () => { x: number; y: number }
+  getCurrentMapKey: () => string | null
 }
 
 export const createGameTestApi = (state: GameTestState): GameTestApi => ({
@@ -29,6 +33,7 @@ export const createGameTestApi = (state: GameTestState): GameTestApi => ({
     x: Position.x[state.player],
     y: Position.y[state.player],
   }),
+  getCurrentMapKey: () => state.roomLoader.getCurrentMapKey(),
 })
 
 export const installGameTestApi = (

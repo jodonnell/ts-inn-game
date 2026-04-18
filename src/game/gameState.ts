@@ -25,6 +25,7 @@ import room1Map from "@/assets/maps/room1.json"
 import tiledRoomMap from "@/assets/tiled/room.json"
 import bellSfx from "@/assets/sfx/bell.mp3"
 import { createPixiMultiTilesetSpriteFactory } from "@/src/render/tilemap"
+import { getE2EMapFixture } from "@/src/test-fixtures/e2eMaps"
 import type { Application } from "pixi.js"
 import { Container } from "pixi.js"
 import { Howl } from "howler"
@@ -43,6 +44,11 @@ export type GameState = {
   roomLoader: ReturnType<typeof createRoomLoader>
   renderStore: ReturnType<typeof createPixiRenderStore>
   bellSound: InteractionSound
+}
+
+const getSearchParams = () => {
+  if (typeof window === "undefined") return new URLSearchParams()
+  return new URLSearchParams(window.location.search)
 }
 
 export const initializeGame = async (): Promise<GameState> => {
@@ -70,7 +76,16 @@ export const initializeGame = async (): Promise<GameState> => {
   const bellSound = new Howl({ src: [bellSfx] })
   const mapContainer = new Container()
   worldContainer.addChild(mapContainer)
-  const mapsByKey = { inn: innMap, room1: room1Map, tiledRoom: tiledRoomMap }
+  const defaultMapsByKey = {
+    inn: innMap,
+    room1: room1Map,
+    tiledRoom: tiledRoomMap,
+  }
+  const params = getSearchParams()
+  const fixtureName = params.has("e2e") ? params.get("fixture") : null
+  const mapsByKey = fixtureName
+    ? (getE2EMapFixture(fixtureName) ?? defaultMapsByKey)
+    : defaultMapsByKey
   const tilesetBaseByKey = {
     inn: `${assetBase}/assets/maps`,
     room1: `${assetBase}/assets/maps`,

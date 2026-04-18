@@ -6,6 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "prettier": "prettier -w src/**/*.ts *.ts test/**/*.ts e2e/**/*.ts",
     "lint": "eslint src/**/*.ts test/**/*.ts e2e/**/*.ts main.ts vite.config.ts",
     "dev": "vite",

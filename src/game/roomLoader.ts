@@ -36,6 +36,7 @@ type RoomLoaderOptions<TSprite extends TileSpriteLike> = {
 }
 
 export type RoomLoader = ((mapKey: string, spawnId?: string) => boolean) & {
+  getCurrentMapKey: () => string | null
   unloadRoom: () => void
 }
 
@@ -111,6 +112,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   }) as RoomLoader
 
   loadRoom.unloadRoom = unloadRoom
+  loadRoom.getCurrentMapKey = () => activeMapKey
 
   return loadRoom
 }

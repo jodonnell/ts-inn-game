@@ -12,3 +12,4 @@
   - Re-run the full test suite after each green step.
   - Do not introduce new files or production code without a failing test unless I explicitly approve.
   - If you deviate from strict TDD (write production code before a failing test + test run), stop and ask for approval before continuing.
+  - Exception: trivial config-only or script-only changes that do not alter runtime application behavior do not require a failing test first.
