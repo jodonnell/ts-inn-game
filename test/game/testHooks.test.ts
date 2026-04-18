@@ -52,6 +52,16 @@ describe("game test hooks", () => {
     expect(Position.y[player]).toBe(160)
   })
 
+  it("reports the player position", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 120, y: 80 })
+    const roomState = createRoomState()
+    const roomLoader = vi.fn(() => true)
+    const api = createGameTestApi({ player, roomState, roomLoader })
+
+    expect(api.getPlayerPosition()).toEqual({ x: 120, y: 80 })
+  })
+
   it("installs the test api on the provided target", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
@@ -66,6 +76,7 @@ describe("game test hooks", () => {
         setPlayerPosition: expect.any(Function),
         teleportTo: expect.any(Function),
         movePlayerToInteraction: expect.any(Function),
+        getPlayerPosition: expect.any(Function),
       }),
     )
   })

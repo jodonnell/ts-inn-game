@@ -29,10 +29,17 @@ Day 1 should teach the player how the game works without feeling like a detached
 
 The intended model is a "learn by doing" opening. Early situations should be simple, legible, and believable, with each one introducing a new layer of responsibility.
 
+Day 1 can be abnormally bad as long as the escalation is readable. The player should feel overwhelmed by stacked operational problems, but still understand why each problem is happening and what tradeoff each response creates.
+
+The tone target is that the inn is survivable, but fragile. Friday the 13th, a storm, staffing instability, and a facility problem can all push the day into crisis without making it feel random.
+
 ## Early Mechanical Focus
 
 - Guest check-in
+- Walk-in guest handling
 - Room assignment
 - Room readiness
+- Damaged or unavailable rooms
+- Cleanup caused by guest traffic and bad weather
 - Hands-on inn work by the manager
 - Tradeoffs between convenience, reputation, and effort

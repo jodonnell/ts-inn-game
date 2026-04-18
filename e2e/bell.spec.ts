@@ -4,9 +4,17 @@ declare global {
   interface Window {
     __audioPlayCount?: number
     __gameTestApi?: {
+      getPlayerPosition: () => { x: number; y: number }
       movePlayerToInteraction: () => void
+      teleportTo: (mapKey: string, spawnId?: string) => boolean
     }
   }
+}
+
+const gotoGame = async (page: Parameters<typeof test>[0]["page"]) => {
+  await page.goto("/?e2e=1")
+  await page.waitForTimeout(500)
+  await page.waitForFunction(() => Boolean(window.__gameTestApi))
 }
 
 test("rings the bell when interacting", async ({ page }) => {
@@ -26,10 +34,7 @@ test("rings the bell when interacting", async ({ page }) => {
     }
   })
 
-  await page.goto("/?e2e=1")
-  await page.waitForTimeout(500)
-
-  await page.waitForFunction(() => Boolean(window.__gameTestApi))
+  await gotoGame(page)
   await page.evaluate(() => window.__gameTestApi?.movePlayerToInteraction())
   await page.waitForTimeout(100)
 
@@ -45,4 +50,19 @@ test("rings the bell when interacting", async ({ page }) => {
   )
   const playCountAfter = await page.evaluate(() => window.__audioPlayCount ?? 0)
   expect(playCountAfter).toBeGreaterThan(playCountBefore)
+})
+
+test("teleports to the requested spawn point", async ({ page }) => {
+  await gotoGame(page)
+
+  const teleported = await page.evaluate(() =>
+    window.__gameTestApi?.teleportTo("inn", "pointA"),
+  )
+
+  expect(teleported).toBe(true)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__gameTestApi?.getPlayerPosition() ?? null),
+    )
+    .toEqual({ x: 256, y: 160 })
 })
