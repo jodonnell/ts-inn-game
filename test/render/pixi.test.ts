@@ -1,6 +1,10 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest"
-import { createPixiApp, loadTilesetTextures } from "@/src/render/pixi"
+import {
+  createPixiApp,
+  createTilesetTextLoader,
+  loadTilesetTextures,
+} from "@/src/render/pixi"
 
 const assetsLoad = vi.hoisted(() => vi.fn(async () => {}))
 const textureFrom = vi.hoisted(() => vi.fn((path: string) => ({ path })))
@@ -33,19 +37,16 @@ describe("pixi app", () => {
   })
 
   it("loads tileset textures from tsx sources", async () => {
-    const xml = '<tileset><image source="tiles.png"/></tileset>'
-    const fetchMock = vi.fn(async () => ({
-      text: async () => xml,
-    }))
-    globalThis.fetch = fetchMock as typeof fetch
-
     const tilesets = [{ firstgid: 1, source: "tiles.tsx" }]
     const textures = await loadTilesetTextures({
       tilesets,
       tilesetBasePath: "/assets/maps",
+      loadTilesetText: createTilesetTextLoader({
+        "/assets/maps/tiles.tsx":
+          '<tileset><image source="tiles.png"/></tileset>',
+      }),
     })
 
-    expect(fetchMock).toHaveBeenCalledWith("/assets/maps/tiles.tsx?raw")
     expect(assetsLoad).toHaveBeenCalledWith("/assets/maps/tiles.png")
     expect(textureFrom).toHaveBeenCalledWith("/assets/maps/tiles.png")
     expect(textures).toEqual([
@@ -54,25 +55,37 @@ describe("pixi app", () => {
   })
 
   it("resolves tileset images relative to the tsx location", async () => {
-    const xml =
-      '<tileset><image source="../spritesheets/tile-sheet.png"/></tileset>'
-    const fetchMock = vi.fn(async () => ({
-      text: async () => xml,
-    }))
-    globalThis.fetch = fetchMock as typeof fetch
-
     const tilesets = [{ firstgid: 1, source: "tile-sheet.tsx" }]
     await loadTilesetTextures({
       tilesets,
       tilesetBasePath: "/assets/maps",
+      loadTilesetText: createTilesetTextLoader({
+        "/assets/maps/tile-sheet.tsx":
+          '<tileset><image source="../spritesheets/tile-sheet.png"/></tileset>',
+      }),
     })
 
-    expect(fetchMock).toHaveBeenCalledWith("/assets/maps/tile-sheet.tsx?raw")
     expect(assetsLoad).toHaveBeenCalledWith(
       "/assets/spritesheets/tile-sheet.png",
     )
     expect(textureFrom).toHaveBeenCalledWith(
       "/assets/spritesheets/tile-sheet.png",
     )
+  })
+
+  it("loads tileset text from a build-time registry", async () => {
+    const loadTilesetText = createTilesetTextLoader({
+      "/assets/maps/tiles.tsx": "<tileset />",
+    })
+
+    await expect(loadTilesetText("../../assets/maps", "tiles.tsx")).resolves.toBe(
+      "<tileset />",
+    )
+  })
+
+  it("returns null when the registry does not contain the resolved tsx path", async () => {
+    const loadTilesetText = createTilesetTextLoader({})
+
+    await expect(loadTilesetText("/assets/maps", "tiles.tsx")).resolves.toBeNull()
   })
 })

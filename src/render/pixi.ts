@@ -16,6 +16,11 @@ import type { TilesetTexture } from "@/src/render/tilemap"
 
 const base = import.meta.env.DEV ? "../.." : "."
 const spritesheetData = managerSheetData as SpritesheetData
+const rawTilesetModules = import.meta.glob("/assets/**/*.tsx", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>
 
 export type PixiAppHandle = {
   app: Application
@@ -82,24 +87,50 @@ const dirname = (path: string) => {
   return path.slice(0, lastSlash)
 }
 
-const withRawQuery = (path: string) => {
-  if (path.includes("?")) return `${path}&raw`
-  return `${path}?raw`
+export const createTilesetTextLoader = (registry: Record<string, string>) => {
+  const normalizeAssetKey = (key: string) => {
+    const assetPathIndex = key.indexOf("/assets/")
+    if (assetPathIndex >= 0) return key.slice(assetPathIndex)
+    const relativeAssetPathIndex = key.indexOf("assets/")
+    if (relativeAssetPathIndex >= 0) {
+      return `/${key.slice(relativeAssetPathIndex)}`
+    }
+    if (key.startsWith("@/assets")) {
+      return key.replace(/^@\/assets/, "/assets")
+    }
+    return key
+  }
+
+  const normalizedRegistry = Object.fromEntries(
+    Object.entries(registry)
+      .map(([key, value]) => [normalizeAssetKey(key), value])
+      .filter((entry): entry is [string, string] => entry.length === 2),
+  )
+
+  return async (tilesetBasePath: string, tilesetSource: string) =>
+    normalizedRegistry[normalizeAssetKey(resolvePath(tilesetBasePath, tilesetSource))] ?? null
 }
+
+const loadRawTilesetText = createTilesetTextLoader(rawTilesetModules)
 
 export const loadTilesetTextures = async ({
   tilesets,
   tilesetBasePath,
+  loadTilesetText = loadRawTilesetText,
 }: {
   tilesets: TiledTilesetRef[]
   tilesetBasePath: string
+  loadTilesetText?: (
+    tilesetBasePath: string,
+    tilesetSource: string,
+  ) => Promise<string | null>
 }): Promise<TilesetTexture[]> => {
   const textures: TilesetTexture[] = []
   for (const tileset of tilesets) {
     if (!tileset.source) continue
     const tsxPath = resolvePath(tilesetBasePath, tileset.source)
-    const response = await fetch(withRawQuery(tsxPath))
-    const xml = await response.text()
+    const xml = await loadTilesetText(tilesetBasePath, tileset.source)
+    if (!xml) continue
     const imageSource = parseTilesetImageSource(xml)
     if (!imageSource) continue
     const imagePath = resolvePath(dirname(tsxPath), imageSource)
