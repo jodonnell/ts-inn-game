@@ -156,6 +156,7 @@
                  "height":96,
                  "id":1,
                  "name":"",
+                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -167,6 +168,7 @@
                  "height":128,
                  "id":2,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -184,6 +186,7 @@
                  "height":96,
                  "id":3,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -201,6 +204,7 @@
                  "height":96,
                  "id":5,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -218,6 +222,7 @@
                  "height":32,
                  "id":6,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -235,6 +240,7 @@
                  "height":32,
                  "id":7,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -252,6 +258,7 @@
                  "height":32,
                  "id":8,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -269,6 +276,7 @@
                  "height":32,
                  "id":9,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -286,6 +294,7 @@
                  "height":96,
                  "id":10,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -303,6 +312,7 @@
                  "height":352,
                  "id":12,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -320,6 +330,7 @@
                  "height":32,
                  "id":13,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -337,6 +348,7 @@
                  "height":352,
                  "id":14,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"collidable",
@@ -349,6 +361,24 @@
                  "width":32,
                  "x":544,
                  "y":128
+                }, 
+                {
+                 "height":96,
+                 "id":19,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"collidable",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":96,
+                 "x":416,
+                 "y":224
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -365,6 +395,7 @@
                  "height":32,
                  "id":18,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"player_spawn",
@@ -385,10 +416,10 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":19,
+ "nextobjectid":20,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.11.2",
+ "tiledversion":"1.12.1",
  "tileheight":32,
  "tilesets":[
         {
