@@ -1,5 +1,5 @@
 import type { CollisionWall } from "@/src/ecs/systems/movement"
-import type { InteractionPoint } from "@/src/render/interactionPrompt"
+import type { InteractionPoint } from "@/src/game/fixtureInteraction"
 
 export const createDefaultCollisionWalls = (): CollisionWall[] => [
   { x: 120, y: 240, width: 200, height: 20 },

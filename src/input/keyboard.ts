@@ -18,10 +18,15 @@ const interactionKeys = new Set(["e"])
 
 export const createKeyboardInputState = (
   options: KeyboardInputOptions = {},
-): InputState & { consumeInteraction: () => boolean; dispose: () => void } => {
+): InputState & {
+  consumeInteraction: () => boolean
+  isInteractionHeld: () => boolean
+  dispose: () => void
+} => {
   const target = options.target ?? window
   const pressed = new Set<string>()
   let interactionQueued = false
+  let interactionHeld = false
 
   const normalizeKey = (event: KeyboardEvent) => {
     if (event.key.startsWith("Arrow")) return event.key
@@ -31,6 +36,7 @@ export const createKeyboardInputState = (
   const onKeyDown = (event: KeyboardEvent) => {
     const key = normalizeKey(event)
     if (interactionKeys.has(key)) {
+      interactionHeld = true
       if (!event.repeat) interactionQueued = true
       return
     }
@@ -43,7 +49,10 @@ export const createKeyboardInputState = (
 
   const onKeyUp = (event: KeyboardEvent) => {
     const key = normalizeKey(event)
-    if (interactionKeys.has(key)) return
+    if (interactionKeys.has(key)) {
+      interactionHeld = false
+      return
+    }
     if (!movementKeys.has(key)) return
     pressed.delete(key)
   }
@@ -51,6 +60,7 @@ export const createKeyboardInputState = (
   const onBlur = () => {
     pressed.clear()
     interactionQueued = false
+    interactionHeld = false
   }
 
   target.addEventListener("keydown", onKeyDown)
@@ -75,13 +85,16 @@ export const createKeyboardInputState = (
     return true
   }
 
+  const isInteractionHeld = () => interactionHeld
+
   const dispose = () => {
     target.removeEventListener("keydown", onKeyDown)
     target.removeEventListener("keyup", onKeyUp)
     target.removeEventListener("blur", onBlur)
     pressed.clear()
     interactionQueued = false
+    interactionHeld = false
   }
 
-  return { getMovement, consumeInteraction, dispose }
+  return { getMovement, consumeInteraction, isInteractionHeld, dispose }
 }

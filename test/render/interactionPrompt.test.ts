@@ -106,7 +106,7 @@ describe("interaction prompt system", () => {
     expect(prompt.visible).toBe(true)
   })
 
-  it("keeps the prompt on the default interaction point while fixture actions are unimplemented", () => {
+  it("anchors the prompt to the active fixture while fixture cleaning is available", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 116, y: 116 })
     const prompt = { x: 0, y: 0, visible: false }
@@ -140,8 +140,8 @@ describe("interaction prompt system", () => {
     const system = createInteractionPromptSystem(player, store, roomState)
     system(world, 0)
 
-    expect(prompt.visible).toBe(false)
-    expect(prompt.x).toBe(10)
-    expect(prompt.y).toBe(10)
+    expect(prompt.visible).toBe(true)
+    expect(prompt.x).toBe(116)
+    expect(prompt.y).toBe(100)
   })
 })

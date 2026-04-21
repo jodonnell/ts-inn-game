@@ -43,7 +43,7 @@ describe("interaction system", () => {
     expect(sound.play).not.toHaveBeenCalled()
   })
 
-  it("keeps using the bell interaction path while fixture actions are unimplemented", () => {
+  it("does not play the bell sound when a fixture is currently targeted", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
     const input = { consumeInteraction: () => true }
@@ -73,6 +73,6 @@ describe("interaction system", () => {
     const system = createInteractionSystem(player, input, roomState, sound)
     system(world, 0)
 
-    expect(sound.play).toHaveBeenCalledTimes(1)
+    expect(sound.play).not.toHaveBeenCalled()
   })
 })

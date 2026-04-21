@@ -1,6 +1,6 @@
 import { Position } from "@/src/ecs/components"
 import type { CollisionWall } from "@/src/ecs/systems/movement"
-import type { InteractionPoint } from "@/src/render/interactionPrompt"
+import type { InteractionPoint } from "@/src/game/fixtureInteraction"
 import type { TiledMap, TiledTileLayer } from "@/src/maps/tiled"
 import {
   extractCollisionWalls,

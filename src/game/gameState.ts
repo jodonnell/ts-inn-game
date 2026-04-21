@@ -2,6 +2,7 @@ import { type InputState } from "@/src/ecs/systems/movement"
 import { createGameTimeState, type GameTimeState } from "@/src/ecs/systems/time"
 import { createGameWorld, type GameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
+import type { FixtureCleaningInput } from "@/src/ecs/systems/fixtureCleaning"
 import type {
   InteractionInput,
   InteractionSound,
@@ -35,6 +36,7 @@ export type GameState = {
   world: GameWorld
   player: number
   input: InputState & InteractionInput & { dispose: () => void }
+  cleaningInput: FixtureCleaningInput
   camera: ReturnType<typeof createCameraAdapter>
   promptStore: ReturnType<typeof createPromptStore>
   timeDisplayStore: ReturnType<typeof createTimeDisplayStore>
@@ -67,6 +69,9 @@ export const initializeGame = async (): Promise<GameState> => {
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 0, y: 0 })
   const input = createKeyboardInputState()
+  const cleaningInput: FixtureCleaningInput = {
+    isHeld: input.isInteractionHeld,
+  }
   const camera = createCameraAdapter(app, worldContainer)
   const promptStore = createPromptStore(worldContainer)
   const timeDisplayStore = createTimeDisplayStore(uiContainer)
@@ -124,6 +129,7 @@ export const initializeGame = async (): Promise<GameState> => {
     world,
     player,
     input,
+    cleaningInput,
     camera,
     promptStore,
     timeDisplayStore,

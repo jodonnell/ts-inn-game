@@ -2,24 +2,9 @@ import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
 import {
   getFixtureInteractionPoint,
-  type RoomFixture,
-  type RoomState,
-} from "@/src/game/roomState"
-
-const getDistanceToInteraction = (
-  x: number,
-  y: number,
-  fixture: Pick<RoomFixture, "x" | "y" | "width" | "height">,
-) => {
-  const interaction = getFixtureInteractionPoint(fixture)
-  const minX = interaction.bounds.x
-  const maxX = interaction.bounds.x + interaction.bounds.width
-  const minY = interaction.bounds.y
-  const maxY = interaction.bounds.y + interaction.bounds.height
-  const dx = Math.max(minX - x, 0, x - maxX)
-  const dy = Math.max(minY - y, 0, y - maxY)
-  return Math.hypot(dx, dy)
-}
+  isWithinInteractionRange,
+} from "@/src/game/fixtureInteraction"
+import type { RoomFixture, RoomState } from "@/src/game/roomState"
 
 export const createFixtureTargetingSystem =
   (player: number, roomState: RoomState) => (_world: GameWorld, _dt: number) => {
@@ -34,8 +19,10 @@ export const createFixtureTargetingSystem =
     for (const fixture of roomState.fixtures) {
       if (fixture.state === "clean") continue
       const interaction = getFixtureInteractionPoint(fixture)
-      const distance = getDistanceToInteraction(playerX, playerY, fixture)
-      if (distance > interaction.radius) continue
+      if (!isWithinInteractionRange(playerX, playerY, interaction)) continue
+      const dx = interaction.x - playerX
+      const dy = interaction.y - playerY
+      const distance = Math.hypot(dx, dy)
       if (distance >= closestDistance) continue
       closestFixture = fixture
       closestDistance = distance

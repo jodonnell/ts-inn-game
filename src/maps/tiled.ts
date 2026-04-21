@@ -1,5 +1,5 @@
 import type { CollisionWall } from "@/src/ecs/systems/movement"
-import type { InteractionPoint } from "@/src/render/interactionPrompt"
+import type { InteractionPoint } from "@/src/game/fixtureInteraction"
 
 export type TiledProperty = {
   name: string

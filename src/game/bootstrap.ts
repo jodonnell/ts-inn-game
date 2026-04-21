@@ -3,6 +3,7 @@ import {
   createInputSystem,
   createMovementSystem,
 } from "@/src/ecs/systems/movement"
+import { createFixtureCleaningSystem } from "@/src/ecs/systems/fixtureCleaning"
 import { createFixtureTargetingSystem } from "@/src/ecs/systems/fixtureTargeting"
 import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
@@ -62,6 +63,11 @@ export const createGameLoop = (state: GameState) => {
         state.renderStore.fixtureStore,
       ),
       createFixtureTargetingSystem(state.player, state.roomState),
+      createFixtureCleaningSystem(
+        state.player,
+        state.cleaningInput,
+        state.roomState,
+      ),
       createInteractionPromptSystem(
         state.player,
         state.promptStore,

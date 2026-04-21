@@ -1,5 +1,9 @@
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
+import {
+  getCurrentInteractionPoint,
+  isWithinInteractionRange,
+} from "@/src/game/fixtureInteraction"
 import type { RoomState } from "@/src/game/roomState"
 import { Text } from "pixi.js"
 import type { Container } from "pixi.js"
@@ -14,19 +18,6 @@ export type PromptStore = {
   prompt: PromptLike | null
   createPrompt: () => PromptLike
   addPrompt: (prompt: PromptLike) => void
-}
-
-export type InteractionPoint = {
-  x: number
-  y: number
-  radius: number
-  offsetY?: number
-  bounds: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
 }
 
 export const createPromptStore = (
@@ -58,16 +49,6 @@ const ensurePrompt = (store: PromptStore): PromptLike => {
   return prompt
 }
 
-const isWithinRange = (x: number, y: number, interaction: InteractionPoint) => {
-  const minX = interaction.bounds.x
-  const maxX = interaction.bounds.x + interaction.bounds.width
-  const minY = interaction.bounds.y
-  const maxY = interaction.bounds.y + interaction.bounds.height
-  const dx = Math.max(minX - x, 0, x - maxX)
-  const dy = Math.max(minY - y, 0, y - maxY)
-  return Math.hypot(dx, dy) <= interaction.radius
-}
-
 export const createInteractionPromptSystem =
   (player: number, store: PromptStore, roomState: RoomState) =>
   (_world: GameWorld, _dt: number) => {
@@ -76,10 +57,10 @@ export const createInteractionPromptSystem =
     const prompt = ensurePrompt(store)
     const playerX = Position.x[player]
     const playerY = Position.y[player]
-    const interaction = roomState.interactionPoint
+    const interaction = getCurrentInteractionPoint(roomState)
     const offsetY = interaction.offsetY ?? 0
 
     prompt.x = interaction.x
     prompt.y = interaction.y - offsetY
-    prompt.visible = isWithinRange(playerX, playerY, interaction)
+    prompt.visible = isWithinInteractionRange(playerX, playerY, interaction)
   }

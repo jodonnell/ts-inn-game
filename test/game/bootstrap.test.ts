@@ -6,6 +6,7 @@ import {
   createCameraAdapter,
   createCameraFollowSystem,
 } from "@/src/render/camera"
+import { createFixtureCleaningSystem } from "@/src/ecs/systems/fixtureCleaning"
 import { createFixtureTargetingSystem } from "@/src/ecs/systems/fixtureTargeting"
 import {
   createInteractionPromptSystem,
@@ -36,6 +37,7 @@ const teleportSystem = vi.fn()
 const renderSystem = vi.fn()
 const fixtureRenderSystem = vi.fn()
 const fixtureTargetingSystem = vi.fn()
+const fixtureCleaningSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const interactionSystem = vi.fn()
@@ -115,6 +117,7 @@ vi.mock("@/src/input/keyboard", () => ({
   createKeyboardInputState: vi.fn(() => ({
     getMovement: () => ({ x: 0, y: 0 }),
     consumeInteraction: vi.fn(() => false),
+    isInteractionHeld: vi.fn(() => false),
     dispose: vi.fn(),
   })),
 }))
@@ -126,6 +129,10 @@ vi.mock("@/src/ecs/systems/movement", () => ({
 
 vi.mock("@/src/ecs/systems/fixtureTargeting", () => ({
   createFixtureTargetingSystem: vi.fn(() => fixtureTargetingSystem),
+}))
+
+vi.mock("@/src/ecs/systems/fixtureCleaning", () => ({
+  createFixtureCleaningSystem: vi.fn(() => fixtureCleaningSystem),
 }))
 
 vi.mock("@/src/ecs/systems/interaction", () => ({
@@ -364,6 +371,17 @@ describe("game bootstrap", () => {
       }),
     )
 
+    expect(vi.mocked(createFixtureCleaningSystem)).toHaveBeenCalledWith(
+      player,
+      expect.objectContaining({
+        isHeld: expect.any(Function),
+      }),
+      expect.objectContaining({
+        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        fixtures: [],
+      }),
+    )
+
     const [{ fixtureStore }] = vi
       .mocked(createPixiRenderStore)
       .mock.results.map((result) => result.value)
@@ -390,6 +408,7 @@ describe("game bootstrap", () => {
         renderSystem,
         fixtureRenderSystem,
         fixtureTargetingSystem,
+        fixtureCleaningSystem,
         promptSystem,
         interactionSystem,
         timeDisplaySystem,

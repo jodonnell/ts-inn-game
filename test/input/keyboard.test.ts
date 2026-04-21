@@ -80,4 +80,18 @@ describe("keyboard input", () => {
 
     input.dispose()
   })
+
+  it("tracks whether interaction is currently held", () => {
+    const input = createKeyboardInputState({ target: window })
+
+    expect(input.isInteractionHeld()).toBe(false)
+
+    dispatchKey(window, "keydown", "e")
+    expect(input.isInteractionHeld()).toBe(true)
+
+    dispatchKey(window, "keyup", "e")
+    expect(input.isInteractionHeld()).toBe(false)
+
+    input.dispose()
+  })
 })

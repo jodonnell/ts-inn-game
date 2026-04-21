@@ -1,6 +1,6 @@
 import type { CollisionWall } from "@/src/ecs/systems/movement"
 import type { TeleportState } from "@/src/ecs/systems/teleport"
-import type { InteractionPoint } from "@/src/render/interactionPrompt"
+import type { InteractionPoint } from "@/src/game/fixtureInteraction"
 import type { FixturePlacement, TeleportZone } from "@/src/maps/tiled"
 import { createDefaultInteractionPoint } from "@/src/game/fixtures"
 
@@ -41,39 +41,6 @@ const copyInteractionPoint = (
   target.bounds.y = source.bounds.y
   target.bounds.width = source.bounds.width
   target.bounds.height = source.bounds.height
-}
-
-export const getFixtureInteractionPoint = (
-  fixture: Pick<RoomFixture, "x" | "y" | "width" | "height">,
-): InteractionPoint => {
-  const radius = Math.max(fixture.width, fixture.height) / 2
-  const centerX = fixture.x + fixture.width / 2
-  const centerY = fixture.y + fixture.height / 2
-  return {
-    x: centerX,
-    y: centerY,
-    radius,
-    offsetY: 16,
-    bounds: {
-      x: fixture.x,
-      y: fixture.y,
-      width: fixture.width,
-      height: fixture.height,
-    },
-  }
-}
-
-export const getActiveFixture = (roomState: RoomState): RoomFixture | null =>
-  roomState.fixtures.find(
-    (fixture) => fixture.id === roomState.activeFixtureId,
-  ) ?? null
-
-export const getCurrentInteractionPoint = (
-  roomState: RoomState,
-): InteractionPoint => {
-  const activeFixture = getActiveFixture(roomState)
-  if (!activeFixture) return roomState.interactionPoint
-  return getFixtureInteractionPoint(activeFixture)
 }
 
 export const createRoomState = (): RoomState => {
