@@ -57,6 +57,16 @@ export type TeleportZone = {
   spawnId?: string
 }
 
+export type FixturePlacement = {
+  id: string
+  type: string
+  x: number
+  y: number
+  width: number
+  height: number
+  durationMs: number
+}
+
 export type TilePlacement = {
   x: number
   y: number
@@ -202,4 +212,28 @@ export const extractTeleportZones = (map: TiledMap): TeleportZone[] => {
     }
   }
   return zones
+}
+
+export const extractFixturePlacements = (map: TiledMap): FixturePlacement[] => {
+  const fixtures: FixturePlacement[] = []
+  for (const layer of map.layers) {
+    if (layer.type !== "objectgroup") continue
+    for (const object of layer.objects) {
+      const type = getObjectProperty(object, "fixtureType")
+      const id = getObjectProperty(object, "fixtureId")
+      const durationMs = getObjectProperty(object, "durationMs")
+      if (typeof type !== "string" || typeof id !== "string") continue
+      if (typeof durationMs !== "number") continue
+      fixtures.push({
+        id,
+        type,
+        x: object.x,
+        y: object.y,
+        width: object.width,
+        height: object.height,
+        durationMs,
+      })
+    }
+  }
+  return fixtures
 }

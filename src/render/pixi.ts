@@ -108,7 +108,9 @@ export const createTilesetTextLoader = (registry: Record<string, string>) => {
   )
 
   return async (tilesetBasePath: string, tilesetSource: string) =>
-    normalizedRegistry[normalizeAssetKey(resolvePath(tilesetBasePath, tilesetSource))] ?? null
+    normalizedRegistry[
+      normalizeAssetKey(resolvePath(tilesetBasePath, tilesetSource))
+    ] ?? null
 }
 
 const loadRawTilesetText = createTilesetTextLoader(rawTilesetModules)

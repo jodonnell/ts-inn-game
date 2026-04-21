@@ -59,6 +59,18 @@ describe("room loader", () => {
               height: 10,
               properties: [{ name: "collision", type: "bool", value: true }],
             },
+            {
+              id: 5,
+              x: 260,
+              y: 96,
+              width: 64,
+              height: 32,
+              properties: [
+                { name: "fixtureType", type: "string", value: "bed" },
+                { name: "fixtureId", type: "string", value: "bed-1" },
+                { name: "durationMs", type: "int", value: 4000 },
+              ],
+            },
           ],
         },
       ],
@@ -91,6 +103,19 @@ describe("room loader", () => {
     ])
     expect(roomState.teleportState.zones).toEqual([
       { x: 10, y: 20, width: 16, height: 16, targetMapKey: "inn" },
+    ])
+    expect(roomState.fixtures).toEqual([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 260,
+        y: 96,
+        width: 64,
+        height: 32,
+        durationMs: 4000,
+        state: "dirty",
+        progressMs: 0,
+      },
     ])
     expect(roomState.interactionPoint).toEqual({
       x: 210,
@@ -288,6 +313,18 @@ describe("room loader", () => {
               width: 30,
               height: 10,
               properties: [{ name: "collision", type: "bool", value: true }],
+            },
+            {
+              id: 5,
+              x: 260,
+              y: 96,
+              width: 64,
+              height: 32,
+              properties: [
+                { name: "fixtureType", type: "string", value: "bed" },
+                { name: "fixtureId", type: "string", value: "bed-1" },
+                { name: "durationMs", type: "int", value: 4000 },
+              ],
             },
           ],
         },

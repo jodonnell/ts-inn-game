@@ -4,6 +4,7 @@ import type { InteractionPoint } from "@/src/render/interactionPrompt"
 import type { TiledMap, TiledTileLayer } from "@/src/maps/tiled"
 import {
   extractCollisionWalls,
+  extractFixturePlacements,
   extractTeleportZones,
   findInteractionPoint,
   findSpawnPoint,
@@ -12,7 +13,7 @@ import {
   createDefaultCollisionWalls,
   createDefaultInteractionPoint,
 } from "@/src/game/fixtures"
-import type { RoomState } from "@/src/game/roomState"
+import type { RoomFixture, RoomState } from "@/src/game/roomState"
 import type { TileSpriteFactory, TileSpriteLike } from "@/src/render/tilemap"
 import { renderTileLayer } from "@/src/render/tilemap"
 
@@ -59,11 +60,19 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   const interactionKey = interactionId ?? "bell"
   let activeMapKey: string | null = null
 
+  const buildRoomFixtures = (map: TiledMap): RoomFixture[] =>
+    extractFixturePlacements(map).map((fixture) => ({
+      ...fixture,
+      state: "dirty",
+      progressMs: 0,
+    }))
+
   const unloadRoom = () => {
     activeMapKey = null
     mapContainer.removeChildren()
     roomState.replaceCollisionWalls(collisionFallback)
     roomState.replaceInteractionPoint(interactionFallback)
+    roomState.replaceFixtures([])
     roomState.replaceTeleportZones([])
   }
 
@@ -106,6 +115,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
       findInteractionPoint(map, interactionKey) ?? interactionFallback
     roomState.replaceInteractionPoint(nextInteraction)
 
+    roomState.replaceFixtures(buildRoomFixtures(map))
     roomState.replaceTeleportZones(extractTeleportZones(map))
 
     return true

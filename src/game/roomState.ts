@@ -1,15 +1,24 @@
 import type { CollisionWall } from "@/src/ecs/systems/movement"
 import type { TeleportState } from "@/src/ecs/systems/teleport"
 import type { InteractionPoint } from "@/src/render/interactionPrompt"
-import type { TeleportZone } from "@/src/maps/tiled"
+import type { FixturePlacement, TeleportZone } from "@/src/maps/tiled"
 import { createDefaultInteractionPoint } from "@/src/game/fixtures"
+
+export type FixtureState = "dirty" | "cleaning" | "clean"
+
+export type RoomFixture = FixturePlacement & {
+  state: FixtureState
+  progressMs: number
+}
 
 export type RoomState = {
   collisionWalls: CollisionWall[]
   interactionPoint: InteractionPoint
+  fixtures: RoomFixture[]
   teleportState: TeleportState
   replaceCollisionWalls: (walls: CollisionWall[]) => void
   replaceInteractionPoint: (point: InteractionPoint) => void
+  replaceFixtures: (fixtures: RoomFixture[]) => void
   replaceTeleportZones: (zones: TeleportZone[]) => void
 }
 
@@ -35,17 +44,22 @@ const copyInteractionPoint = (
 export const createRoomState = (): RoomState => {
   const collisionWalls: CollisionWall[] = []
   const interactionPoint = createDefaultInteractionPoint()
+  const fixtures: RoomFixture[] = []
   const teleportState: TeleportState = { zones: [] }
 
   return {
     collisionWalls,
     interactionPoint,
+    fixtures,
     teleportState,
     replaceCollisionWalls: (walls) => {
       replaceArray(collisionWalls, walls)
     },
     replaceInteractionPoint: (point) => {
       copyInteractionPoint(interactionPoint, point)
+    },
+    replaceFixtures: (nextFixtures) => {
+      replaceArray(fixtures, nextFixtures)
     },
     replaceTeleportZones: (zones) => {
       replaceArray(teleportState.zones, zones)

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   buildTilePlacements,
   extractCollisionWalls,
+  extractFixturePlacements,
   extractTeleportZones,
   findInteractionPoint,
   findSpawnPoint,
@@ -355,6 +356,48 @@ describe("tiled map helpers", () => {
         height: 24,
         targetMapKey: "room1",
         spawnId: "pointA",
+      },
+    ])
+  })
+
+  it("extracts bed fixture placements from object properties", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "fixtures",
+          objects: [
+            {
+              id: 1,
+              x: 160,
+              y: 96,
+              width: 64,
+              height: 32,
+              properties: [
+                { name: "fixtureType", type: "string", value: "bed" },
+                { name: "fixtureId", type: "string", value: "bed-1" },
+                { name: "durationMs", type: "int", value: 4000 },
+              ],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    expect(extractFixturePlacements(map)).toEqual([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 160,
+        y: 96,
+        width: 64,
+        height: 32,
+        durationMs: 4000,
       },
     ])
   })

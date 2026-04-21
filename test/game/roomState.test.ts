@@ -7,6 +7,7 @@ describe("room state", () => {
     const collisionRef = state.collisionWalls
     const interactionRef = state.interactionPoint
     const teleportZonesRef = state.teleportState.zones
+    const fixturesRef = state.fixtures
 
     state.replaceCollisionWalls([{ x: 1, y: 2, width: 3, height: 4 }])
     state.replaceTeleportZones([
@@ -19,6 +20,19 @@ describe("room state", () => {
       offsetY: 8,
       bounds: { x: 9, y: 10, width: 11, height: 12 },
     })
+    state.replaceFixtures([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 50,
+        y: 60,
+        width: 64,
+        height: 32,
+        durationMs: 4000,
+        state: "dirty",
+        progressMs: 0,
+      },
+    ])
 
     expect(state.collisionWalls).toBe(collisionRef)
     expect(state.collisionWalls).toEqual([{ x: 1, y: 2, width: 3, height: 4 }])
@@ -34,5 +48,19 @@ describe("room state", () => {
       offsetY: 8,
       bounds: { x: 9, y: 10, width: 11, height: 12 },
     })
+    expect(state.fixtures).toBe(fixturesRef)
+    expect(state.fixtures).toEqual([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 50,
+        y: 60,
+        width: 64,
+        height: 32,
+        durationMs: 4000,
+        state: "dirty",
+        progressMs: 0,
+      },
+    ])
   })
 })

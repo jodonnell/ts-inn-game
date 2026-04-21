@@ -78,14 +78,16 @@ describe("pixi app", () => {
       "/assets/maps/tiles.tsx": "<tileset />",
     })
 
-    await expect(loadTilesetText("../../assets/maps", "tiles.tsx")).resolves.toBe(
-      "<tileset />",
-    )
+    await expect(
+      loadTilesetText("../../assets/maps", "tiles.tsx"),
+    ).resolves.toBe("<tileset />")
   })
 
   it("returns null when the registry does not contain the resolved tsx path", async () => {
     const loadTilesetText = createTilesetTextLoader({})
 
-    await expect(loadTilesetText("/assets/maps", "tiles.tsx")).resolves.toBeNull()
+    await expect(
+      loadTilesetText("/assets/maps", "tiles.tsx"),
+    ).resolves.toBeNull()
   })
 })
