@@ -9,6 +9,10 @@ import {
 import { createFixtureCleaningSystem } from "@/src/ecs/systems/fixtureCleaning"
 import { createFixtureTargetingSystem } from "@/src/ecs/systems/fixtureTargeting"
 import {
+  createCleaningProgressStore,
+  createCleaningProgressSystem,
+} from "@/src/render/cleaningProgress"
+import {
   createInteractionPromptSystem,
   createPromptStore,
 } from "@/src/render/interactionPrompt"
@@ -38,6 +42,7 @@ const renderSystem = vi.fn()
 const fixtureRenderSystem = vi.fn()
 const fixtureTargetingSystem = vi.fn()
 const fixtureCleaningSystem = vi.fn()
+const cleaningProgressSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const interactionSystem = vi.fn()
@@ -154,6 +159,15 @@ vi.mock("@/src/render/playerRender", () => ({
 
 vi.mock("@/src/render/fixtureRender", () => ({
   createFixtureRenderSystem: vi.fn(() => fixtureRenderSystem),
+}))
+
+vi.mock("@/src/render/cleaningProgress", () => ({
+  createCleaningProgressStore: vi.fn(() => ({
+    bar: null,
+    createBar: vi.fn(),
+    addBar: vi.fn(),
+  })),
+  createCleaningProgressSystem: vi.fn(() => cleaningProgressSystem),
 }))
 
 vi.mock("@/src/render/camera", () => ({
@@ -297,6 +311,9 @@ describe("game bootstrap", () => {
       expect.any(Object),
       worldContainer,
     )
+    expect(vi.mocked(createCleaningProgressStore)).toHaveBeenCalledWith(
+      worldContainer,
+    )
     expect(vi.mocked(createPromptStore)).toHaveBeenCalledWith(worldContainer)
   })
 
@@ -382,6 +399,19 @@ describe("game bootstrap", () => {
       }),
     )
 
+    expect(vi.mocked(createCleaningProgressSystem)).toHaveBeenCalledWith(
+      player,
+      expect.objectContaining({
+        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        fixtures: [],
+      }),
+      expect.objectContaining({
+        bar: null,
+        createBar: expect.any(Function),
+        addBar: expect.any(Function),
+      }),
+    )
+
     const [{ fixtureStore }] = vi
       .mocked(createPixiRenderStore)
       .mock.results.map((result) => result.value)
@@ -409,6 +439,7 @@ describe("game bootstrap", () => {
         fixtureRenderSystem,
         fixtureTargetingSystem,
         fixtureCleaningSystem,
+        cleaningProgressSystem,
         promptSystem,
         interactionSystem,
         timeDisplaySystem,

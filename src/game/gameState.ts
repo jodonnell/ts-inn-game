@@ -10,6 +10,7 @@ import type {
 import { installDebugPerfOverlay } from "@/src/debug/perf"
 import { createKeyboardInputState } from "@/src/input/keyboard"
 import { createCameraAdapter } from "@/src/render/camera"
+import { createCleaningProgressStore } from "@/src/render/cleaningProgress"
 import { createPromptStore } from "@/src/render/interactionPrompt"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
 import {
@@ -38,6 +39,7 @@ export type GameState = {
   input: InputState & InteractionInput & { dispose: () => void }
   cleaningInput: FixtureCleaningInput
   camera: ReturnType<typeof createCameraAdapter>
+  cleaningProgressStore: ReturnType<typeof createCleaningProgressStore>
   promptStore: ReturnType<typeof createPromptStore>
   timeDisplayStore: ReturnType<typeof createTimeDisplayStore>
   nightOverlayStore: ReturnType<typeof createNightOverlayStore>
@@ -73,6 +75,7 @@ export const initializeGame = async (): Promise<GameState> => {
     isHeld: input.isInteractionHeld,
   }
   const camera = createCameraAdapter(app, worldContainer)
+  const cleaningProgressStore = createCleaningProgressStore(worldContainer)
   const promptStore = createPromptStore(worldContainer)
   const timeDisplayStore = createTimeDisplayStore(uiContainer)
   const nightOverlayStore = createNightOverlayStore(overlayContainer)
@@ -131,6 +134,7 @@ export const initializeGame = async (): Promise<GameState> => {
     input,
     cleaningInput,
     camera,
+    cleaningProgressStore,
     promptStore,
     timeDisplayStore,
     nightOverlayStore,
