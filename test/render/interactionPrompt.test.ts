@@ -5,9 +5,9 @@ import { Position } from "@/src/ecs/components"
 import {
   createInteractionPromptSystem,
   createPromptStore,
-  type InteractionPoint,
   type PromptStore,
 } from "@/src/render/interactionPrompt"
+import { createRoomState } from "@/src/game/roomState"
 
 const { textConstructor } = vi.hoisted(() => ({
   textConstructor: vi.fn(),
@@ -52,14 +52,15 @@ describe("interaction prompt system", () => {
       createPrompt: () => prompt,
       addPrompt: () => {},
     }
-    const interaction: InteractionPoint = {
+    const roomState = createRoomState()
+    roomState.replaceInteractionPoint({
       x: 10,
       y: 0,
       radius: 5,
       bounds: { x: 10, y: 0, width: 0, height: 0 },
-    }
+    })
 
-    const system = createInteractionPromptSystem(player, store, interaction)
+    const system = createInteractionPromptSystem(player, store, roomState)
     system(world, 0)
 
     expect(store.prompt).toBe(prompt)
@@ -91,16 +92,56 @@ describe("interaction prompt system", () => {
       createPrompt: () => prompt,
       addPrompt: () => {},
     }
-    const interaction: InteractionPoint = {
+    const roomState = createRoomState()
+    roomState.replaceInteractionPoint({
       x: 116,
       y: 116,
       radius: 12,
       bounds: { x: 100, y: 100, width: 32, height: 32 },
-    }
+    })
 
-    const system = createInteractionPromptSystem(player, store, interaction)
+    const system = createInteractionPromptSystem(player, store, roomState)
     system(world, 0)
 
     expect(prompt.visible).toBe(true)
+  })
+
+  it("keeps the prompt on the default interaction point while fixture actions are unimplemented", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 116, y: 116 })
+    const prompt = { x: 0, y: 0, visible: false }
+    const store: PromptStore = {
+      prompt: null,
+      createPrompt: () => prompt,
+      addPrompt: () => {},
+    }
+    const roomState = createRoomState()
+    roomState.replaceInteractionPoint({
+      x: 10,
+      y: 10,
+      radius: 5,
+      bounds: { x: 10, y: 10, width: 0, height: 0 },
+    })
+    roomState.replaceFixtures([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 100,
+        y: 100,
+        width: 32,
+        height: 32,
+        durationMs: 4000,
+        state: "dirty",
+        progressMs: 0,
+      },
+    ])
+    roomState.setActiveFixtureId("bed-1")
+
+    const system = createInteractionPromptSystem(player, store, roomState)
+    system(world, 0)
+
+    expect(prompt.visible).toBe(false)
+    expect(prompt.x).toBe(10)
+    expect(prompt.y).toBe(10)
   })
 })

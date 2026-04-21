@@ -63,4 +63,38 @@ describe("room state", () => {
       },
     ])
   })
+
+  it("tracks the active fixture id", () => {
+    const state = createRoomState()
+
+    expect(state.activeFixtureId).toBeNull()
+
+    state.setActiveFixtureId("bed-1")
+    expect(state.activeFixtureId).toBe("bed-1")
+
+    state.setActiveFixtureId(null)
+    expect(state.activeFixtureId).toBeNull()
+  })
+
+  it("clears the active fixture id when fixtures are replaced without that id", () => {
+    const state = createRoomState()
+    state.replaceFixtures([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 50,
+        y: 60,
+        width: 64,
+        height: 32,
+        durationMs: 4000,
+        state: "dirty",
+        progressMs: 0,
+      },
+    ])
+    state.setActiveFixtureId("bed-1")
+
+    state.replaceFixtures([])
+
+    expect(state.activeFixtureId).toBeNull()
+  })
 })

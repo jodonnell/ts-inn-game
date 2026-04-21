@@ -15,10 +15,12 @@ export type RoomState = {
   collisionWalls: CollisionWall[]
   interactionPoint: InteractionPoint
   fixtures: RoomFixture[]
+  activeFixtureId: string | null
   teleportState: TeleportState
   replaceCollisionWalls: (walls: CollisionWall[]) => void
   replaceInteractionPoint: (point: InteractionPoint) => void
   replaceFixtures: (fixtures: RoomFixture[]) => void
+  setActiveFixtureId: (fixtureId: string | null) => void
   replaceTeleportZones: (zones: TeleportZone[]) => void
 }
 
@@ -41,16 +43,49 @@ const copyInteractionPoint = (
   target.bounds.height = source.bounds.height
 }
 
+export const getFixtureInteractionPoint = (
+  fixture: Pick<RoomFixture, "x" | "y" | "width" | "height">,
+): InteractionPoint => {
+  const radius = Math.max(fixture.width, fixture.height) / 2
+  const centerX = fixture.x + fixture.width / 2
+  const centerY = fixture.y + fixture.height / 2
+  return {
+    x: centerX,
+    y: centerY,
+    radius,
+    offsetY: 16,
+    bounds: {
+      x: fixture.x,
+      y: fixture.y,
+      width: fixture.width,
+      height: fixture.height,
+    },
+  }
+}
+
+export const getActiveFixture = (roomState: RoomState): RoomFixture | null =>
+  roomState.fixtures.find(
+    (fixture) => fixture.id === roomState.activeFixtureId,
+  ) ?? null
+
+export const getCurrentInteractionPoint = (
+  roomState: RoomState,
+): InteractionPoint => {
+  const activeFixture = getActiveFixture(roomState)
+  if (!activeFixture) return roomState.interactionPoint
+  return getFixtureInteractionPoint(activeFixture)
+}
+
 export const createRoomState = (): RoomState => {
   const collisionWalls: CollisionWall[] = []
   const interactionPoint = createDefaultInteractionPoint()
   const fixtures: RoomFixture[] = []
   const teleportState: TeleportState = { zones: [] }
-
-  return {
+  const roomState: RoomState = {
     collisionWalls,
     interactionPoint,
     fixtures,
+    activeFixtureId: null,
     teleportState,
     replaceCollisionWalls: (walls) => {
       replaceArray(collisionWalls, walls)
@@ -60,9 +95,19 @@ export const createRoomState = (): RoomState => {
     },
     replaceFixtures: (nextFixtures) => {
       replaceArray(fixtures, nextFixtures)
+      if (
+        !fixtures.some((fixture) => fixture.id === roomState.activeFixtureId)
+      ) {
+        roomState.activeFixtureId = null
+      }
+    },
+    setActiveFixtureId: (fixtureId) => {
+      roomState.activeFixtureId = fixtureId
     },
     replaceTeleportZones: (zones) => {
       replaceArray(teleportState.zones, zones)
     },
   }
+
+  return roomState
 }

@@ -1,6 +1,6 @@
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
-import type { InteractionPoint } from "@/src/render/interactionPrompt"
+import type { RoomState } from "@/src/game/roomState"
 
 export type InteractionInput = {
   consumeInteraction: () => boolean
@@ -10,7 +10,11 @@ export type InteractionSound = {
   play: () => void
 }
 
-const isWithinRange = (x: number, y: number, interaction: InteractionPoint) => {
+const isWithinRange = (
+  x: number,
+  y: number,
+  interaction: RoomState["interactionPoint"],
+) => {
   const minX = interaction.bounds.x
   const maxX = interaction.bounds.x + interaction.bounds.width
   const minY = interaction.bounds.y
@@ -24,7 +28,7 @@ export const createInteractionSystem =
   (
     player: number,
     input: InteractionInput,
-    interaction: InteractionPoint,
+    roomState: RoomState,
     sound: InteractionSound,
   ) =>
   (_world: GameWorld, _dt: number) => {
@@ -34,6 +38,7 @@ export const createInteractionSystem =
 
     const playerX = Position.x[player]
     const playerY = Position.y[player]
+    const interaction = roomState.interactionPoint
 
     if (isWithinRange(playerX, playerY, interaction)) {
       sound.play()

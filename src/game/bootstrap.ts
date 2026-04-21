@@ -3,6 +3,7 @@ import {
   createInputSystem,
   createMovementSystem,
 } from "@/src/ecs/systems/movement"
+import { createFixtureTargetingSystem } from "@/src/ecs/systems/fixtureTargeting"
 import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createTimeSystem } from "@/src/ecs/systems/time"
@@ -60,15 +61,16 @@ export const createGameLoop = (state: GameState) => {
         state.roomState,
         state.renderStore.fixtureStore,
       ),
+      createFixtureTargetingSystem(state.player, state.roomState),
       createInteractionPromptSystem(
         state.player,
         state.promptStore,
-        state.roomState.interactionPoint,
+        state.roomState,
       ),
       createInteractionSystem(
         state.player,
         state.input,
-        state.roomState.interactionPoint,
+        state.roomState,
         state.bellSound,
       ),
       createTimeDisplaySystem(state.gameTime, state.timeDisplayStore),

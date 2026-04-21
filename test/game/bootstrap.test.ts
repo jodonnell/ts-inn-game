@@ -6,6 +6,7 @@ import {
   createCameraAdapter,
   createCameraFollowSystem,
 } from "@/src/render/camera"
+import { createFixtureTargetingSystem } from "@/src/ecs/systems/fixtureTargeting"
 import {
   createInteractionPromptSystem,
   createPromptStore,
@@ -34,6 +35,7 @@ const movementSystem = vi.fn()
 const teleportSystem = vi.fn()
 const renderSystem = vi.fn()
 const fixtureRenderSystem = vi.fn()
+const fixtureTargetingSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const interactionSystem = vi.fn()
@@ -120,6 +122,10 @@ vi.mock("@/src/input/keyboard", () => ({
 vi.mock("@/src/ecs/systems/movement", () => ({
   createInputSystem: vi.fn(() => inputSystem),
   createMovementSystem: vi.fn(() => movementSystem),
+}))
+
+vi.mock("@/src/ecs/systems/fixtureTargeting", () => ({
+  createFixtureTargetingSystem: vi.fn(() => fixtureTargetingSystem),
 }))
 
 vi.mock("@/src/ecs/systems/interaction", () => ({
@@ -321,7 +327,10 @@ describe("game bootstrap", () => {
         createPrompt: expect.any(Function),
         addPrompt: expect.any(Function),
       }),
-      expect.objectContaining({ x: 200, y: 180 }),
+      expect.objectContaining({
+        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        fixtures: [],
+      }),
     )
 
     expect(vi.mocked(createInteractionSystem)).toHaveBeenCalledWith(
@@ -331,7 +340,10 @@ describe("game bootstrap", () => {
         consumeInteraction: expect.any(Function),
         dispose: expect.any(Function),
       }),
-      expect.objectContaining({ x: 200, y: 180 }),
+      expect.objectContaining({
+        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        fixtures: [],
+      }),
       expect.any(Object),
     )
 
@@ -341,6 +353,14 @@ describe("game bootstrap", () => {
         sprites: expect.any(Map),
         createSprite: expect.any(Function),
         addSprite: expect.any(Function),
+      }),
+    )
+
+    expect(vi.mocked(createFixtureTargetingSystem)).toHaveBeenCalledWith(
+      player,
+      expect.objectContaining({
+        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        fixtures: [],
       }),
     )
 
@@ -369,6 +389,7 @@ describe("game bootstrap", () => {
         cameraSystem,
         renderSystem,
         fixtureRenderSystem,
+        fixtureTargetingSystem,
         promptSystem,
         interactionSystem,
         timeDisplaySystem,

@@ -1,5 +1,6 @@
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
+import type { RoomState } from "@/src/game/roomState"
 import { Text } from "pixi.js"
 import type { Container } from "pixi.js"
 
@@ -68,13 +69,14 @@ const isWithinRange = (x: number, y: number, interaction: InteractionPoint) => {
 }
 
 export const createInteractionPromptSystem =
-  (player: number, store: PromptStore, interaction: InteractionPoint) =>
+  (player: number, store: PromptStore, roomState: RoomState) =>
   (_world: GameWorld, _dt: number) => {
     void _world
     void _dt
     const prompt = ensurePrompt(store)
     const playerX = Position.x[player]
     const playerY = Position.y[player]
+    const interaction = roomState.interactionPoint
     const offsetY = interaction.offsetY ?? 0
 
     prompt.x = interaction.x
