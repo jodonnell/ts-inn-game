@@ -7,6 +7,7 @@ import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createTimeSystem } from "@/src/ecs/systems/time"
 import { createCameraFollowSystem } from "@/src/render/camera"
+import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
 import { createInteractionPromptSystem } from "@/src/render/interactionPrompt"
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import { createNightOverlaySystem } from "@/src/render/nightOverlay"
@@ -55,6 +56,10 @@ export const createGameLoop = (state: GameState) => {
       }),
       createCameraFollowSystem(state.player, state.camera),
       createPlayerRenderSystem(state.player, state.renderStore),
+      createFixtureRenderSystem(
+        state.roomState,
+        state.renderStore.fixtureStore,
+      ),
       createInteractionPromptSystem(
         state.player,
         state.promptStore,

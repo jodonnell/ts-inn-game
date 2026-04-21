@@ -10,6 +10,10 @@ import {
 import type { SpritesheetData } from "pixi.js"
 import managerSheetData from "@/assets/spritesheets/manager-sheet.json"
 import type { RenderStore, SpriteLike } from "@/src/render/playerRender"
+import type {
+  FixtureRenderStore,
+  FixtureSpriteLike,
+} from "@/src/render/fixtureRender"
 import type { TiledTilesetRef } from "@/src/maps/tiled"
 import { parseTilesetImageSource } from "@/src/maps/tiled"
 import type { TilesetTexture } from "@/src/render/tilemap"
@@ -145,12 +149,18 @@ export const loadTilesetTextures = async ({
   return textures
 }
 
+export type PixiRenderStore = RenderStore & {
+  fixtureStore: FixtureRenderStore
+}
+
 export const createPixiRenderStore = (
   app: Application,
   spritesheet: Spritesheet,
   container: Container,
-): RenderStore => {
+): PixiRenderStore => {
+  void app
   const sprites = new Map<number, SpriteLike>()
+  const fixtureSprites = new Map<string, FixtureSpriteLike>()
   const getTexture = (frame: string): Texture => {
     const texture = spritesheet.textures[frame]
     if (!texture) {
@@ -173,6 +183,22 @@ export const createPixiRenderStore = (
     },
     addSprite: (sprite) => {
       container.addChild(sprite as Sprite)
+    },
+    fixtureStore: {
+      sprites: fixtureSprites,
+      createSprite: (assetId) => {
+        const sprite = new Sprite(Texture.from(assetId)) as Sprite &
+          FixtureSpriteLike
+        sprite.anchor.set(0.5, 1)
+        sprite.assetId = assetId
+        sprite.setAsset = (nextAssetId) => {
+          sprite.texture = Texture.from(nextAssetId)
+        }
+        return sprite
+      },
+      addSprite: (sprite) => {
+        container.addChild(sprite as Sprite)
+      },
     },
   }
 }

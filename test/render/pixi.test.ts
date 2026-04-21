@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from "vitest"
 import {
   createPixiApp,
+  createPixiRenderStore,
   createTilesetTextLoader,
   loadTilesetTextures,
 } from "@/src/render/pixi"
@@ -10,6 +11,27 @@ const assetsLoad = vi.hoisted(() => vi.fn(async () => {}))
 const textureFrom = vi.hoisted(() => vi.fn((path: string) => ({ path })))
 
 vi.mock("pixi.js", () => {
+  class Sprite {
+    texture
+    x = 0
+    y = 0
+    anchor = { set: vi.fn() }
+
+    constructor(texture?: unknown) {
+      this.texture = texture
+    }
+  }
+
+  class AnimatedSprite extends Sprite {
+    textures
+    animationSpeed = 0
+
+    constructor(textures: unknown[]) {
+      super(textures[0])
+      this.textures = textures
+    }
+  }
+
   class Application {
     canvas = document.createElement("canvas")
     init = vi.fn(async () => {})
@@ -17,7 +39,9 @@ vi.mock("pixi.js", () => {
   }
   return {
     Application,
+    AnimatedSprite,
     Assets: { load: assetsLoad },
+    Sprite,
     Texture: { from: textureFrom },
   }
 })
@@ -89,5 +113,27 @@ describe("pixi app", () => {
     await expect(
       loadTilesetText("/assets/maps", "tiles.tsx"),
     ).resolves.toBeNull()
+  })
+
+  it("creates fixture sprites that can swap assets", () => {
+    const addChild = vi.fn()
+    const store = createPixiRenderStore(
+      {} as never,
+      { textures: {} } as never,
+      { addChild } as never,
+    )
+
+    const sprite = store.fixtureStore.createSprite("bed-dirty")
+    store.fixtureStore.sprites.set("bed-1", sprite)
+    store.fixtureStore.addSprite(sprite)
+
+    expect(textureFrom).toHaveBeenCalledWith("bed-dirty")
+    expect(addChild).toHaveBeenCalledWith(sprite)
+    expect(sprite.assetId).toBe("bed-dirty")
+
+    sprite.setAsset("bed-clean")
+
+    expect(textureFrom).toHaveBeenCalledWith("bed-clean")
+    expect(sprite.texture).toEqual({ path: "bed-clean" })
   })
 })

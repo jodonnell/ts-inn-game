@@ -11,6 +11,7 @@ import {
   createPromptStore,
 } from "@/src/render/interactionPrompt"
 import { createInteractionSystem } from "@/src/ecs/systems/interaction"
+import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { installGameTestApi } from "@/src/game/testHooks"
@@ -32,6 +33,7 @@ const inputSystem = vi.fn()
 const movementSystem = vi.fn()
 const teleportSystem = vi.fn()
 const renderSystem = vi.fn()
+const fixtureRenderSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const interactionSystem = vi.fn()
@@ -137,6 +139,10 @@ vi.mock("@/src/render/playerRender", () => ({
   createPlayerRenderSystem: vi.fn(() => renderSystem),
 }))
 
+vi.mock("@/src/render/fixtureRender", () => ({
+  createFixtureRenderSystem: vi.fn(() => fixtureRenderSystem),
+}))
+
 vi.mock("@/src/render/camera", () => ({
   createCameraAdapter: vi.fn(() => ({ setPosition: vi.fn() })),
   createCameraFollowSystem: vi.fn(() => cameraSystem),
@@ -169,6 +175,11 @@ vi.mock("@/src/render/pixi", () => ({
     sprites: new Map(),
     createAnimatedSprite: vi.fn(),
     addSprite: vi.fn(),
+    fixtureStore: {
+      sprites: new Map(),
+      createSprite: vi.fn(),
+      addSprite: vi.fn(),
+    },
   })),
 }))
 
@@ -324,6 +335,23 @@ describe("game bootstrap", () => {
       expect.any(Object),
     )
 
+    expect(vi.mocked(createFixtureRenderSystem)).toHaveBeenCalledWith(
+      expect.objectContaining({ fixtures: [] }),
+      expect.objectContaining({
+        sprites: expect.any(Map),
+        createSprite: expect.any(Function),
+        addSprite: expect.any(Function),
+      }),
+    )
+
+    const [{ fixtureStore }] = vi
+      .mocked(createPixiRenderStore)
+      .mock.results.map((result) => result.value)
+    expect(vi.mocked(createFixtureRenderSystem)).toHaveBeenCalledWith(
+      expect.any(Object),
+      fixtureStore,
+    )
+
     expect(vi.mocked(createTeleportSystem)).toHaveBeenCalledWith(
       player,
       expect.objectContaining({ zones: [] }),
@@ -340,6 +368,7 @@ describe("game bootstrap", () => {
         nightOverlaySystem,
         cameraSystem,
         renderSystem,
+        fixtureRenderSystem,
         promptSystem,
         interactionSystem,
         timeDisplaySystem,

@@ -5,6 +5,7 @@ import { getFixtureAsset } from "@/src/render/fixtureAssets"
 export type FixtureSpriteLike = {
   x: number
   y: number
+  assetId?: string
   setAsset: (assetId: string) => void
 }
 
@@ -25,10 +26,12 @@ export const createFixtureRenderSystem =
       const assetId = getFixtureAsset(fixture)
       if (!sprite) {
         sprite = store.createSprite(assetId)
+        sprite.assetId = assetId
         store.sprites.set(fixture.id, sprite)
         store.addSprite(sprite)
-      } else {
+      } else if (sprite.assetId !== assetId) {
         sprite.setAsset(assetId)
+        sprite.assetId = assetId
       }
       sprite.x = fixture.x
       sprite.y = fixture.y
