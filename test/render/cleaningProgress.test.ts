@@ -8,7 +8,7 @@ import {
 } from "@/src/render/cleaningProgress"
 
 describe("cleaning progress system", () => {
-  it("shows a progress bar above the player while cleaning", () => {
+  it("centers a progress bar above the player's head while cleaning", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 100, y: 120 })
     const bar = {
@@ -44,7 +44,7 @@ describe("cleaning progress system", () => {
 
     expect(store.bar).toBe(bar)
     expect(bar.x).toBe(100)
-    expect(bar.y).toBe(72)
+    expect(bar.y).toBe(48)
     expect(bar.visible).toBe(true)
     expect(bar.setProgress).toHaveBeenCalledWith(0.25)
   })

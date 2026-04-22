@@ -4,6 +4,9 @@ import { getActiveFixture } from "@/src/game/fixtureInteraction"
 import type { RoomState } from "@/src/game/roomState"
 import { Container, Graphics, Text } from "pixi.js"
 
+const PLAYER_HEIGHT = 64
+const CLEANING_PROGRESS_HEAD_MARGIN = 8
+
 export type CleaningProgressBarLike = {
   x: number
   y: number
@@ -35,6 +38,10 @@ export const createCleaningProgressStore = (
     const root = new Container()
     const background = new Graphics()
     const fill = new Graphics()
+    const width = 48
+    const height = 6
+    const radius = 3
+    const left = -width / 2
     const label = new Text({
       text: "Cleaning",
       style: {
@@ -44,24 +51,20 @@ export const createCleaningProgressStore = (
     })
 
     label.anchor.set(0.5, 1)
-    label.x = 24
+    label.x = 0
     label.y = -2
     root.addChild(background)
     root.addChild(fill)
     root.addChild(label)
 
-    const width = 48
-    const height = 6
-    const radius = 3
-
     const redraw = (progress: number) => {
       background.clear()
-      background.roundRect(0, 0, width, height, radius).fill({
+      background.roundRect(left, 0, width, height, radius).fill({
         color: 0x111111,
         alpha: 0.8,
       })
       fill.clear()
-      fill.roundRect(0, 0, width * progress, height, radius).fill({
+      fill.roundRect(left, 0, width * progress, height, radius).fill({
         color: 0x7ddc65,
         alpha: 1,
       })
@@ -120,7 +123,7 @@ export const createCleaningProgressSystem =
     }
 
     bar.x = Position.x[player]
-    bar.y = Position.y[player] - 48
+    bar.y = Position.y[player] - PLAYER_HEIGHT - CLEANING_PROGRESS_HEAD_MARGIN
     bar.visible = true
     bar.setProgress(activeFixture.progressMs / activeFixture.durationMs)
   }

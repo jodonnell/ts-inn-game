@@ -55,4 +55,20 @@ describe("cleaning progress store", () => {
       style: { fill: "#ffffff", fontSize: 10 },
     })
   })
+
+  it("draws the bar centered on the container origin", () => {
+    const container = { addChild: vi.fn() } as never
+    const store = createCleaningProgressStore(container)
+
+    const bar = store.createBar()
+    const [background, fill, label] = bar.container.children as [
+      { roundRect: ReturnType<typeof vi.fn> },
+      { roundRect: ReturnType<typeof vi.fn> },
+      { x: number },
+    ]
+
+    expect(background.roundRect).toHaveBeenCalledWith(-24, 0, 48, 6, 3)
+    expect(fill.roundRect).toHaveBeenCalledWith(-24, 0, 0, 6, 3)
+    expect(label.x).toBe(0)
+  })
 })
