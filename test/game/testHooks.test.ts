@@ -52,6 +52,59 @@ describe("game test hooks", () => {
     expect(Position.y[player]).toBe(160)
   })
 
+  it("moves the player to a fixture interaction point", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    roomState.replaceFixtures([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 320,
+        y: 160,
+        width: 160,
+        height: 160,
+        durationMs: 4000,
+        state: "dirty",
+        progressMs: 0,
+      },
+    ])
+    const roomLoader = vi.fn(() => true)
+    const api = createGameTestApi({ player, roomState, roomLoader })
+
+    expect(api.movePlayerToFixture("bed-1")).toBe(true)
+
+    expect(Position.x[player]).toBe(400)
+    expect(Position.y[player]).toBe(240)
+  })
+
+  it("reports fixture cleaning state", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    roomState.replaceFixtures([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 320,
+        y: 160,
+        width: 160,
+        height: 160,
+        durationMs: 4000,
+        state: "cleaning",
+        progressMs: 1500,
+      },
+    ])
+    const roomLoader = vi.fn(() => true)
+    const api = createGameTestApi({ player, roomState, roomLoader })
+
+    expect(api.getFixtureState("bed-1")).toEqual({
+      state: "cleaning",
+      progressMs: 1500,
+    })
+    expect(api.getFixtureState("missing")).toBeNull()
+  })
+
   it("reports the player position", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 120, y: 80 })
@@ -91,7 +144,9 @@ describe("game test hooks", () => {
         setPlayerPosition: expect.any(Function),
         teleportTo: expect.any(Function),
         movePlayerToInteraction: expect.any(Function),
+        movePlayerToFixture: expect.any(Function),
         getPlayerPosition: expect.any(Function),
+        getFixtureState: expect.any(Function),
         getCurrentMapKey: expect.any(Function),
       }),
     )

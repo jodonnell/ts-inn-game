@@ -4,13 +4,18 @@ declare global {
   interface Window {
     __gameTestApi?: {
       getCurrentMapKey?: () => string | null
+      getFixtureState?: (
+        fixtureId: string,
+      ) => { state: "dirty" | "cleaning" | "clean"; progressMs: number } | null
       getPlayerPosition: () => { x: number; y: number }
+      movePlayerToFixture?: (fixtureId: string) => boolean
     }
   }
 }
 
-export const gotoGame = async (page: Page, fixture: string) => {
-  await page.goto(`/?e2e=1&fixture=${fixture}`)
+export const gotoGame = async (page: Page, fixture?: string) => {
+  const search = fixture ? `?e2e=1&fixture=${fixture}` : "?e2e=1"
+  await page.goto(`/${search}`)
   await page.waitForFunction(() => Boolean(window.__gameTestApi))
 }
 
@@ -19,6 +24,18 @@ export const getPlayerPosition = async (page: Page) =>
 
 export const getCurrentMapKey = async (page: Page) =>
   page.evaluate(() => window.__gameTestApi?.getCurrentMapKey?.() ?? null)
+
+export const movePlayerToFixture = async (page: Page, fixtureId: string) =>
+  page.evaluate(
+    (id) => window.__gameTestApi?.movePlayerToFixture?.(id) ?? false,
+    fixtureId,
+  )
+
+export const getFixtureState = async (page: Page, fixtureId: string) =>
+  page.evaluate(
+    (id) => window.__gameTestApi?.getFixtureState?.(id) ?? null,
+    fixtureId,
+  )
 
 export const holdKeyUntil = async (
   page: Page,

@@ -1,5 +1,7 @@
 import { Position } from "@/src/ecs/components"
+import { getFixtureInteractionPoint } from "@/src/game/fixtureInteraction"
 import type { RoomState } from "@/src/game/roomState"
+import type { FixtureState } from "@/src/game/roomState"
 
 export type GameTestState = {
   player: number
@@ -14,7 +16,11 @@ export type GameTestApi = {
   setPlayerPosition: (x: number, y: number) => void
   teleportTo: (mapKey: string, spawnId?: string) => boolean
   movePlayerToInteraction: () => void
+  movePlayerToFixture: (fixtureId: string) => boolean
   getPlayerPosition: () => { x: number; y: number }
+  getFixtureState: (
+    fixtureId: string,
+  ) => { state: FixtureState; progressMs: number } | null
   getCurrentMapKey: () => string | null
 }
 
@@ -29,10 +35,28 @@ export const createGameTestApi = (state: GameTestState): GameTestApi => ({
     Position.x[state.player] = interaction.x
     Position.y[state.player] = interaction.y
   },
+  movePlayerToFixture: (fixtureId) => {
+    const fixture =
+      state.roomState.fixtures.find((item) => item.id === fixtureId) ?? null
+    if (!fixture) return false
+    const interaction = getFixtureInteractionPoint(fixture)
+    Position.x[state.player] = interaction.x
+    Position.y[state.player] = interaction.y
+    return true
+  },
   getPlayerPosition: () => ({
     x: Position.x[state.player],
     y: Position.y[state.player],
   }),
+  getFixtureState: (fixtureId) => {
+    const fixture =
+      state.roomState.fixtures.find((item) => item.id === fixtureId) ?? null
+    if (!fixture) return null
+    return {
+      state: fixture.state,
+      progressMs: fixture.progressMs,
+    }
+  },
   getCurrentMapKey: () => state.roomLoader.getCurrentMapKey(),
 })
 
