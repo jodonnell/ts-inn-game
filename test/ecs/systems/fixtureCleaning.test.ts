@@ -67,7 +67,7 @@ describe("fixture cleaning system", () => {
     )
   })
 
-  it("resets cleaning when interaction is released", () => {
+  it("decays cleaning progress when interaction is released", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
     const roomState = createRoomState()
@@ -92,8 +92,8 @@ describe("fixture cleaning system", () => {
 
     expect(roomState.fixtures[0]).toEqual(
       expect.objectContaining({
-        state: "dirty",
-        progressMs: 0,
+        state: "cleaning",
+        progressMs: 1250,
       }),
     )
   })

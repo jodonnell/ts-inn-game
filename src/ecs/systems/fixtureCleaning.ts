@@ -14,6 +14,11 @@ const resetCleaningFixture = (roomState: RoomState) => {
   }
 }
 
+const decayCleaningFixture = (fixture: RoomState["fixtures"][number], dt: number) => {
+  fixture.progressMs = Math.max(0, fixture.progressMs - dt * 1000)
+  fixture.state = fixture.progressMs > 0 ? "cleaning" : "dirty"
+}
+
 export const createFixtureCleaningSystem =
   (player: number, input: FixtureCleaningInput, roomState: RoomState) =>
   (_world: GameWorld, dt: number) => {
@@ -27,7 +32,9 @@ export const createFixtureCleaningSystem =
     }
 
     if (!input.isHeld()) {
-      resetCleaningFixture(roomState)
+      if (activeFixture.state === "cleaning") {
+        decayCleaningFixture(activeFixture, dt)
+      }
       return
     }
 
