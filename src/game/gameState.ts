@@ -67,7 +67,6 @@ export const initializeGame = async (): Promise<GameState> => {
   app.stage.addChild(worldContainer)
   app.stage.addChild(overlayContainer)
   app.stage.addChild(uiContainer)
-  const renderStore = createPixiRenderStore(app, spritesheet, worldContainer)
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 0, y: 0 })
   const input = createKeyboardInputState()
@@ -83,7 +82,12 @@ export const initializeGame = async (): Promise<GameState> => {
   const roomState = createRoomState()
   const bellSound = new Howl({ src: [bellSfx] })
   const mapContainer = new Container()
+  const actorContainer = new Container()
+  const foregroundMapContainer = new Container()
   worldContainer.addChild(mapContainer)
+  worldContainer.addChild(actorContainer)
+  worldContainer.addChild(foregroundMapContainer)
+  const renderStore = createPixiRenderStore(app, spritesheet, actorContainer)
   const defaultMapsByKey = {
     inn: innMap,
     room1: room1Map,
@@ -122,6 +126,7 @@ export const initializeGame = async (): Promise<GameState> => {
     mapsByKey,
     player,
     mapContainer,
+    foregroundMapContainer,
     tileSpriteFactories,
     roomState,
   })

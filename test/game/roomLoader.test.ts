@@ -466,4 +466,65 @@ describe("room loader", () => {
     ])
     expect(unloadSpy).toHaveBeenCalledTimes(1)
   })
+
+  it("renders overhang layers into a foreground container", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "tilelayer",
+          name: "ground",
+          width: 1,
+          height: 1,
+          data: [1],
+        },
+        {
+          type: "tilelayer",
+          name: "overhang",
+          width: 1,
+          height: 1,
+          data: [2],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const foregroundMapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi
+      .fn()
+      .mockReturnValueOnce({ id: "ground" })
+      .mockReturnValueOnce({ id: "overhang" })
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: map },
+      player,
+      mapContainer,
+      foregroundMapContainer,
+      tileSpriteFactories: { room1: tileSpriteFactory },
+      roomState,
+    })
+
+    expect(loadRoom("room1")).toBe(true)
+
+    expect(mapContainer.addChild).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "ground" }),
+    )
+    expect(foregroundMapContainer.addChild).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "overhang" }),
+    )
+    expect(mapContainer.removeChildren).toHaveBeenCalledTimes(1)
+    expect(foregroundMapContainer.removeChildren).toHaveBeenCalledTimes(1)
+  })
 })

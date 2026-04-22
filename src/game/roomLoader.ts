@@ -28,6 +28,7 @@ type RoomLoaderOptions<TSprite extends TileSpriteLike> = {
   mapsByKey: RoomRegistry
   player: number
   mapContainer: MapContainerLike<TSprite>
+  foregroundMapContainer?: MapContainerLike<TSprite>
   tileSpriteFactories: Record<string, TileSpriteFactory<TSprite>>
   roomState: RoomState
   fallbackSpawn?: { x: number; y: number }
@@ -45,6 +46,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   mapsByKey,
   player,
   mapContainer,
+  foregroundMapContainer,
   tileSpriteFactories,
   roomState,
   fallbackSpawn,
@@ -58,6 +60,13 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   const collisionFallback =
     fallbackCollisionWalls ?? createDefaultCollisionWalls()
   const interactionKey = interactionId ?? "bell"
+  const topMapContainer = foregroundMapContainer ?? mapContainer
+  const clearMapContainers = () => {
+    mapContainer.removeChildren()
+    if (topMapContainer !== mapContainer) {
+      topMapContainer.removeChildren()
+    }
+  }
   let activeMapKey: string | null = null
 
   const buildRoomFixtures = (map: TiledMap): RoomFixture[] =>
@@ -69,7 +78,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
 
   const unloadRoom = () => {
     activeMapKey = null
-    mapContainer.removeChildren()
+    clearMapContainers()
     roomState.replaceCollisionWalls(collisionFallback)
     roomState.replaceInteractionPoint(interactionFallback)
     roomState.replaceFixtures([])
@@ -85,17 +94,19 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     if (!tileSpriteFactory) return false
     activeMapKey = mapKey
 
-    mapContainer.removeChildren()
+    clearMapContainers()
     const tileLayers = map.layers.filter(
       (layer): layer is TiledTileLayer => layer.type === "tilelayer",
     )
     for (const layer of tileLayers) {
+      const targetContainer =
+        layer.name === "overhang" ? topMapContainer : mapContainer
       renderTileLayer(
         layer,
         map.tilewidth,
         map.tileheight,
         tileSpriteFactory,
-        (sprite) => mapContainer.addChild(sprite),
+        (sprite) => targetContainer.addChild(sprite),
       )
     }
 

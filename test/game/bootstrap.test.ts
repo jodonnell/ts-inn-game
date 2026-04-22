@@ -298,18 +298,26 @@ describe("game bootstrap", () => {
     const [, worldContainer] = vi.mocked(createCameraAdapter).mock.calls[0]
     const [uiContainer] = vi.mocked(createTimeDisplayStore).mock.calls[0]
     const [overlayContainer] = vi.mocked(createNightOverlayStore).mock.calls[0]
+    const [{ mapContainer, foregroundMapContainer }] =
+      vi.mocked(createRoomLoader).mock.calls[0]
+    const [, , actorContainer] = vi.mocked(createPixiRenderStore).mock.calls[0]
 
     expect(worldContainer).toBeInstanceOf(Container)
     expect(uiContainer).toBeInstanceOf(Container)
     expect(overlayContainer).toBeInstanceOf(Container)
+    expect(mapContainer).toBeInstanceOf(Container)
+    expect(foregroundMapContainer).toBeInstanceOf(Container)
+    expect(actorContainer).toBeInstanceOf(Container)
     expect(uiContainer).not.toBe(worldContainer)
     expect(overlayContainer).not.toBe(worldContainer)
     expect(overlayContainer).not.toBe(uiContainer)
+    expect(mapContainer).not.toBe(actorContainer)
+    expect(foregroundMapContainer).not.toBe(actorContainer)
 
     expect(vi.mocked(createPixiRenderStore)).toHaveBeenCalledWith(
       expect.any(Object),
       expect.any(Object),
-      worldContainer,
+      actorContainer,
     )
     expect(vi.mocked(createCleaningProgressStore)).toHaveBeenCalledWith(
       worldContainer,
