@@ -57,4 +57,36 @@ describe("movement systems", () => {
     expect(Position.x[player]).toBe(0)
     expect(Position.y[player]).toBe(0)
   })
+
+  it("keeps horizontal buffer between the player and a wall", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+
+    Velocity.x[player] = 8
+    Velocity.y[player] = 0
+
+    const walls = [{ x: 12, y: -20, width: 10, height: 40 }]
+
+    const system = createMovementSystem(player, walls)
+    system(world, 1)
+
+    expect(Position.x[player]).toBe(0)
+    expect(Position.y[player]).toBe(0)
+  })
+
+  it("keeps vertical buffer between the player and a wall", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+
+    Velocity.x[player] = 0
+    Velocity.y[player] = 8
+
+    const walls = [{ x: -20, y: 12, width: 40, height: 10 }]
+
+    const system = createMovementSystem(player, walls)
+    system(world, 1)
+
+    expect(Position.x[player]).toBe(0)
+    expect(Position.y[player]).toBe(0)
+  })
 })

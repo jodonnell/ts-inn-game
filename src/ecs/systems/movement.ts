@@ -13,14 +13,16 @@ export type CollisionWall = {
   height: number
 }
 
-const isPointInsideWall = (x: number, y: number, wall: CollisionWall) =>
-  x >= wall.x &&
-  x <= wall.x + wall.width &&
-  y >= wall.y &&
-  y <= wall.y + wall.height
+const PLAYER_COLLISION_BUFFER = 10
+
+const overlapsWall = (x: number, y: number, wall: CollisionWall) =>
+  x + PLAYER_COLLISION_BUFFER >= wall.x &&
+  x - PLAYER_COLLISION_BUFFER <= wall.x + wall.width &&
+  y + PLAYER_COLLISION_BUFFER >= wall.y &&
+  y - PLAYER_COLLISION_BUFFER <= wall.y + wall.height
 
 const hitsWall = (x: number, y: number, walls: CollisionWall[]) =>
-  walls.some((wall) => isPointInsideWall(x, y, wall))
+  walls.some((wall) => overlapsWall(x, y, wall))
 
 export const createInputSystem =
   (player: number, input: InputState, speed = 120) =>
