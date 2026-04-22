@@ -46,7 +46,7 @@ describe("fixture render system", () => {
 
     system(world, 0)
 
-    expect(createdAssets).toEqual(["bed-dirty"])
+    expect(createdAssets).toEqual(["/assets/tiled/bed.png"])
     expect(addSprite).toHaveBeenCalledTimes(1)
     expect(sprites.get("bed-1")).toEqual(
       expect.objectContaining({ x: 160, y: 96 }),
@@ -56,8 +56,8 @@ describe("fixture render system", () => {
 
     system(world, 0.016)
 
-    expect(createdAssets).toEqual(["bed-dirty"])
-    expect(updatedAssets).toEqual(["bed-clean"])
+    expect(createdAssets).toEqual(["/assets/tiled/bed.png"])
+    expect(updatedAssets).toEqual([])
   })
 
   it("does not swap assets again when the fixture state is unchanged", () => {
@@ -79,7 +79,7 @@ describe("fixture render system", () => {
       },
     ])
 
-    const sprite = { x: 0, y: 0, assetId: "bed-dirty", setAsset }
+    const sprite = { x: 0, y: 0, assetId: "/assets/tiled/bed.png", setAsset }
     const system = createFixtureRenderSystem(roomState, {
       sprites: new Map([["bed-1", sprite]]),
       createSprite: vi.fn(),

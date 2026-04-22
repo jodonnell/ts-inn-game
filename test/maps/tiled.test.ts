@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import roomMap from "@/assets/tiled/room.json"
 import {
   buildTilePlacements,
   extractCollisionWalls,
@@ -400,5 +401,20 @@ describe("tiled map helpers", () => {
         durationMs: 4000,
       },
     ])
+  })
+
+  it("extracts the runtime bed fixture from the room map", () => {
+    expect(extractFixturePlacements(roomMap)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "bed-1",
+          type: "bed",
+          x: 384,
+          y: 224,
+          width: 160,
+          height: 160,
+        }),
+      ]),
+    )
   })
 })

@@ -2,9 +2,9 @@ import type { FixtureState } from "@/src/game/roomState"
 
 const fixtureAssetsByType = {
   bed: {
-    dirty: "bed-dirty",
-    cleaning: "bed-dirty",
-    clean: "bed-clean",
+    dirty: "/assets/tiled/bed.png",
+    cleaning: "/assets/tiled/bed.png",
+    clean: "/assets/tiled/bed.png",
   },
 } as const
 
