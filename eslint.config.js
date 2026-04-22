@@ -20,4 +20,14 @@ export default tseslint.config(
       },
     },
   },
+  {
+    files: ["electron/**/*.js"],
+    languageOptions: {
+      globals: {
+        console: true,
+        process: true,
+        URL: true,
+      },
+    },
+  },
 )

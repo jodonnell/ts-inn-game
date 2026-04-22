@@ -1,16 +1,18 @@
 {
   "name": "noname",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "Cozy inn management game packaged for desktop via Electron.",
+  "main": "electron/main.js",
   "scripts": {
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "prettier": "prettier -w src/**/*.ts *.ts test/**/*.ts e2e/**/*.ts",
-    "lint": "eslint src/**/*.ts test/**/*.ts e2e/**/*.ts main.ts vite.config.ts",
+    "prettier": "prettier -w src/**/*.ts electron/**/*.js *.ts test/**/*.ts e2e/**/*.ts",
+    "lint": "eslint src/**/*.ts electron/**/*.js test/**/*.ts e2e/**/*.ts main.ts vite.config.ts",
     "dev": "vite",
     "build": "vite build",
+    "prepare:electron-assets": "mkdir -p dist/assets && cp -R assets/* dist/assets/",
+    "build:electron": "npm run build && npm run prepare:electron-assets && electron-builder",
     "preview": "vite preview",
     "deploy": "scripts/deploy.sh"
   },
@@ -27,6 +29,8 @@
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.6.0",
     "codex": "^0.2.3",
+    "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^10.2.1",
     "jsdom": "^29.0.2",
     "prettier": "^3.8.3",
@@ -34,5 +38,42 @@
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.8",
     "vitest": "^4.1.4"
+  },
+  "build": {
+    "appId": "com.inngame.desktop",
+    "productName": "Inn Game",
+    "files": ["assets/**/*", "dist/**/*", "electron/**/*", "package.json"],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "category": "public.app-category.games",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Game"
+    }
   }
 }
