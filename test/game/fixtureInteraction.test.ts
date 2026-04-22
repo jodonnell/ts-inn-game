@@ -30,6 +30,46 @@ describe("fixture interaction helpers", () => {
     })
   })
 
+  it("uses the full fixture bounds with one-tile reach for large fixtures", () => {
+    expect(
+      getFixtureInteractionPoint({
+        x: 384,
+        y: 224,
+        width: 160,
+        height: 160,
+      }),
+    ).toEqual({
+      x: 464,
+      y: 304,
+      radius: 16,
+      offsetY: 16,
+      bounds: {
+        x: 384,
+        y: 224,
+        width: 160,
+        height: 160,
+      },
+    })
+  })
+
+  it("treats a large fixture as interactable from one tile away on every side", () => {
+    const interaction = getFixtureInteractionPoint({
+      x: 384,
+      y: 224,
+      width: 160,
+      height: 160,
+    })
+
+    expect(isWithinInteractionRange(368, 304, interaction)).toBe(true)
+    expect(isWithinInteractionRange(560, 304, interaction)).toBe(true)
+    expect(isWithinInteractionRange(464, 208, interaction)).toBe(true)
+    expect(isWithinInteractionRange(464, 400, interaction)).toBe(true)
+    expect(isWithinInteractionRange(367, 304, interaction)).toBe(false)
+    expect(isWithinInteractionRange(561, 304, interaction)).toBe(false)
+    expect(isWithinInteractionRange(464, 207, interaction)).toBe(false)
+    expect(isWithinInteractionRange(464, 401, interaction)).toBe(false)
+  })
+
   it("returns the active fixture when the id matches", () => {
     const fixture = { id: "bed-1" }
 

@@ -11,6 +11,8 @@ export type InteractionPoint = {
   }
 }
 
+const FIXTURE_INTERACTION_RADIUS = 16
+
 type FixtureBounds = {
   x: number
   y: number
@@ -35,13 +37,12 @@ type InteractionSelectionState<TFixture extends FixtureWithId & FixtureBounds> =
 export const getFixtureInteractionPoint = (
   fixture: FixtureBounds,
 ): InteractionPoint => {
-  const radius = Math.max(fixture.width, fixture.height) / 2
   const centerX = fixture.x + fixture.width / 2
   const centerY = fixture.y + fixture.height / 2
   return {
     x: centerX,
     y: centerY,
-    radius,
+    radius: FIXTURE_INTERACTION_RADIUS,
     offsetY: 16,
     bounds: {
       x: fixture.x,
