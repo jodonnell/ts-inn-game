@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { getFixtureAsset } from "@/src/render/fixtureAssets"
+import bedAsset from "@/assets/tiled/bed.png"
 
 describe("fixture assets", () => {
-  it("uses the same bed sprite for dirty and clean states for now", () => {
-    expect(getFixtureAsset({ type: "bed", state: "dirty" })).toBe(
-      "/assets/tiled/bed.png",
-    )
-    expect(getFixtureAsset({ type: "bed", state: "cleaning" })).toBe(
-      "/assets/tiled/bed.png",
-    )
-    expect(getFixtureAsset({ type: "bed", state: "clean" })).toBe(
-      "/assets/tiled/bed.png",
-    )
+  it("uses the imported bed asset URL for every current bed state", () => {
+    expect(getFixtureAsset({ type: "bed", state: "dirty" })).toBe(bedAsset)
+    expect(getFixtureAsset({ type: "bed", state: "cleaning" })).toBe(bedAsset)
+    expect(getFixtureAsset({ type: "bed", state: "clean" })).toBe(bedAsset)
   })
 })

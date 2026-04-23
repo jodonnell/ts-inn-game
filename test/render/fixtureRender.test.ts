@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import { createGameWorld } from "@/src/ecs/world"
 import { createRoomState } from "@/src/game/roomState"
 import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
+import bedAsset from "@/assets/tiled/bed.png"
 
 describe("fixture render system", () => {
   it("creates fixture sprites and swaps assets when fixture state changes", () => {
@@ -46,7 +47,7 @@ describe("fixture render system", () => {
 
     system(world, 0)
 
-    expect(createdAssets).toEqual(["/assets/tiled/bed.png"])
+    expect(createdAssets).toEqual([bedAsset])
     expect(addSprite).toHaveBeenCalledTimes(1)
     expect(sprites.get("bed-1")).toEqual(
       expect.objectContaining({ x: 160, y: 96 }),
@@ -56,7 +57,7 @@ describe("fixture render system", () => {
 
     system(world, 0.016)
 
-    expect(createdAssets).toEqual(["/assets/tiled/bed.png"])
+    expect(createdAssets).toEqual([bedAsset])
     expect(updatedAssets).toEqual([])
   })
 
@@ -79,7 +80,7 @@ describe("fixture render system", () => {
       },
     ])
 
-    const sprite = { x: 0, y: 0, assetId: "/assets/tiled/bed.png", setAsset }
+    const sprite = { x: 0, y: 0, assetId: bedAsset, setAsset }
     const system = createFixtureRenderSystem(roomState, {
       sprites: new Map([["bed-1", sprite]]),
       createSprite: vi.fn(),
