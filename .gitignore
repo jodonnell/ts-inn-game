@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 raw_assets
+release
 test-results/
 /.playwright-mcp/
