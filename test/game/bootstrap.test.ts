@@ -435,7 +435,11 @@ describe("game bootstrap", () => {
         addPrompt: expect.any(Function),
       }),
       expect.objectContaining({
-        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        interactionPoint: expect.objectContaining({
+          enabled: false,
+          x: 0,
+          y: 0,
+        }),
         fixtures: [],
       }),
     )
@@ -450,7 +454,11 @@ describe("game bootstrap", () => {
         dispose: expect.any(Function),
       }),
       expect.objectContaining({
-        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        interactionPoint: expect.objectContaining({
+          enabled: false,
+          x: 0,
+          y: 0,
+        }),
         fixtures: [],
       }),
       expect.any(Object),
@@ -468,7 +476,11 @@ describe("game bootstrap", () => {
     expect(vi.mocked(createFixtureTargetingSystem)).toHaveBeenCalledWith(
       player,
       expect.objectContaining({
-        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        interactionPoint: expect.objectContaining({
+          enabled: false,
+          x: 0,
+          y: 0,
+        }),
         fixtures: [],
       }),
     )
@@ -479,7 +491,11 @@ describe("game bootstrap", () => {
         isHeld: expect.any(Function),
       }),
       expect.objectContaining({
-        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        interactionPoint: expect.objectContaining({
+          enabled: false,
+          x: 0,
+          y: 0,
+        }),
         fixtures: [],
       }),
     )
@@ -487,7 +503,11 @@ describe("game bootstrap", () => {
     expect(vi.mocked(createCleaningProgressSystem)).toHaveBeenCalledWith(
       player,
       expect.objectContaining({
-        interactionPoint: expect.objectContaining({ x: 200, y: 180 }),
+        interactionPoint: expect.objectContaining({
+          enabled: false,
+          x: 0,
+          y: 0,
+        }),
         fixtures: [],
       }),
       expect.objectContaining({

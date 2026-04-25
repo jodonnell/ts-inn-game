@@ -2,6 +2,19 @@ import { describe, expect, it } from "vitest"
 import { createRoomState } from "@/src/game/roomState"
 
 describe("room state", () => {
+  it("starts with interaction disabled", () => {
+    const state = createRoomState()
+
+    expect(state.interactionPoint).toEqual({
+      enabled: false,
+      x: 0,
+      y: 0,
+      radius: 0,
+      offsetY: 0,
+      bounds: { x: 0, y: 0, width: 0, height: 0 },
+    })
+  })
+
   it("replaces room data without changing references", () => {
     const state = createRoomState()
     const collisionRef = state.collisionWalls
@@ -42,6 +55,7 @@ describe("room state", () => {
     ])
     expect(state.interactionPoint).toBe(interactionRef)
     expect(state.interactionPoint).toEqual({
+      enabled: undefined,
       x: 5,
       y: 6,
       radius: 7,

@@ -6,15 +6,16 @@ export const createDefaultCollisionWalls = (): CollisionWall[] => [
   { x: 320, y: 80, width: 20, height: 200 },
 ]
 
-export const createDefaultInteractionPoint = (): InteractionPoint => ({
-  x: 200,
-  y: 180,
-  radius: 40,
-  offsetY: 16,
+export const createDisabledInteractionPoint = (): InteractionPoint => ({
+  enabled: false,
+  x: 0,
+  y: 0,
+  radius: 0,
+  offsetY: 0,
   bounds: {
-    x: 184,
-    y: 164,
-    width: 32,
-    height: 32,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
   },
 })

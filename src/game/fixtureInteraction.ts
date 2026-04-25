@@ -1,4 +1,5 @@
 export type InteractionPoint = {
+  enabled?: boolean
   x: number
   y: number
   radius: number
@@ -73,6 +74,7 @@ export const isWithinInteractionRange = (
   y: number,
   interaction: InteractionPoint,
 ) => {
+  if (interaction.enabled === false) return false
   const minX = interaction.bounds.x
   const maxX = interaction.bounds.x + interaction.bounds.width
   const minY = interaction.bounds.y

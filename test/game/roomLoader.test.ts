@@ -214,6 +214,56 @@ describe("room loader", () => {
     expect(Position.y[player]).toBe(200)
   })
 
+  it("disables interaction when the map has no matching interaction object", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "tilelayer",
+          name: "ground",
+          width: 1,
+          height: 1,
+          data: [0],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi.fn(() => ({ x: 0, y: 0 }))
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: map },
+      player,
+      mapContainer,
+      tileSpriteFactories: { room1: tileSpriteFactory },
+      roomState,
+    })
+
+    expect(loadRoom("room1")).toBe(true)
+    expect(roomState.interactionPoint).toEqual({
+      enabled: false,
+      x: 0,
+      y: 0,
+      radius: 0,
+      offsetY: 0,
+      bounds: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      },
+    })
+  })
+
   it("uses a named spawn when provided", () => {
     const map: TiledMap = {
       width: 1,

@@ -11,7 +11,7 @@ import {
 } from "@/src/maps/tiled"
 import {
   createDefaultCollisionWalls,
-  createDefaultInteractionPoint,
+  createDisabledInteractionPoint,
 } from "@/src/game/fixtures"
 import type { CameraLike, CameraRect } from "@/src/render/camera"
 import type { RoomFixture, RoomState } from "@/src/game/roomState"
@@ -59,7 +59,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
 }: RoomLoaderOptions<TSprite>) => {
   const spawnFallback = fallbackSpawn ?? { x: 200, y: 200 }
   const interactionFallback =
-    fallbackInteractionPoint ?? createDefaultInteractionPoint()
+    fallbackInteractionPoint ?? createDisabledInteractionPoint()
   const collisionFallback =
     fallbackCollisionWalls ?? createDefaultCollisionWalls()
   const interactionKey = interactionId ?? "bell"

@@ -2,7 +2,7 @@ import type { CollisionWall } from "@/src/ecs/systems/movement"
 import type { TeleportState } from "@/src/ecs/systems/teleport"
 import type { InteractionPoint } from "@/src/game/fixtureInteraction"
 import type { FixturePlacement, TeleportZone } from "@/src/maps/tiled"
-import { createDefaultInteractionPoint } from "@/src/game/fixtures"
+import { createDisabledInteractionPoint } from "@/src/game/fixtures"
 
 export type FixtureState = "dirty" | "cleaning" | "clean"
 
@@ -33,6 +33,7 @@ const copyInteractionPoint = (
   target: InteractionPoint,
   source: InteractionPoint,
 ) => {
+  target.enabled = source.enabled
   target.x = source.x
   target.y = source.y
   target.radius = source.radius
@@ -45,7 +46,7 @@ const copyInteractionPoint = (
 
 export const createRoomState = (): RoomState => {
   const collisionWalls: CollisionWall[] = []
-  const interactionPoint = createDefaultInteractionPoint()
+  const interactionPoint = createDisabledInteractionPoint()
   const fixtures: RoomFixture[] = []
   const teleportState: TeleportState = { zones: [] }
   const roomState: RoomState = {
