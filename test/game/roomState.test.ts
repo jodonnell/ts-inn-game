@@ -90,6 +90,37 @@ describe("room state", () => {
     expect(state.activeFixtureId).toBeNull()
   })
 
+  it("tracks the active npc id", () => {
+    const state = createRoomState()
+
+    expect(state.activeNpcId).toBeNull()
+
+    state.setActiveNpcId("manager")
+    expect(state.activeNpcId).toBe("manager")
+
+    state.setActiveNpcId(null)
+    expect(state.activeNpcId).toBeNull()
+  })
+
+  it("clears the active npc id when npcs are replaced without that id", () => {
+    const state = createRoomState()
+    state.replaceNpcs([
+      {
+        id: "manager",
+        name: "Manager",
+        x: 352,
+        y: 256,
+        width: 32,
+        height: 32,
+      },
+    ])
+    state.setActiveNpcId("manager")
+
+    state.replaceNpcs([])
+
+    expect(state.activeNpcId).toBeNull()
+  })
+
   it("clears the active fixture id when fixtures are replaced without that id", () => {
     const state = createRoomState()
     state.replaceFixtures([

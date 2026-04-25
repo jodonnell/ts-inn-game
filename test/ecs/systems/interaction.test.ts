@@ -75,4 +75,51 @@ describe("interaction system", () => {
 
     expect(sound.play).not.toHaveBeenCalled()
   })
+
+  it("starts talking to an npc when interacting within range", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 352, y: 264 })
+    const input = { consume: (_action: string) => true }
+    const roomState = createRoomState()
+    roomState.replaceNpcs([
+      {
+        id: "manager",
+        name: "Manager",
+        x: 352,
+        y: 256,
+        width: 32,
+        height: 32,
+      },
+    ])
+    const sound = { play: vi.fn() }
+
+    const system = createInteractionSystem(player, input, roomState, sound)
+    system(world, 0)
+
+    expect(roomState.activeNpcId).toBe("manager")
+    expect(sound.play).not.toHaveBeenCalled()
+  })
+
+  it("does not start talking to an npc when interacting out of range", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 352, y: 300 })
+    const input = { consume: (_action: string) => true }
+    const roomState = createRoomState()
+    roomState.replaceNpcs([
+      {
+        id: "manager",
+        name: "Manager",
+        x: 352,
+        y: 256,
+        width: 32,
+        height: 32,
+      },
+    ])
+    const sound = { play: vi.fn() }
+
+    const system = createInteractionSystem(player, input, roomState, sound)
+    system(world, 0)
+
+    expect(roomState.activeNpcId).toBeNull()
+  })
 })

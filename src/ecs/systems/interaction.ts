@@ -5,6 +5,7 @@ import {
   getCurrentInteractionPoint,
   isWithinInteractionRange,
 } from "@/src/game/fixtureInteraction"
+import { findNpcInInteractionRange } from "@/src/game/npcInteraction"
 import type { RoomState } from "@/src/game/roomState"
 
 export type InteractionInput = {
@@ -30,6 +31,12 @@ export const createInteractionSystem =
     const playerX = Position.x[player]
     const playerY = Position.y[player]
     if (roomState.activeFixtureId) return
+    const npc = findNpcInInteractionRange(playerX, playerY, roomState.npcs)
+    if (npc) {
+      roomState.setActiveNpcId(npc.id)
+      return
+    }
+
     const interaction = getCurrentInteractionPoint(roomState)
 
     if (isWithinInteractionRange(playerX, playerY, interaction)) {

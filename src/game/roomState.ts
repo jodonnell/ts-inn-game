@@ -26,12 +26,14 @@ export type RoomState = {
   fixtures: RoomFixture[]
   npcs: RoomNpc[]
   activeFixtureId: string | null
+  activeNpcId: string | null
   teleportState: TeleportState
   replaceCollisionWalls: (walls: CollisionWall[]) => void
   replaceInteractionPoint: (point: InteractionPoint) => void
   replaceFixtures: (fixtures: RoomFixture[]) => void
   replaceNpcs: (npcs: RoomNpc[]) => void
   setActiveFixtureId: (fixtureId: string | null) => void
+  setActiveNpcId: (npcId: string | null) => void
   replaceTeleportZones: (zones: TeleportZone[]) => void
 }
 
@@ -67,6 +69,7 @@ export const createRoomState = (): RoomState => {
     fixtures,
     npcs,
     activeFixtureId: null,
+    activeNpcId: null,
     teleportState,
     replaceCollisionWalls: (walls) => {
       replaceArray(collisionWalls, walls)
@@ -84,9 +87,15 @@ export const createRoomState = (): RoomState => {
     },
     replaceNpcs: (nextNpcs) => {
       replaceArray(npcs, nextNpcs)
+      if (!npcs.some((npc) => npc.id === roomState.activeNpcId)) {
+        roomState.activeNpcId = null
+      }
     },
     setActiveFixtureId: (fixtureId) => {
       roomState.activeFixtureId = fixtureId
+    },
+    setActiveNpcId: (npcId) => {
+      roomState.activeNpcId = npcId
     },
     replaceTeleportZones: (zones) => {
       replaceArray(teleportState.zones, zones)
