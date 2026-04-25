@@ -489,6 +489,45 @@
         }, 
         {
          "draworder":"topdown",
+         "id":10,
+         "name":"teleports",
+         "objects":[
+                {
+                 "height":32,
+                 "id":27,
+                 "name":"door",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"teleport",
+                         "type":"string",
+                         "value":"hallway"
+                        }, 
+                        {
+                         "name":"teleport_spawn",
+                         "type":"string",
+                         "value":"a"
+                        }, 
+                        {
+                         "name":"interactionRequired",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":256,
+                 "y":224
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "id":9,
          "name":"fixtures",
          "objects":[
@@ -527,7 +566,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":27,
+ "nextobjectid":28,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1",

@@ -443,8 +443,18 @@ describe("tiled map helpers", () => {
     ])
   })
 
-  it("does not load old TMX bedroom exit objects from the room map", () => {
-    expect(extractTeleportZones(roomMap)).toEqual([])
+  it("extracts the bedroom exit teleport from the room map", () => {
+    expect(extractTeleportZones(roomMap)).toEqual([
+      {
+        x: 256,
+        y: 224,
+        width: 64,
+        height: 32,
+        targetMapKey: "hallway",
+        spawnId: "a",
+        interactionRequired: true,
+      },
+    ])
   })
 
   it("extracts bed fixture placements from object properties", () => {
