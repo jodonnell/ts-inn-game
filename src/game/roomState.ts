@@ -11,15 +11,26 @@ export type RoomFixture = FixturePlacement & {
   progressMs: number
 }
 
+export type RoomNpc = {
+  id: string
+  name: string
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 export type RoomState = {
   collisionWalls: CollisionWall[]
   interactionPoint: InteractionPoint
   fixtures: RoomFixture[]
+  npcs: RoomNpc[]
   activeFixtureId: string | null
   teleportState: TeleportState
   replaceCollisionWalls: (walls: CollisionWall[]) => void
   replaceInteractionPoint: (point: InteractionPoint) => void
   replaceFixtures: (fixtures: RoomFixture[]) => void
+  replaceNpcs: (npcs: RoomNpc[]) => void
   setActiveFixtureId: (fixtureId: string | null) => void
   replaceTeleportZones: (zones: TeleportZone[]) => void
 }
@@ -48,11 +59,13 @@ export const createRoomState = (): RoomState => {
   const collisionWalls: CollisionWall[] = []
   const interactionPoint = createDisabledInteractionPoint()
   const fixtures: RoomFixture[] = []
+  const npcs: RoomNpc[] = []
   const teleportState: TeleportState = { zones: [] }
   const roomState: RoomState = {
     collisionWalls,
     interactionPoint,
     fixtures,
+    npcs,
     activeFixtureId: null,
     teleportState,
     replaceCollisionWalls: (walls) => {
@@ -68,6 +81,9 @@ export const createRoomState = (): RoomState => {
       ) {
         roomState.activeFixtureId = null
       }
+    },
+    replaceNpcs: (nextNpcs) => {
+      replaceArray(npcs, nextNpcs)
     },
     setActiveFixtureId: (fixtureId) => {
       roomState.activeFixtureId = fixtureId

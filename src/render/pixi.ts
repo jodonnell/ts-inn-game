@@ -16,6 +16,7 @@ import type {
   FixtureRenderStore,
   FixtureSpriteLike,
 } from "@/src/render/fixtureRender"
+import type { NpcRenderStore } from "@/src/render/npcRender"
 import type { TiledTilesetRef } from "@/src/maps/tiled"
 import { parseTilesetImageSource } from "@/src/maps/tiled"
 import type { TilesetTexture } from "@/src/render/tilemap"
@@ -241,6 +242,7 @@ export const loadTilesetTextures = async ({
 
 export type PixiRenderStore = RenderStore & {
   fixtureStore: FixtureRenderStore
+  npcStore: NpcRenderStore
 }
 
 export const createPixiRenderStore = (
@@ -251,6 +253,7 @@ export const createPixiRenderStore = (
   void app
   const sprites = new Map<number, SpriteLike>()
   const fixtureSprites = new Map<string, FixtureSpriteLike>()
+  const npcSprites = new Map<string, SpriteLike>()
   const getTexture = (frame: string): Texture => {
     const texture = spritesheet.textures[frame]
     if (!texture) {
@@ -283,6 +286,23 @@ export const createPixiRenderStore = (
         sprite.assetId = assetId
         sprite.setAsset = (nextAssetId) => {
           sprite.texture = Texture.from(nextAssetId)
+        }
+        return sprite
+      },
+      addSprite: (sprite) => {
+        container.addChild(sprite as Sprite)
+      },
+    },
+    npcStore: {
+      sprites: npcSprites,
+      createAnimatedSprite: (frames) => {
+        const textures = frames.map(getTexture)
+        const sprite = new AnimatedSprite(textures) as AnimatedSprite &
+          SpriteLike
+        sprite.anchor.set(0.5, 1)
+        sprite.animationSpeed = 0.15
+        sprite.setFrames = (nextFrames) => {
+          sprite.textures = nextFrames.map(getTexture)
         }
         return sprite
       },

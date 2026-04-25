@@ -133,6 +133,53 @@ describe("room loader", () => {
     expect(mapContainer.addChild).toHaveBeenCalledTimes(1)
   })
 
+  it("adds the hallway manager npc and their collision wall", () => {
+    const map: TiledMap = {
+      width: 20,
+      height: 12,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi.fn(() => ({ x: 0, y: 0 }))
+    const loadRoom = createRoomLoader({
+      mapsByKey: { hallway: map },
+      player,
+      mapContainer,
+      tileSpriteFactories: { hallway: tileSpriteFactory },
+      roomState,
+      fallbackCollisionWalls: [],
+    })
+
+    expect(loadRoom("hallway")).toBe(true)
+
+    expect(roomState.npcs).toEqual([
+      {
+        id: "manager",
+        name: "Manager",
+        x: 352,
+        y: 256,
+        width: 32,
+        height: 32,
+      },
+    ])
+    expect(roomState.collisionWalls).toContainEqual({
+      x: 336,
+      y: 224,
+      width: 32,
+      height: 32,
+    })
+  })
+
   it("updates camera bounds from the loaded map dimensions", () => {
     const map: TiledMap = {
       width: 10,

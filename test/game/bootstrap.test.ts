@@ -18,6 +18,7 @@ import {
 } from "@/src/render/interactionPrompt"
 import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
+import { createNpcRenderSystem } from "@/src/render/npcRender"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { installGameTestApi } from "@/src/game/testHooks"
@@ -44,6 +45,7 @@ const movementSystem = vi.fn()
 const teleportSystem = vi.fn()
 const renderSystem = vi.fn()
 const fixtureRenderSystem = vi.fn()
+const npcRenderSystem = vi.fn()
 const fixtureTargetingSystem = vi.fn()
 const fixtureCleaningSystem = vi.fn()
 const cleaningProgressSystem = vi.fn()
@@ -208,6 +210,10 @@ vi.mock("@/src/render/fixtureRender", () => ({
   createFixtureRenderSystem: vi.fn(() => fixtureRenderSystem),
 }))
 
+vi.mock("@/src/render/npcRender", () => ({
+  createNpcRenderSystem: vi.fn(() => npcRenderSystem),
+}))
+
 vi.mock("@/src/render/cleaningProgress", () => ({
   createCleaningProgressStore: vi.fn(() => ({
     bar: null,
@@ -270,6 +276,11 @@ vi.mock("@/src/render/pixi", () => ({
     fixtureStore: {
       sprites: new Map(),
       createSprite: vi.fn(),
+      addSprite: vi.fn(),
+    },
+    npcStore: {
+      sprites: new Map(),
+      createAnimatedSprite: vi.fn(),
       addSprite: vi.fn(),
     },
   })),
@@ -491,6 +502,15 @@ describe("game bootstrap", () => {
       }),
     )
 
+    expect(vi.mocked(createNpcRenderSystem)).toHaveBeenCalledWith(
+      expect.objectContaining({ npcs: [] }),
+      expect.objectContaining({
+        sprites: expect.any(Map),
+        createAnimatedSprite: expect.any(Function),
+        addSprite: expect.any(Function),
+      }),
+    )
+
     expect(vi.mocked(createFixtureTargetingSystem)).toHaveBeenCalledWith(
       player,
       expect.objectContaining({
@@ -535,12 +555,16 @@ describe("game bootstrap", () => {
       }),
     )
 
-    const [{ fixtureStore }] = vi
+    const [{ fixtureStore, npcStore }] = vi
       .mocked(createPixiRenderStore)
       .mock.results.map((result) => result.value)
     expect(vi.mocked(createFixtureRenderSystem)).toHaveBeenCalledWith(
       expect.any(Object),
       fixtureStore,
+    )
+    expect(vi.mocked(createNpcRenderSystem)).toHaveBeenCalledWith(
+      expect.any(Object),
+      npcStore,
     )
 
     expect(vi.mocked(createTeleportSystem)).toHaveBeenCalledWith(
@@ -573,6 +597,7 @@ describe("game bootstrap", () => {
         cameraSystem,
         renderSystem,
         fixtureRenderSystem,
+        npcRenderSystem,
         cleaningProgressSystem,
         promptSystem,
         timeDisplaySystem,

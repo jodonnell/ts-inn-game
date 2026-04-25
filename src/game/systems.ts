@@ -14,6 +14,7 @@ import { createCleaningProgressSystem } from "@/src/render/cleaningProgress"
 import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
 import { createInteractionPromptSystem } from "@/src/render/interactionPrompt"
 import { createNightOverlaySystem } from "@/src/render/nightOverlay"
+import { createNpcRenderSystem } from "@/src/render/npcRender"
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import { createTimeDisplaySystem } from "@/src/render/timeDisplay"
 
@@ -56,6 +57,7 @@ export const createGameSystems = (state: GameState): GameSystems => ({
     createCameraFollowSystem(state.player, state.camera),
     createPlayerRenderSystem(state.player, state.renderStore),
     createFixtureRenderSystem(state.roomState, state.renderStore.fixtureStore),
+    createNpcRenderSystem(state.roomState, state.renderStore.npcStore),
     createCleaningProgressSystem(
       state.player,
       state.roomState,

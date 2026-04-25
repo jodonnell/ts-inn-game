@@ -16,6 +16,7 @@ import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
 import { createInteractionPromptSystem } from "@/src/render/interactionPrompt"
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import { createNightOverlaySystem } from "@/src/render/nightOverlay"
+import { createNpcRenderSystem } from "@/src/render/npcRender"
 import { createTimeDisplaySystem } from "@/src/render/timeDisplay"
 
 const inputSystem = vi.fn()
@@ -29,6 +30,7 @@ const nightOverlaySystem = vi.fn()
 const cameraSystem = vi.fn()
 const playerRenderSystem = vi.fn()
 const fixtureRenderSystem = vi.fn()
+const npcRenderSystem = vi.fn()
 const cleaningProgressSystem = vi.fn()
 const promptSystem = vi.fn()
 const timeDisplaySystem = vi.fn()
@@ -82,6 +84,10 @@ vi.mock("@/src/render/nightOverlay", () => ({
   createNightOverlaySystem: vi.fn(() => nightOverlaySystem),
 }))
 
+vi.mock("@/src/render/npcRender", () => ({
+  createNpcRenderSystem: vi.fn(() => npcRenderSystem),
+}))
+
 vi.mock("@/src/render/timeDisplay", () => ({
   createTimeDisplaySystem: vi.fn(() => timeDisplaySystem),
 }))
@@ -109,7 +115,7 @@ describe("game systems", () => {
       nightOverlayStore: {},
       app: { screen: { width: 800, height: 600 } },
       camera: {},
-      renderStore: { fixtureStore: {} },
+      renderStore: { fixtureStore: {}, npcStore: {} },
       cleaningProgressStore: {},
       promptStore: {},
       timeDisplayStore: {},
@@ -131,6 +137,7 @@ describe("game systems", () => {
       cameraSystem,
       playerRenderSystem,
       fixtureRenderSystem,
+      npcRenderSystem,
       cleaningProgressSystem,
       promptSystem,
       timeDisplaySystem,
@@ -181,6 +188,10 @@ describe("game systems", () => {
     expect(vi.mocked(createFixtureRenderSystem)).toHaveBeenCalledWith(
       state.roomState,
       state.renderStore.fixtureStore,
+    )
+    expect(vi.mocked(createNpcRenderSystem)).toHaveBeenCalledWith(
+      state.roomState,
+      state.renderStore.npcStore,
     )
     expect(vi.mocked(createCleaningProgressSystem)).toHaveBeenCalledWith(
       1,
