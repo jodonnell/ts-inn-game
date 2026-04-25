@@ -1,11 +1,13 @@
 import type { GameWorld } from "@/src/ecs/world"
 
 export type System = (world: GameWorld, dt: number) => void
+export type SimulationSystem = System
+export type RenderSystem = System
 
 type LoopOptions = {
   world: GameWorld
-  simulationSystems: System[]
-  renderSystems?: System[]
+  simulationSystems: SimulationSystem[]
+  renderSystems?: RenderSystem[]
   simulationDtSeconds?: number
   now?: () => number
   scheduleFrame?: (cb: (time: number) => void) => number
