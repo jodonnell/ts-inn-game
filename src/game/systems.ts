@@ -29,6 +29,7 @@ export const createGameSystems = (state: GameState): GameSystems => ({
     createTeleportSystem(
       state.player,
       state.roomState.teleportState,
+      state.input,
       state.roomLoader,
     ),
     createTimeSystem(state.gameTime),

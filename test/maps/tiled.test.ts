@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import roomMap from "@/assets/tiled/room.json"
+import hallwayMapJson from "@/assets/tiled/hallway.tmj?raw"
 import {
   buildTilePlacements,
   extractCollisionWalls,
@@ -11,6 +12,8 @@ import {
   resolveTilesetForGid,
   type TiledMap,
 } from "@/src/maps/tiled"
+
+const hallwayMap = JSON.parse(hallwayMapJson) as TiledMap
 
 describe("tiled map helpers", () => {
   it("builds tile placements from a layer and firstgid", () => {
@@ -359,6 +362,95 @@ describe("tiled map helpers", () => {
         spawnId: "pointA",
       },
     ])
+  })
+
+  it("extracts interaction-required teleport zones", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "triggers",
+          objects: [
+            {
+              id: 1,
+              x: 10,
+              y: 20,
+              width: 32,
+              height: 24,
+              properties: [
+                { name: "teleport", type: "string", value: "room1" },
+                { name: "teleport_spawn", type: "string", value: "pointA" },
+                {
+                  name: "interactionRequired",
+                  type: "bool",
+                  value: true,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    expect(extractTeleportZones(map)).toEqual([
+      {
+        x: 10,
+        y: 20,
+        width: 32,
+        height: 24,
+        targetMapKey: "room1",
+        spawnId: "pointA",
+        interactionRequired: true,
+      },
+    ])
+  })
+
+  it("marks hallway door teleports as interaction-required bedroom entrances", () => {
+    expect(extractTeleportZones(hallwayMap)).toEqual([
+      {
+        x: 96,
+        y: 192,
+        width: 64,
+        height: 32,
+        targetMapKey: "room",
+        spawnId: "a",
+        interactionRequired: true,
+      },
+      {
+        x: 352,
+        y: 192,
+        width: 64,
+        height: 32,
+        targetMapKey: "room",
+        spawnId: "a",
+        interactionRequired: true,
+      },
+      {
+        x: 608,
+        y: 192,
+        width: 64,
+        height: 32,
+        targetMapKey: "room",
+        spawnId: "a",
+        interactionRequired: true,
+      },
+    ])
+  })
+
+  it("routes the bedroom exit back to the hallway", () => {
+    expect(extractTeleportZones(roomMap)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          targetMapKey: "hallway",
+          spawnId: "a",
+        }),
+      ]),
+    )
   })
 
   it("extracts bed fixture placements from object properties", () => {

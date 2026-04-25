@@ -57,6 +57,7 @@ export type TeleportZone = {
   height: number
   targetMapKey: string
   spawnId?: string
+  interactionRequired?: boolean
 }
 
 export type FixturePlacement = {
@@ -223,6 +224,13 @@ export const extractTeleportZones = (map: TiledMap): TeleportZone[] => {
       const spawnId = getObjectProperty(object, "teleport_spawn")
       if (typeof spawnId === "string") {
         zone.spawnId = spawnId
+      }
+      const interactionRequired = getObjectProperty(
+        object,
+        "interactionRequired",
+      )
+      if (interactionRequired === true) {
+        zone.interactionRequired = true
       }
       zones.push(zone)
     }

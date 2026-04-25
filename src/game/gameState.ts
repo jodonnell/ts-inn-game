@@ -33,6 +33,7 @@ import { createRoomLoader } from "@/src/game/roomLoader"
 import { createRoomState, type RoomState } from "@/src/game/roomState"
 import type { TiledMap } from "@/src/maps/tiled"
 import innMap from "@/assets/maps/inn.json"
+import roomMap from "@/assets/tiled/room.json"
 import room1Map from "@/assets/maps/room1.json"
 import hallwayMapJson from "@/assets/tiled/hallway.tmj?raw"
 import bellSfx from "@/assets/sfx/bell.mp3"
@@ -109,6 +110,7 @@ export const initializeGame = async (): Promise<GameState> => {
   const renderStore = createPixiRenderStore(app, spritesheet, actorContainer)
   const defaultMapsByKey = {
     inn: innMap,
+    room: roomMap,
     room1: room1Map,
     hallway: hallwayMap,
   }
@@ -119,6 +121,7 @@ export const initializeGame = async (): Promise<GameState> => {
     : defaultMapsByKey
   const tilesetBaseByKey = {
     inn: `${assetBase}/assets/maps`,
+    room: `${assetBase}/assets/tiled`,
     room1: `${assetBase}/assets/maps`,
     hallway: `${assetBase}/assets/tiled`,
   }

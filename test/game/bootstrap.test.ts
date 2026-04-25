@@ -290,6 +290,7 @@ vi.mock("@/src/render/nightOverlay", () => ({
 }))
 
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
+vi.mock("@/assets/tiled/room.json", () => ({ default: map }))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
 vi.mock("@/assets/tiled/hallway.tmj?raw", () => ({
   default: JSON.stringify(map),
@@ -338,10 +339,11 @@ describe("game bootstrap", () => {
 
     expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
       expect.objectContaining({
-        mapsByKey: { inn: map, room1: map, hallway: map },
+        mapsByKey: { inn: map, room: map, room1: map, hallway: map },
         player,
         tileSpriteFactories: {
           inn: tileSpriteFactory,
+          room: tileSpriteFactory,
           room1: tileSpriteFactory,
           hallway: tileSpriteFactory,
         },
@@ -506,6 +508,13 @@ describe("game bootstrap", () => {
     expect(vi.mocked(createTeleportSystem)).toHaveBeenCalledWith(
       player,
       expect.objectContaining({ zones: [] }),
+      expect.objectContaining({
+        consume: expect.any(Function),
+        getMovement: expect.any(Function),
+        isHeld: expect.any(Function),
+        update: expect.any(Function),
+        dispose: expect.any(Function),
+      }),
       loadRoom,
     )
 

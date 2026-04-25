@@ -151,6 +151,7 @@ describe("game systems", () => {
     expect(vi.mocked(createTeleportSystem)).toHaveBeenCalledWith(
       1,
       state.roomState.teleportState,
+      state.input,
       state.roomLoader,
     )
     expect(vi.mocked(createTimeSystem)).toHaveBeenCalledWith(state.gameTime)
