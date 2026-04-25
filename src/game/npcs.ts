@@ -14,8 +14,8 @@ export const getRoomNpcs = (mapKey: string): RoomNpc[] =>
   mapKey === "hallway" ? [HALLWAY_MANAGER_NPC] : []
 
 export const getNpcCollisionWall = (npc: RoomNpc): CollisionWall => ({
-  x: npc.x - npc.width / 2,
-  y: npc.y - npc.height,
-  width: npc.width,
-  height: npc.height,
+  x: npc.x - npc.width / 4,
+  y: npc.y - npc.height / 4,
+  width: npc.width / 2,
+  height: npc.height / 4,
 })

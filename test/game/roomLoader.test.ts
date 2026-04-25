@@ -173,10 +173,10 @@ describe("room loader", () => {
       },
     ])
     expect(roomState.collisionWalls).toContainEqual({
-      x: 336,
-      y: 224,
-      width: 32,
-      height: 32,
+      x: 344,
+      y: 248,
+      width: 16,
+      height: 8,
     })
   })
 
