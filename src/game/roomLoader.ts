@@ -13,6 +13,7 @@ import {
   createDefaultCollisionWalls,
   createDefaultInteractionPoint,
 } from "@/src/game/fixtures"
+import type { CameraLike, CameraRect } from "@/src/render/camera"
 import type { RoomFixture, RoomState } from "@/src/game/roomState"
 import type { TileSpriteFactory, TileSpriteLike } from "@/src/render/tilemap"
 import { renderTileLayer } from "@/src/render/tilemap"
@@ -35,6 +36,7 @@ type RoomLoaderOptions<TSprite extends TileSpriteLike> = {
   interactionId?: string
   fallbackCollisionWalls?: CollisionWall[]
   fallbackInteractionPoint?: InteractionPoint
+  camera?: CameraLike
 }
 
 export type RoomLoader = ((mapKey: string, spawnId?: string) => boolean) & {
@@ -53,6 +55,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   interactionId,
   fallbackCollisionWalls,
   fallbackInteractionPoint,
+  camera,
 }: RoomLoaderOptions<TSprite>) => {
   const spawnFallback = fallbackSpawn ?? { x: 200, y: 200 }
   const interactionFallback =
@@ -69,6 +72,19 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
   }
   let activeMapKey: string | null = null
 
+  const resolveMapBounds = (map: TiledMap): CameraRect => ({
+    x: 0,
+    y: 0,
+    width: map.width * map.tilewidth,
+    height: map.height * map.tileheight,
+  })
+  const emptyBounds: CameraRect = {
+    x: 0,
+    y: 0,
+    width: 1,
+    height: 1,
+  }
+
   const buildRoomFixtures = (map: TiledMap): RoomFixture[] =>
     extractFixturePlacements(map).map((fixture) => ({
       ...fixture,
@@ -83,6 +99,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     roomState.replaceInteractionPoint(interactionFallback)
     roomState.replaceFixtures([])
     roomState.replaceTeleportZones([])
+    camera?.setBounds(emptyBounds)
   }
 
   const loadRoom = ((mapKey, spawnId) => {
@@ -93,6 +110,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     const tileSpriteFactory = tileSpriteFactories[mapKey]
     if (!tileSpriteFactory) return false
     activeMapKey = mapKey
+    camera?.setBounds(resolveMapBounds(map))
 
     clearMapContainers()
     const tileLayers = map.layers.filter(

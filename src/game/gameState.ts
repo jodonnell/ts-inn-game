@@ -136,6 +136,7 @@ export const initializeGame = async (): Promise<GameState> => {
     foregroundMapContainer,
     tileSpriteFactories,
     roomState,
+    camera,
   })
   roomLoader("tiledRoom")
 

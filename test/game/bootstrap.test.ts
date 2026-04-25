@@ -171,7 +171,12 @@ vi.mock("@/src/render/cleaningProgress", () => ({
 }))
 
 vi.mock("@/src/render/camera", () => ({
-  createCameraAdapter: vi.fn(() => ({ setPosition: vi.fn() })),
+  createCameraAdapter: vi.fn(() => ({
+    setBounds: vi.fn(),
+    setPosition: vi.fn(),
+    getVisibleRect: vi.fn(() => ({ x: 0, y: 0, width: 640, height: 360 })),
+    isRectVisible: vi.fn(() => true),
+  })),
   createCameraFollowSystem: vi.fn(() => cameraSystem),
 }))
 

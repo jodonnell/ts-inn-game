@@ -133,6 +133,46 @@ describe("room loader", () => {
     expect(mapContainer.addChild).toHaveBeenCalledTimes(1)
   })
 
+  it("updates camera bounds from the loaded map dimensions", () => {
+    const map: TiledMap = {
+      width: 10,
+      height: 8,
+      tilewidth: 32,
+      tileheight: 16,
+      layers: [],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const mapContainer = {
+      addChild: vi.fn(),
+      removeChildren: vi.fn(),
+    }
+    const tileSpriteFactory = vi.fn(() => ({ x: 0, y: 0 }))
+    const camera = {
+      setBounds: vi.fn(),
+    }
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: map },
+      player,
+      mapContainer,
+      tileSpriteFactories: { room1: tileSpriteFactory },
+      roomState,
+      camera,
+    })
+
+    loadRoom("room1")
+
+    expect(camera.setBounds).toHaveBeenCalledWith({
+      x: 0,
+      y: 0,
+      width: 320,
+      height: 128,
+    })
+  })
+
   it("uses the default spawn when the map has no player spawn", () => {
     const map: TiledMap = {
       width: 1,
