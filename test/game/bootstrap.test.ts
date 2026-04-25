@@ -26,7 +26,10 @@ import {
   createNightOverlayStore,
   createNightOverlaySystem,
 } from "@/src/render/nightOverlay"
+import { createGameInputState } from "@/src/input/actions"
 import { createPixiApp, createPixiRenderStore } from "@/src/render/pixi"
+import { createGamepadInputAdapter } from "@/src/input/gamepad"
+import { createKeyboardInputAdapter } from "@/src/input/keyboard"
 import { Container } from "pixi.js"
 
 const loopStart = vi.fn()
@@ -118,11 +121,29 @@ vi.mock("@/src/ecs/entities/player", () => ({
   spawnPlayer: vi.fn(() => player),
 }))
 
-vi.mock("@/src/input/keyboard", () => ({
-  createKeyboardInputState: vi.fn(() => ({
+vi.mock("@/src/input/actions", () => ({
+  createGameInputState: vi.fn(() => ({
     getMovement: () => ({ x: 0, y: 0 }),
-    consumeInteraction: vi.fn(() => false),
-    isInteractionHeld: vi.fn(() => false),
+    consume: vi.fn(() => false),
+    isHeld: vi.fn(() => false),
+    update: vi.fn(),
+    dispose: vi.fn(),
+  })),
+}))
+
+vi.mock("@/src/input/keyboard", () => ({
+  createKeyboardInputAdapter: vi.fn(() => ({
+    getHeldActions: vi.fn(() => []),
+    consumePressed: vi.fn(() => []),
+    dispose: vi.fn(),
+  })),
+}))
+
+vi.mock("@/src/input/gamepad", () => ({
+  createGamepadInputAdapter: vi.fn(() => ({
+    getHeldActions: vi.fn(() => []),
+    consumePressed: vi.fn(() => []),
+    update: vi.fn(),
     dispose: vi.fn(),
   })),
 }))
@@ -293,6 +314,13 @@ describe("game bootstrap", () => {
   it("initializes the game state and loads the default room", async () => {
     await initializeGame()
 
+    expect(vi.mocked(createGameInputState)).toHaveBeenCalledWith({
+      adapters: [
+        vi.mocked(createKeyboardInputAdapter).mock.results[0]?.value,
+        vi.mocked(createGamepadInputAdapter).mock.results[0]?.value,
+      ],
+    })
+
     expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
       expect.objectContaining({
         mapsByKey: { inn: map, room1: map, tiledRoom: map },
@@ -398,8 +426,10 @@ describe("game bootstrap", () => {
     expect(vi.mocked(createInteractionSystem)).toHaveBeenCalledWith(
       player,
       expect.objectContaining({
+        consume: expect.any(Function),
         getMovement: expect.any(Function),
-        consumeInteraction: expect.any(Function),
+        isHeld: expect.any(Function),
+        update: expect.any(Function),
         dispose: expect.any(Function),
       }),
       expect.objectContaining({

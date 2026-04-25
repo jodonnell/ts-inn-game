@@ -8,7 +8,7 @@ describe("interaction system", () => {
   it("plays a sound when interacting within range", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
-    const input = { consumeInteraction: () => true }
+    const input = { consume: (_action: string) => true }
     const roomState = createRoomState()
     roomState.replaceInteractionPoint({
       x: 0,
@@ -27,7 +27,7 @@ describe("interaction system", () => {
   it("skips sound when interacting out of range", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 10, y: 10 })
-    const input = { consumeInteraction: () => true }
+    const input = { consume: (_action: string) => true }
     const roomState = createRoomState()
     roomState.replaceInteractionPoint({
       x: 0,
@@ -46,7 +46,7 @@ describe("interaction system", () => {
   it("does not play the bell sound when a fixture is currently targeted", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
-    const input = { consumeInteraction: () => true }
+    const input = { consume: (_action: string) => true }
     const roomState = createRoomState()
     roomState.replaceInteractionPoint({
       x: 0,

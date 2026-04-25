@@ -1,3 +1,4 @@
+import type { InputAction } from "@/src/input/actions"
 import { Position } from "@/src/ecs/components"
 import type { GameWorld } from "@/src/ecs/world"
 import {
@@ -7,7 +8,7 @@ import {
 import type { RoomState } from "@/src/game/roomState"
 
 export type InteractionInput = {
-  consumeInteraction: () => boolean
+  consume: (action: InputAction) => boolean
 }
 
 export type InteractionSound = {
@@ -24,7 +25,7 @@ export const createInteractionSystem =
   (_world: GameWorld, _dt: number) => {
     void _world
     void _dt
-    if (!input.consumeInteraction()) return
+    if (!input.consume("interact")) return
 
     const playerX = Position.x[player]
     const playerY = Position.y[player]

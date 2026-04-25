@@ -8,7 +8,9 @@ import type {
   InteractionSound,
 } from "@/src/ecs/systems/interaction"
 import { installDebugPerfOverlay } from "@/src/debug/perf"
-import { createKeyboardInputState } from "@/src/input/keyboard"
+import { createGameInputState, type GameInputState } from "@/src/input/actions"
+import { createGamepadInputAdapter } from "@/src/input/gamepad"
+import { createKeyboardInputAdapter } from "@/src/input/keyboard"
 import { createCameraAdapter } from "@/src/render/camera"
 import { createCleaningProgressStore } from "@/src/render/cleaningProgress"
 import { createPromptStore } from "@/src/render/interactionPrompt"
@@ -40,7 +42,7 @@ export type GameState = {
   safeFrameLayout: SafeFrameLayout
   world: GameWorld
   player: number
-  input: InputState & InteractionInput & { dispose: () => void }
+  input: GameInputState & InputState & InteractionInput
   cleaningInput: FixtureCleaningInput
   camera: ReturnType<typeof createCameraAdapter>
   cleaningProgressStore: ReturnType<typeof createCleaningProgressStore>
@@ -73,9 +75,11 @@ export const initializeGame = async (): Promise<GameState> => {
   app.stage.addChild(uiContainer)
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 0, y: 0 })
-  const input = createKeyboardInputState()
+  const input = createGameInputState({
+    adapters: [createKeyboardInputAdapter(), createGamepadInputAdapter()],
+  })
   const cleaningInput: FixtureCleaningInput = {
-    isHeld: input.isInteractionHeld,
+    isHeld: input.isHeld,
   }
   const camera = createCameraAdapter(
     { width: SAFE_FRAME_WIDTH, height: SAFE_FRAME_HEIGHT },

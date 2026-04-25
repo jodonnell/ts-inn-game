@@ -1,9 +1,10 @@
+import type { InputAction } from "@/src/input/actions"
 import type { GameWorld } from "@/src/ecs/world"
 import { getActiveFixture } from "@/src/game/fixtureInteraction"
 import type { RoomState } from "@/src/game/roomState"
 
 export type FixtureCleaningInput = {
-  isHeld: () => boolean
+  isHeld: (action: InputAction) => boolean
 }
 
 const resetCleaningFixture = (roomState: RoomState) => {
@@ -31,7 +32,7 @@ export const createFixtureCleaningSystem =
       return
     }
 
-    if (!input.isHeld()) {
+    if (!input.isHeld("interact")) {
       if (activeFixture.state === "cleaning") {
         decayCleaningFixture(activeFixture, dt)
       }

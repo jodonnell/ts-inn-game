@@ -23,7 +23,7 @@ describe("fixture cleaning system", () => {
       },
     ])
     roomState.setActiveFixtureId("bed-1")
-    const input = { isHeld: () => true }
+    const input = { isHeld: (_action: string) => true }
 
     const system = createFixtureCleaningSystem(player, input, roomState)
     system(world, 0.5)
@@ -54,7 +54,7 @@ describe("fixture cleaning system", () => {
       },
     ])
     roomState.setActiveFixtureId("bed-1")
-    const input = { isHeld: () => true }
+    const input = { isHeld: (_action: string) => true }
 
     const system = createFixtureCleaningSystem(player, input, roomState)
     system(world, 4)
@@ -85,7 +85,7 @@ describe("fixture cleaning system", () => {
       },
     ])
     roomState.setActiveFixtureId("bed-1")
-    const input = { isHeld: () => false }
+    const input = { isHeld: (_action: string) => false }
 
     const system = createFixtureCleaningSystem(player, input, roomState)
     system(world, 0.25)
@@ -115,7 +115,7 @@ describe("fixture cleaning system", () => {
         progressMs: 1500,
       },
     ])
-    const input = { isHeld: () => true }
+    const input = { isHeld: (_action: string) => true }
 
     const system = createFixtureCleaningSystem(player, input, roomState)
     system(world, 0.25)

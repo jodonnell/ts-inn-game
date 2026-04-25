@@ -1,32 +1,35 @@
 import type { InputState } from "@/src/ecs/systems/movement"
+import {
+  createGameInputState,
+  type InputAction,
+  type InputAdapter,
+} from "@/src/input/actions"
 
 type KeyboardInputOptions = {
   target?: Window | Document
 }
 
-const movementKeys = new Set([
-  "ArrowUp",
-  "ArrowDown",
-  "ArrowLeft",
-  "ArrowRight",
-  "w",
-  "a",
-  "s",
-  "d",
+const keyActions = new Map<string, InputAction>([
+  ["ArrowUp", "moveUp"],
+  ["ArrowDown", "moveDown"],
+  ["ArrowLeft", "moveLeft"],
+  ["ArrowRight", "moveRight"],
+  ["w", "moveUp"],
+  ["a", "moveLeft"],
+  ["s", "moveDown"],
+  ["d", "moveRight"],
+  ["e", "interact"],
+  ["escape", "pause"],
+  ["enter", "confirm"],
+  ["backspace", "cancel"],
 ])
-const interactionKeys = new Set(["e"])
 
-export const createKeyboardInputState = (
+export const createKeyboardInputAdapter = (
   options: KeyboardInputOptions = {},
-): InputState & {
-  consumeInteraction: () => boolean
-  isInteractionHeld: () => boolean
-  dispose: () => void
-} => {
+): InputAdapter => {
   const target = options.target ?? window
-  const pressed = new Set<string>()
-  let interactionQueued = false
-  let interactionHeld = false
+  const held = new Set<InputAction>()
+  const queued = new Set<InputAction>()
 
   const normalizeKey = (event: KeyboardEvent) => {
     if (event.key.startsWith("Arrow")) return event.key
@@ -35,66 +38,67 @@ export const createKeyboardInputState = (
 
   const onKeyDown = (event: KeyboardEvent) => {
     const key = normalizeKey(event)
-    if (interactionKeys.has(key)) {
-      interactionHeld = true
-      if (!event.repeat) interactionQueued = true
-      return
-    }
-    if (!movementKeys.has(key)) return
+    const action = keyActions.get(key)
+    if (!action) return
     if (event.key.startsWith("Arrow")) {
       event.preventDefault()
     }
-    pressed.add(key)
+    held.add(action)
+    if (!event.repeat) queued.add(action)
   }
 
   const onKeyUp = (event: KeyboardEvent) => {
     const key = normalizeKey(event)
-    if (interactionKeys.has(key)) {
-      interactionHeld = false
-      return
-    }
-    if (!movementKeys.has(key)) return
-    pressed.delete(key)
+    const action = keyActions.get(key)
+    if (!action) return
+    held.delete(action)
   }
 
   const onBlur = () => {
-    pressed.clear()
-    interactionQueued = false
-    interactionHeld = false
+    held.clear()
+    queued.clear()
   }
 
   target.addEventListener("keydown", onKeyDown)
   target.addEventListener("keyup", onKeyUp)
   target.addEventListener("blur", onBlur)
 
-  const getMovement = () => {
-    const left = pressed.has("ArrowLeft") || pressed.has("a")
-    const right = pressed.has("ArrowRight") || pressed.has("d")
-    const up = pressed.has("ArrowUp") || pressed.has("w")
-    const down = pressed.has("ArrowDown") || pressed.has("s")
+  const getHeldActions = () => Array.from(held)
 
-    return {
-      x: (right ? 1 : 0) - (left ? 1 : 0),
-      y: (down ? 1 : 0) - (up ? 1 : 0),
-    }
+  const consumePressed = () => {
+    const actions = Array.from(queued)
+    queued.clear()
+    return actions
   }
-
-  const consumeInteraction = () => {
-    if (!interactionQueued) return false
-    interactionQueued = false
-    return true
-  }
-
-  const isInteractionHeld = () => interactionHeld
 
   const dispose = () => {
     target.removeEventListener("keydown", onKeyDown)
     target.removeEventListener("keyup", onKeyUp)
     target.removeEventListener("blur", onBlur)
-    pressed.clear()
-    interactionQueued = false
-    interactionHeld = false
+    held.clear()
+    queued.clear()
   }
 
-  return { getMovement, consumeInteraction, isInteractionHeld, dispose }
+  return { consumePressed, dispose, getHeldActions }
+}
+
+export const createKeyboardInputState = (
+  options: KeyboardInputOptions = {},
+): InputState & {
+  consumeInteraction: () => boolean
+  isInteractionHeld: () => boolean
+  dispose: () => void
+  update: () => void
+} => {
+  const input = createGameInputState({
+    adapters: [createKeyboardInputAdapter(options)],
+  })
+
+  return {
+    consumeInteraction: () => input.consume("interact"),
+    dispose: input.dispose,
+    getMovement: input.getMovement,
+    isInteractionHeld: () => input.isHeld("interact"),
+    update: input.update,
+  }
 }

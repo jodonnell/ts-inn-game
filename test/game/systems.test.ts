@@ -91,8 +91,10 @@ describe("game systems", () => {
     const state = {
       player: 1,
       input: {
+        consume: vi.fn(),
         getMovement: vi.fn(),
-        consumeInteraction: vi.fn(),
+        isHeld: vi.fn(),
+        update: vi.fn(),
         dispose: vi.fn(),
       },
       roomState: {

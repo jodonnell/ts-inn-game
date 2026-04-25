@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { createGameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
 import { Position, Velocity } from "@/src/ecs/components"
@@ -12,15 +12,18 @@ describe("movement systems", () => {
   it("writes normalized velocity from input", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })
+    const update = vi.fn()
 
     const input: InputState = {
       getMovement: () => ({ x: 1, y: 1 }),
+      update,
     }
 
     const system = createInputSystem(player, input, 10)
     system(world, 0)
 
     const expected = 10 / Math.sqrt(2)
+    expect(update).toHaveBeenCalledTimes(1)
     expect(Velocity.x[player]).toBeCloseTo(expected)
     expect(Velocity.y[player]).toBeCloseTo(expected)
   })

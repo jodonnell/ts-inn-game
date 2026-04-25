@@ -4,6 +4,7 @@ import { Position } from "@/src/ecs/components"
 
 export type InputState = {
   getMovement: () => { x: number; y: number }
+  update?: () => void
 }
 
 export type CollisionWall = {
@@ -29,6 +30,7 @@ export const createInputSystem =
   (_world: GameWorld, _dt: number) => {
     void _world
     void _dt
+    input.update?.()
     const { x, y } = input.getMovement()
     const length = Math.hypot(x, y)
     if (length > 0) {
