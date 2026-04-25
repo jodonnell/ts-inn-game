@@ -8,9 +8,13 @@ import type {
   InteractionSound,
 } from "@/src/ecs/systems/interaction"
 import { installDebugPerfOverlay } from "@/src/debug/perf"
-import { createGameInputState, type GameInputState } from "@/src/input/actions"
+import { createGameInputState } from "@/src/input/actions"
 import { createGamepadInputAdapter } from "@/src/input/gamepad"
 import { createKeyboardInputAdapter } from "@/src/input/keyboard"
+import {
+  createInputRouter,
+  type RoutedGameInputState,
+} from "@/src/input/router"
 import { createCameraAdapter } from "@/src/render/camera"
 import { createCleaningProgressStore } from "@/src/render/cleaningProgress"
 import { createPromptStore } from "@/src/render/interactionPrompt"
@@ -42,7 +46,7 @@ export type GameState = {
   safeFrameLayout: SafeFrameLayout
   world: GameWorld
   player: number
-  input: GameInputState & InputState & InteractionInput
+  input: RoutedGameInputState & InputState & InteractionInput
   cleaningInput: FixtureCleaningInput
   camera: ReturnType<typeof createCameraAdapter>
   cleaningProgressStore: ReturnType<typeof createCleaningProgressStore>
@@ -75,9 +79,10 @@ export const initializeGame = async (): Promise<GameState> => {
   app.stage.addChild(uiContainer)
   const world = createGameWorld()
   const player = spawnPlayer(world, { x: 0, y: 0 })
-  const input = createGameInputState({
+  const rawInput = createGameInputState({
     adapters: [createKeyboardInputAdapter(), createGamepadInputAdapter()],
   })
+  const input = createInputRouter(rawInput)
   const cleaningInput: FixtureCleaningInput = {
     isHeld: input.isHeld,
   }

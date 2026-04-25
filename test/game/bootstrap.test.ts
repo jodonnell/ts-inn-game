@@ -27,6 +27,7 @@ import {
   createNightOverlaySystem,
 } from "@/src/render/nightOverlay"
 import { createGameInputState } from "@/src/input/actions"
+import { createInputRouter } from "@/src/input/router"
 import { createPixiApp, createPixiRenderStore } from "@/src/render/pixi"
 import { createGamepadInputAdapter } from "@/src/input/gamepad"
 import { createKeyboardInputAdapter } from "@/src/input/keyboard"
@@ -128,6 +129,15 @@ vi.mock("@/src/input/actions", () => ({
     isHeld: vi.fn(() => false),
     update: vi.fn(),
     dispose: vi.fn(),
+  })),
+}))
+
+vi.mock("@/src/input/router", () => ({
+  createInputRouter: vi.fn((input) => ({
+    ...input,
+    pushContext: vi.fn(),
+    popContext: vi.fn(),
+    getActiveContext: vi.fn(() => "gameplay"),
   })),
 }))
 
@@ -320,6 +330,9 @@ describe("game bootstrap", () => {
         vi.mocked(createGamepadInputAdapter).mock.results[0]?.value,
       ],
     })
+    expect(vi.mocked(createInputRouter)).toHaveBeenCalledWith(
+      vi.mocked(createGameInputState).mock.results[0]?.value,
+    )
 
     expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
       expect.objectContaining({
