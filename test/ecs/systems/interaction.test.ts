@@ -93,11 +93,27 @@ describe("interaction system", () => {
       },
     ])
     const sound = { play: vi.fn() }
+    const conversation = { startConversation: vi.fn() }
 
-    const system = createInteractionSystem(player, input, roomState, sound)
+    const system = createInteractionSystem(
+      player,
+      input,
+      roomState,
+      sound,
+      conversation,
+    )
     system(world, 0)
 
     expect(roomState.activeNpcId).toBe("manager")
+    expect(conversation.startConversation).toHaveBeenCalledWith({
+      id: "manager",
+      name: "Manager",
+      mapKey: "hallway",
+      x: 352,
+      y: 256,
+      width: 32,
+      height: 32,
+    })
     expect(sound.play).not.toHaveBeenCalled()
   })
 

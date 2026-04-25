@@ -112,6 +112,7 @@ describe("game systems", () => {
       gameTime: { minutes: 0, daysPassed: 0 },
       cleaningInput: { isHeld: vi.fn() },
       bellSound: { play: vi.fn() },
+      conversationStarter: { startConversation: vi.fn() },
       nightOverlayStore: {},
       app: { screen: { width: 800, height: 600 } },
       camera: {},
@@ -176,6 +177,7 @@ describe("game systems", () => {
       state.input,
       state.roomState,
       state.bellSound,
+      state.conversationStarter,
     )
     expect(vi.mocked(createCameraFollowSystem)).toHaveBeenCalledWith(
       1,

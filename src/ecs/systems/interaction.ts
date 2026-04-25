@@ -5,6 +5,7 @@ import {
   getCurrentInteractionPoint,
   isWithinInteractionRange,
 } from "@/src/game/fixtureInteraction"
+import type { ConversationStarter } from "@/src/game/conversation"
 import { findNpcInInteractionRange } from "@/src/game/npcInteraction"
 import type { RoomState } from "@/src/game/roomState"
 
@@ -16,12 +17,17 @@ export type InteractionSound = {
   play: () => void
 }
 
+const noopConversationStarter: ConversationStarter = {
+  startConversation: () => {},
+}
+
 export const createInteractionSystem =
   (
     player: number,
     input: InteractionInput,
     roomState: RoomState,
     sound: InteractionSound,
+    conversation: ConversationStarter = noopConversationStarter,
   ) =>
   (_world: GameWorld, _dt: number) => {
     void _world
@@ -34,6 +40,7 @@ export const createInteractionSystem =
     const npc = findNpcInInteractionRange(playerX, playerY, roomState.npcs)
     if (npc) {
       roomState.setActiveNpcId(npc.id)
+      conversation.startConversation(npc)
       return
     }
 

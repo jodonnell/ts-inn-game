@@ -45,6 +45,7 @@ export const createGameSystems = (state: GameState): GameSystems => ({
       state.input,
       state.roomState,
       state.bellSound,
+      state.conversationStarter,
     ),
   ],
   renderSystems: [

@@ -31,6 +31,7 @@ import {
 import { createNightOverlayStore } from "@/src/render/nightOverlay"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { createRoomState, type RoomState } from "@/src/game/roomState"
+import { createConversationStarter } from "@/src/game/conversation"
 import type { TiledMap } from "@/src/maps/tiled"
 import innMap from "@/assets/maps/inn.json"
 import roomMapJson from "@/assets/tiled/room.tmj?raw"
@@ -60,6 +61,7 @@ export type GameState = {
   roomLoader: ReturnType<typeof createRoomLoader>
   renderStore: ReturnType<typeof createPixiRenderStore>
   bellSound: InteractionSound
+  conversationStarter: ReturnType<typeof createConversationStarter>
 }
 
 const hallwayMap = JSON.parse(hallwayMapJson) as TiledMap
@@ -102,6 +104,7 @@ export const initializeGame = async (): Promise<GameState> => {
   const gameTime = createGameTimeState()
   const roomState = createRoomState()
   const bellSound = new Howl({ src: [bellSfx] })
+  const conversationStarter = createConversationStarter()
   const mapContainer = new Container()
   const actorContainer = new Container()
   const foregroundMapContainer = new Container()
@@ -173,5 +176,6 @@ export const initializeGame = async (): Promise<GameState> => {
     roomLoader,
     renderStore,
     bellSound,
+    conversationStarter,
   }
 }

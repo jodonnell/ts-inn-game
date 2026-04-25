@@ -492,6 +492,9 @@ describe("game bootstrap", () => {
         fixtures: [],
       }),
       expect.any(Object),
+      expect.objectContaining({
+        startConversation: expect.any(Function),
+      }),
     )
 
     expect(vi.mocked(createFixtureRenderSystem)).toHaveBeenCalledWith(
