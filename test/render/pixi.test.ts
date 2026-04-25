@@ -228,4 +228,27 @@ describe("pixi app", () => {
 
     expect(container.sortableChildren).toBe(true)
   })
+
+  it("removes npc sprites from the actor container", () => {
+    const container = {
+      addChild: vi.fn(),
+      removeChild: vi.fn(),
+    }
+    const store = createPixiRenderStore(
+      {} as never,
+      { textures: {} } as never,
+      container as never,
+    )
+    const sprite = {
+      x: 0,
+      y: 0,
+      play: vi.fn(),
+      stop: vi.fn(),
+      setFrames: vi.fn(),
+    }
+
+    store.npcStore.removeSprite(sprite)
+
+    expect(container.removeChild).toHaveBeenCalledWith(sprite)
+  })
 })

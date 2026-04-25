@@ -11,6 +11,7 @@ describe("npc render system", () => {
       {
         id: "manager",
         name: "Manager",
+        mapKey: "hallway",
         x: 352,
         y: 192,
         width: 32,
@@ -35,6 +36,7 @@ describe("npc render system", () => {
         }
       },
       addSprite,
+      removeSprite: vi.fn(),
     })
 
     system(world, 0)
@@ -47,5 +49,32 @@ describe("npc render system", () => {
     expect(sprites.get("manager")).toEqual(
       expect.objectContaining({ x: 352, y: 192, zIndex: 192 }),
     )
+  })
+
+  it("removes npc sprites that are no longer in the current room", () => {
+    const world = createGameWorld()
+    const roomState = createRoomState()
+    const managerSprite = {
+      x: 352,
+      y: 256,
+      zIndex: 256,
+      play: vi.fn(),
+      stop: vi.fn(),
+      setFrames: vi.fn(),
+    }
+    const sprites = new Map([["manager", managerSprite]])
+    const removeSprite = vi.fn()
+
+    const system = createNpcRenderSystem(roomState, {
+      sprites,
+      createAnimatedSprite: vi.fn(),
+      addSprite: vi.fn(),
+      removeSprite,
+    })
+
+    system(world, 0)
+
+    expect(removeSprite).toHaveBeenCalledWith(managerSprite)
+    expect(sprites.has("manager")).toBe(false)
   })
 })

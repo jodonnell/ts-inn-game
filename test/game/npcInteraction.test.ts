@@ -8,6 +8,7 @@ describe("npc interaction helpers", () => {
   const manager = {
     id: "manager",
     name: "Manager",
+    mapKey: "hallway",
     x: 352,
     y: 256,
     width: 32,

@@ -85,6 +85,7 @@ describe("interaction system", () => {
       {
         id: "manager",
         name: "Manager",
+        mapKey: "hallway",
         x: 352,
         y: 256,
         width: 32,
@@ -109,6 +110,7 @@ describe("interaction system", () => {
       {
         id: "manager",
         name: "Manager",
+        mapKey: "hallway",
         x: 352,
         y: 256,
         width: 32,

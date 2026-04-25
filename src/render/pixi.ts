@@ -310,6 +310,9 @@ export const createPixiRenderStore = (
       addSprite: (sprite) => {
         container.addChild(sprite as Sprite)
       },
+      removeSprite: (sprite) => {
+        container.removeChild(sprite as Sprite)
+      },
     },
   }
 }

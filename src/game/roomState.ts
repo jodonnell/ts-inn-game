@@ -14,6 +14,7 @@ export type RoomFixture = FixturePlacement & {
 export type RoomNpc = {
   id: string
   name: string
+  mapKey: string
   x: number
   y: number
   width: number

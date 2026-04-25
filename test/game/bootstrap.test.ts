@@ -282,6 +282,7 @@ vi.mock("@/src/render/pixi", () => ({
       sprites: new Map(),
       createAnimatedSprite: vi.fn(),
       addSprite: vi.fn(),
+      removeSprite: vi.fn(),
     },
   })),
 }))
@@ -508,6 +509,7 @@ describe("game bootstrap", () => {
         sprites: expect.any(Map),
         createAnimatedSprite: expect.any(Function),
         addSprite: expect.any(Function),
+        removeSprite: expect.any(Function),
       }),
     )
 

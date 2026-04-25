@@ -7,6 +7,7 @@ export type NpcRenderStore = {
   sprites: Map<string, SpriteLike>
   createAnimatedSprite: (frames: string[]) => SpriteLike
   addSprite: (sprite: SpriteLike) => void
+  removeSprite: (sprite: SpriteLike) => void
 }
 
 const MANAGER_IDLE_FRAMES = getManagerAnimationFrames({
@@ -19,6 +20,14 @@ export const createNpcRenderSystem =
   (world: GameWorld, _dt: number) => {
     void world
     void _dt
+
+    const currentNpcIds = new Set(roomState.npcs.map((npc) => npc.id))
+    for (const [npcId, sprite] of store.sprites) {
+      if (!currentNpcIds.has(npcId)) {
+        store.removeSprite(sprite)
+        store.sprites.delete(npcId)
+      }
+    }
 
     for (const npc of roomState.npcs) {
       let sprite = store.sprites.get(npc.id)
