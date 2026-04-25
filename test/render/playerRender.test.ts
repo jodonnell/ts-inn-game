@@ -39,7 +39,7 @@ describe("player render system", () => {
     ])
     expect(addSprite).toHaveBeenCalledTimes(1)
     expect(sprites.get(player)).toEqual(
-      expect.objectContaining({ x: 10, y: 20 }),
+      expect.objectContaining({ x: 10, y: 20, zIndex: 20 }),
     )
     expect(stop).toHaveBeenCalledTimes(1)
     expect(play).not.toHaveBeenCalled()
@@ -70,7 +70,7 @@ describe("player render system", () => {
     ])
     expect(addSprite).toHaveBeenCalledTimes(1)
     expect(sprites.get(player)).toEqual(
-      expect.objectContaining({ x: 99, y: 101 }),
+      expect.objectContaining({ x: 99, y: 101, zIndex: 101 }),
     )
     expect(updatedFrames).toEqual([
       [

@@ -251,6 +251,7 @@ export const createPixiRenderStore = (
   container: Container,
 ): PixiRenderStore => {
   void app
+  container.sortableChildren = true
   const sprites = new Map<number, SpriteLike>()
   const fixtureSprites = new Map<string, FixtureSpriteLike>()
   const npcSprites = new Map<string, SpriteLike>()

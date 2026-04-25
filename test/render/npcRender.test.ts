@@ -45,7 +45,7 @@ describe("npc render system", () => {
     expect(addSprite).toHaveBeenCalledTimes(1)
     expect(stop).toHaveBeenCalledTimes(1)
     expect(sprites.get("manager")).toEqual(
-      expect.objectContaining({ x: 352, y: 192 }),
+      expect.objectContaining({ x: 352, y: 192, zIndex: 192 }),
     )
   })
 })

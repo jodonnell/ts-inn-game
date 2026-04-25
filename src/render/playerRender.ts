@@ -9,6 +9,7 @@ import {
 export type SpriteLike = {
   x: number
   y: number
+  zIndex?: number
   play: () => void
   stop: () => void
   setFrames: (frames: string[]) => void
@@ -58,5 +59,6 @@ export const createPlayerRenderSystem = (
 
     sprite.x = Position.x[player]
     sprite.y = Position.y[player]
+    sprite.zIndex = Position.y[player]
   }
 }

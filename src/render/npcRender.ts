@@ -31,5 +31,6 @@ export const createNpcRenderSystem =
       sprite.stop()
       sprite.x = npc.x
       sprite.y = npc.y
+      sprite.zIndex = npc.y
     }
   }

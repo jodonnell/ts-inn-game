@@ -217,4 +217,15 @@ describe("pixi app", () => {
     expect(textureFrom).toHaveBeenCalledWith("bed-clean")
     expect(sprite.texture).toEqual({ path: "bed-clean" })
   })
+
+  it("enables depth sorting on the actor container", () => {
+    const container = {
+      addChild: vi.fn(),
+      sortableChildren: false,
+    }
+
+    createPixiRenderStore({} as never, { textures: {} } as never, container)
+
+    expect(container.sortableChildren).toBe(true)
+  })
 })
