@@ -26,7 +26,7 @@ import {
   createNightOverlayStore,
   createNightOverlaySystem,
 } from "@/src/render/nightOverlay"
-import { createPixiRenderStore } from "@/src/render/pixi"
+import { createPixiApp, createPixiRenderStore } from "@/src/render/pixi"
 import { Container } from "pixi.js"
 
 const loopStart = vi.fn()
@@ -185,6 +185,8 @@ vi.mock("@/src/render/interactionPrompt", () => ({
 }))
 
 vi.mock("@/src/render/pixi", () => ({
+  SAFE_FRAME_WIDTH: 640,
+  SAFE_FRAME_HEIGHT: 360,
   createPixiApp: vi.fn(async () => ({
     app: {
       stage: {
@@ -193,6 +195,17 @@ vi.mock("@/src/render/pixi", () => ({
         addChild: vi.fn(),
       },
       screen: { width: 800, height: 600 },
+    },
+    safeFrame: new Container(),
+    safeFrameLayout: {
+      frame: {
+        width: 640,
+        height: 360,
+        scale: 1,
+        offsetX: 80,
+        offsetY: 120,
+      },
+      resize: vi.fn(),
     },
     destroy: vi.fn(),
   })),
@@ -325,6 +338,18 @@ describe("game bootstrap", () => {
     expect(vi.mocked(createPromptStore)).toHaveBeenCalledWith(worldContainer)
   })
 
+  it("mounts the HUD outside the safe frame so it stays near the viewport edge", async () => {
+    await initializeGame()
+
+    const [uiContainer] = vi.mocked(createTimeDisplayStore).mock.calls[0]
+    const createPixiAppResult =
+      await vi.mocked(createPixiApp).mock.results[0].value
+    const { safeFrame, app } = createPixiAppResult
+
+    expect(safeFrame.addChild).not.toHaveBeenCalledWith(uiContainer)
+    expect(app.stage.addChild).toHaveBeenCalledWith(uiContainer)
+  })
+
   it("uses e2e fixture maps when requested by query string", async () => {
     const originalWindow = globalThis.window
     globalThis.window = {
@@ -455,7 +480,7 @@ describe("game bootstrap", () => {
     })
   })
 
-  it("sizes the night overlay using the app screen", async () => {
+  it("sizes the night overlay using the full app screen", async () => {
     const state = await initializeGame()
 
     createGameLoop(state)

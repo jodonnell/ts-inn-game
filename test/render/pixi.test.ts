@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 import {
   createPixiApp,
   createPixiRenderStore,
+  createSafeFrameLayout,
   createTilesetTextLoader,
   loadTilesetTextures,
 } from "@/src/render/pixi"
@@ -34,15 +35,24 @@ vi.mock("pixi.js", () => {
 
   class Application {
     canvas = document.createElement("canvas")
+    stage = { addChild: vi.fn() }
     init = vi.fn(async () => {})
     destroy = vi.fn()
+  }
+  class Container {
+    x = 0
+    y = 0
+    scale = { x: 1, y: 1 }
   }
   return {
     Application,
     AnimatedSprite,
     Assets: { load: assetsLoad },
+    Container,
+    SCALE_MODES: { NEAREST: "nearest" },
     Sprite,
     Texture: { from: textureFrom },
+    TextureStyle: { defaultOptions: { scaleMode: "linear" } },
   }
 })
 
@@ -58,6 +68,77 @@ describe("pixi app", () => {
     destroy()
 
     expect(mount.querySelector("canvas")).toBeNull()
+  })
+
+  it("recomputes the safe frame when the window is resized", async () => {
+    const originalInnerWidth = window.innerWidth
+    const originalInnerHeight = window.innerHeight
+    window.innerWidth = 1024
+    window.innerHeight = 768
+
+    const { safeFrame, safeFrameLayout, destroy } = await createPixiApp()
+
+    expect(safeFrameLayout.frame).toEqual({
+      width: 640,
+      height: 360,
+      scale: 1,
+      offsetX: 192,
+      offsetY: 204,
+    })
+
+    window.innerWidth = 1920
+    window.innerHeight = 1080
+    window.dispatchEvent(new Event("resize"))
+
+    expect(safeFrameLayout.frame).toEqual({
+      width: 640,
+      height: 360,
+      scale: 3,
+      offsetX: 0,
+      offsetY: 0,
+    })
+    expect(safeFrame.scale).toEqual({ x: 3, y: 3 })
+    expect(safeFrame.x).toBe(0)
+    expect(safeFrame.y).toBe(0)
+
+    destroy()
+    window.innerWidth = originalInnerWidth
+    window.innerHeight = originalInnerHeight
+  })
+
+  it("lays out a 640x360 safe frame with integer scaling and letterboxing", () => {
+    const container = {
+      x: 0,
+      y: 0,
+      scale: { x: 1, y: 1 },
+    }
+
+    const layout = createSafeFrameLayout(container as never)
+    layout.resize({ width: 1920, height: 1080 })
+
+    expect(layout.frame).toEqual({
+      width: 640,
+      height: 360,
+      scale: 3,
+      offsetX: 0,
+      offsetY: 0,
+    })
+    expect(container.scale).toEqual({ x: 3, y: 3 })
+    expect(container.x).toBe(0)
+    expect(container.y).toBe(0)
+
+    layout.resize({ width: 1024, height: 768 })
+
+    expect(layout.frame).toEqual({
+      width: 640,
+      height: 360,
+      scale: 1,
+      offsetX: 192,
+      offsetY: 204,
+    })
+    expect(container.scale).toEqual({ x: 1, y: 1 })
+    expect(container.x).toBe(192)
+    expect(container.y).toBe(204)
   })
 
   it("loads tileset textures from tsx sources", async () => {

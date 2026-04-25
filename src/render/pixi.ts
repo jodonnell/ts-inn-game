@@ -3,9 +3,11 @@ import {
   Application,
   Assets,
   Container,
+  SCALE_MODES,
   Sprite,
   Spritesheet,
   Texture,
+  TextureStyle,
 } from "pixi.js"
 import type { SpritesheetData } from "pixi.js"
 import managerSheetData from "@/assets/spritesheets/manager-sheet.json"
@@ -28,23 +30,111 @@ const rawTilesetModules = import.meta.glob("/assets/**/*.tsx", {
 
 export type PixiAppHandle = {
   app: Application
+  safeFrame: Container
+  safeFrameLayout: SafeFrameLayout
   destroy: () => void
+}
+
+export const SAFE_FRAME_WIDTH = 640
+export const SAFE_FRAME_HEIGHT = 360
+
+export type SafeFrame = {
+  width: number
+  height: number
+  scale: number
+  offsetX: number
+  offsetY: number
+}
+
+export type SafeFrameLayout = {
+  frame: SafeFrame
+  resize: (viewport: { width: number; height: number }) => SafeFrame
+}
+
+type SafeFrameContainerLike = {
+  x: number
+  y: number
+  scale: {
+    x: number
+    y: number
+  }
+}
+
+const resolveSafeFrameScale = (viewport: { width: number; height: number }) =>
+  Math.max(
+    1,
+    Math.floor(
+      Math.min(
+        viewport.width / SAFE_FRAME_WIDTH,
+        viewport.height / SAFE_FRAME_HEIGHT,
+      ),
+    ),
+  )
+
+export const createSafeFrameLayout = (
+  container: SafeFrameContainerLike,
+): SafeFrameLayout => {
+  const frame: SafeFrame = {
+    width: SAFE_FRAME_WIDTH,
+    height: SAFE_FRAME_HEIGHT,
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+  }
+
+  return {
+    frame,
+    resize: (viewport) => {
+      const scale = resolveSafeFrameScale(viewport)
+      const width = SAFE_FRAME_WIDTH * scale
+      const height = SAFE_FRAME_HEIGHT * scale
+      const offsetX = Math.floor((viewport.width - width) / 2)
+      const offsetY = Math.floor((viewport.height - height) / 2)
+
+      frame.scale = scale
+      frame.offsetX = offsetX
+      frame.offsetY = offsetY
+
+      container.scale.x = scale
+      container.scale.y = scale
+      container.x = offsetX
+      container.y = offsetY
+
+      return { ...frame }
+    },
+  }
 }
 
 export const createPixiApp = async (
   options: { mount?: HTMLElement } = {},
 ): Promise<PixiAppHandle> => {
   const app = new Application()
-  await app.init({ background: "#000000", resizeTo: window })
+  await app.init({
+    background: "#000000",
+    resizeTo: window,
+    preference: "webgl",
+  })
   const mount = options.mount ?? document.body
+  const safeFrame = new Container()
+  const safeFrameLayout = createSafeFrameLayout(safeFrame)
+  const resizeSafeFrame = () =>
+    safeFrameLayout.resize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    })
+  resizeSafeFrame()
+  window.addEventListener("resize", resizeSafeFrame)
+  app.stage.addChild(safeFrame)
   mount.appendChild(app.canvas)
+  TextureStyle.defaultOptions.scaleMode = SCALE_MODES.NEAREST
 
   const destroy = () => {
+    window.removeEventListener("resize", resizeSafeFrame)
     app.canvas.remove()
     app.destroy?.()
   }
 
-  return { app, destroy }
+  return { app, safeFrame, safeFrameLayout, destroy }
 }
 
 export const loadManagerSpritesheet = async (): Promise<Spritesheet> => {

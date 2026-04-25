@@ -18,6 +18,9 @@ import {
   createPixiRenderStore,
   loadTilesetTextures,
   loadManagerSpritesheet,
+  SAFE_FRAME_HEIGHT,
+  SAFE_FRAME_WIDTH,
+  type SafeFrameLayout,
 } from "@/src/render/pixi"
 import { createNightOverlayStore } from "@/src/render/nightOverlay"
 import { createRoomLoader } from "@/src/game/roomLoader"
@@ -34,6 +37,7 @@ import { Howl } from "howler"
 
 export type GameState = {
   app: Application
+  safeFrameLayout: SafeFrameLayout
   world: GameWorld
   player: number
   input: InputState & InteractionInput & { dispose: () => void }
@@ -56,15 +60,15 @@ const getSearchParams = () => {
 }
 
 export const initializeGame = async (): Promise<GameState> => {
-  const { app } = await createPixiApp()
+  const { app, safeFrame, safeFrameLayout } = await createPixiApp()
   if (import.meta.env.DEV) installDebugPerfOverlay(app)
   const assetBase = import.meta.env.DEV ? "../.." : "."
 
   const spritesheet = await loadManagerSpritesheet()
   const worldContainer = new Container()
-  const overlayContainer = new Container()
   const uiContainer = new Container()
-  app.stage.addChild(worldContainer)
+  const overlayContainer = new Container()
+  safeFrame.addChild(worldContainer)
   app.stage.addChild(overlayContainer)
   app.stage.addChild(uiContainer)
   const world = createGameWorld()
@@ -73,7 +77,10 @@ export const initializeGame = async (): Promise<GameState> => {
   const cleaningInput: FixtureCleaningInput = {
     isHeld: input.isInteractionHeld,
   }
-  const camera = createCameraAdapter(app, worldContainer)
+  const camera = createCameraAdapter(
+    { width: SAFE_FRAME_WIDTH, height: SAFE_FRAME_HEIGHT },
+    worldContainer,
+  )
   const cleaningProgressStore = createCleaningProgressStore(worldContainer)
   const promptStore = createPromptStore(worldContainer)
   const timeDisplayStore = createTimeDisplayStore(uiContainer)
@@ -134,6 +141,7 @@ export const initializeGame = async (): Promise<GameState> => {
 
   return {
     app,
+    safeFrameLayout,
     world,
     player,
     input,
