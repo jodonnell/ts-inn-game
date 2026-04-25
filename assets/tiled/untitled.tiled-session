@@ -32,13 +32,14 @@
         },
         "hallway.tmj": {
             "expandedObjectLayers": [
-                5
+                5,
+                6
             ],
-            "scale": 0.5,
+            "scale": 1.5,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 415,
-                "y": 175
+                "x": 209,
+                "y": 158.99999999999997
             }
         },
         "indoors.tsx": {
@@ -88,8 +89,9 @@
         "/Users/jacobodonnell/programming/ts-inn-game/assets/maps/inn.json"
     ],
     "project": "untitled.tiled-project",
-    "property.type": "bool",
+    "property.type": "string",
     "recentFiles": [
+        "room.tmx",
         "full-tileset.tsx",
         "indoors.tsx",
         "outdoors.tsx",

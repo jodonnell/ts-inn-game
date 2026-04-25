@@ -30,6 +30,8 @@ export type TiledObjectLayer = {
   type: "objectgroup"
   name: string
   objects: TiledObject[]
+  offsetx?: number
+  offsety?: number
 }
 
 export type TiledLayer = TiledTileLayer | TiledObjectLayer
@@ -81,6 +83,14 @@ export type TilesetResolution = {
 const getObjectProperty = (object: TiledObject, name: string) =>
   object.properties?.find((property) => property.name === name)?.value
 
+const resolveObjectPosition = (
+  layer: TiledObjectLayer,
+  object: TiledObject,
+): { x: number; y: number } => ({
+  x: object.x + (layer.offsetx ?? 0),
+  y: object.y + (layer.offsety ?? 0),
+})
+
 export const buildTilePlacements = (
   layer: TiledTileLayer,
   tileWidth: number,
@@ -131,9 +141,10 @@ export const extractCollisionWalls = (map: TiledMap): CollisionWall[] => {
       const shouldCollide = collisionFlag === true || collidableFlag === true
       if (!shouldCollide) continue
       if (object.width <= 0 || object.height <= 0) continue
+      const position = resolveObjectPosition(layer, object)
       walls.push({
-        x: object.x,
-        y: object.y,
+        x: position.x,
+        y: position.y,
         width: object.width,
         height: object.height,
       })
@@ -155,7 +166,10 @@ export const findSpawnPoint = (
       if (spawnId === "player_spawn") return true
       return spawnProperty === spawnId
     })
-    if (match) return { x: match.x, y: match.y + match.height }
+    if (match) {
+      const position = resolveObjectPosition(layer, match)
+      return { x: position.x, y: position.y + match.height }
+    }
   }
   return null
 }
@@ -170,17 +184,18 @@ export const findInteractionPoint = (
       (object) => getObjectProperty(object, "interaction") === interactionId,
     )
     if (!match) continue
+    const position = resolveObjectPosition(layer, match)
     const radius = Math.max(match.width, match.height) / 2
-    const centerX = match.x + match.width / 2
-    const centerY = match.y + match.height / 2
+    const centerX = position.x + match.width / 2
+    const centerY = position.y + match.height / 2
     return {
       x: centerX,
       y: centerY,
       radius,
       offsetY: 16,
       bounds: {
-        x: match.x,
-        y: match.y,
+        x: position.x,
+        y: position.y,
         width: match.width,
         height: match.height,
       },
@@ -197,9 +212,10 @@ export const extractTeleportZones = (map: TiledMap): TeleportZone[] => {
       const targetMapKey = getObjectProperty(object, "teleport")
       if (typeof targetMapKey !== "string") continue
       if (object.width <= 0 || object.height <= 0) continue
+      const position = resolveObjectPosition(layer, object)
       const zone: TeleportZone = {
-        x: object.x,
-        y: object.y,
+        x: position.x,
+        y: position.y,
         width: object.width,
         height: object.height,
         targetMapKey,
@@ -224,11 +240,12 @@ export const extractFixturePlacements = (map: TiledMap): FixturePlacement[] => {
       const durationMs = getObjectProperty(object, "durationMs")
       if (typeof type !== "string" || typeof id !== "string") continue
       if (typeof durationMs !== "number") continue
+      const position = resolveObjectPosition(layer, object)
       fixtures.push({
         id,
         type,
-        x: object.x,
-        y: object.y,
+        x: position.x,
+        y: position.y,
         width: object.width,
         height: object.height,
         durationMs,

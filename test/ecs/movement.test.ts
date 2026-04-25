@@ -92,4 +92,20 @@ describe("movement systems", () => {
     expect(Position.x[player]).toBe(0)
     expect(Position.y[player]).toBe(0)
   })
+
+  it("blocks upward movement before the sprite feet overlap the top wall", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 400, y: 180 })
+
+    Velocity.x[player] = 0
+    Velocity.y[player] = -5
+
+    const walls = [{ x: 32, y: 64, width: 768, height: 96 }]
+
+    const system = createMovementSystem(player, walls)
+    system(world, 1)
+
+    expect(Position.x[player]).toBe(400)
+    expect(Position.y[player]).toBe(180)
+  })
 })

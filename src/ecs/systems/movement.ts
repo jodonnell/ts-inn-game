@@ -14,7 +14,7 @@ export type CollisionWall = {
   height: number
 }
 
-const PLAYER_COLLISION_BUFFER = 10
+const PLAYER_COLLISION_BUFFER = 16
 
 const overlapsWall = (x: number, y: number, wall: CollisionWall) =>
   x + PLAYER_COLLISION_BUFFER >= wall.x &&

@@ -417,4 +417,113 @@ describe("tiled map helpers", () => {
       ]),
     )
   })
+
+  it("applies object layer offsets to extracted coordinates", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "objects",
+          objects: [
+            {
+              id: 1,
+              x: 10,
+              y: 20,
+              width: 30,
+              height: 40,
+              properties: [{ name: "collidable", type: "bool", value: true }],
+            },
+            {
+              id: 2,
+              x: 100,
+              y: 120,
+              width: 16,
+              height: 24,
+              properties: [
+                { name: "player_spawn", type: "string", value: "pointA" },
+              ],
+            },
+            {
+              id: 3,
+              x: 160,
+              y: 96,
+              width: 20,
+              height: 10,
+              properties: [
+                { name: "interaction", type: "string", value: "bell" },
+              ],
+            },
+            {
+              id: 4,
+              x: 200,
+              y: 220,
+              width: 32,
+              height: 24,
+              properties: [
+                { name: "teleport", type: "string", value: "room1" },
+                { name: "teleport_spawn", type: "string", value: "pointA" },
+              ],
+            },
+            {
+              id: 5,
+              x: 260,
+              y: 180,
+              width: 64,
+              height: 32,
+              properties: [
+                { name: "fixtureType", type: "string", value: "bed" },
+                { name: "fixtureId", type: "string", value: "bed-1" },
+                { name: "durationMs", type: "int", value: 4000 },
+              ],
+            },
+          ],
+          offsetx: 32,
+          offsety: 64,
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    expect(extractCollisionWalls(map)).toEqual([
+      { x: 42, y: 84, width: 30, height: 40 },
+    ])
+    expect(findSpawnPoint(map, "pointA")).toEqual({ x: 132, y: 208 })
+    expect(findInteractionPoint(map, "bell")).toEqual({
+      x: 202,
+      y: 165,
+      radius: 10,
+      offsetY: 16,
+      bounds: {
+        x: 192,
+        y: 160,
+        width: 20,
+        height: 10,
+      },
+    })
+    expect(extractTeleportZones(map)).toEqual([
+      {
+        x: 232,
+        y: 284,
+        width: 32,
+        height: 24,
+        targetMapKey: "room1",
+        spawnId: "pointA",
+      },
+    ])
+    expect(extractFixturePlacements(map)).toEqual([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 292,
+        y: 244,
+        width: 64,
+        height: 32,
+        durationMs: 4000,
+      },
+    ])
+  })
 })

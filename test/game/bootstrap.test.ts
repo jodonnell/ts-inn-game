@@ -96,7 +96,7 @@ const fixtureMaps = vi.hoisted(() => ({
     layers: [],
     tilesets: [],
   },
-  tiledRoom: {
+  hallway: {
     width: 1,
     height: 1,
     tilewidth: 32,
@@ -291,7 +291,9 @@ vi.mock("@/src/render/nightOverlay", () => ({
 
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
-vi.mock("@/assets/tiled/room.json", () => ({ default: map }))
+vi.mock("@/assets/tiled/hallway.tmj?raw", () => ({
+  default: JSON.stringify(map),
+}))
 vi.mock("@/assets/sfx/bell.mp3", () => ({ default: "bell.mp3" }))
 vi.mock("@/src/test-fixtures/e2eMaps", () => ({
   getE2EMapFixture: vi.fn(() => fixtureMaps),
@@ -336,16 +338,16 @@ describe("game bootstrap", () => {
 
     expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
       expect.objectContaining({
-        mapsByKey: { inn: map, room1: map, tiledRoom: map },
+        mapsByKey: { inn: map, room1: map, hallway: map },
         player,
         tileSpriteFactories: {
           inn: tileSpriteFactory,
           room1: tileSpriteFactory,
-          tiledRoom: tileSpriteFactory,
+          hallway: tileSpriteFactory,
         },
       }),
     )
-    expect(loadRoom).toHaveBeenCalledWith("tiledRoom")
+    expect(loadRoom).toHaveBeenCalledWith("hallway")
 
     expect(vi.mocked(createTimeDisplayStore)).toHaveBeenCalledWith(
       expect.any(Container),

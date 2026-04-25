@@ -31,9 +31,10 @@ import {
 import { createNightOverlayStore } from "@/src/render/nightOverlay"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { createRoomState, type RoomState } from "@/src/game/roomState"
+import type { TiledMap } from "@/src/maps/tiled"
 import innMap from "@/assets/maps/inn.json"
 import room1Map from "@/assets/maps/room1.json"
-import tiledRoomMap from "@/assets/tiled/room.json"
+import hallwayMapJson from "@/assets/tiled/hallway.tmj?raw"
 import bellSfx from "@/assets/sfx/bell.mp3"
 import { createPixiMultiTilesetSpriteFactory } from "@/src/render/tilemap"
 import { getE2EMapFixture } from "@/src/test-fixtures/e2eMaps"
@@ -59,6 +60,8 @@ export type GameState = {
   renderStore: ReturnType<typeof createPixiRenderStore>
   bellSound: InteractionSound
 }
+
+const hallwayMap = JSON.parse(hallwayMapJson) as TiledMap
 
 const getSearchParams = () => {
   if (typeof window === "undefined") return new URLSearchParams()
@@ -107,7 +110,7 @@ export const initializeGame = async (): Promise<GameState> => {
   const defaultMapsByKey = {
     inn: innMap,
     room1: room1Map,
-    tiledRoom: tiledRoomMap,
+    hallway: hallwayMap,
   }
   const params = getSearchParams()
   const fixtureName = params.has("e2e") ? params.get("fixture") : null
@@ -117,7 +120,7 @@ export const initializeGame = async (): Promise<GameState> => {
   const tilesetBaseByKey = {
     inn: `${assetBase}/assets/maps`,
     room1: `${assetBase}/assets/maps`,
-    tiledRoom: `${assetBase}/assets/tiled`,
+    hallway: `${assetBase}/assets/tiled`,
   }
   const tileSpriteFactories = Object.fromEntries(
     await Promise.all(
@@ -147,7 +150,7 @@ export const initializeGame = async (): Promise<GameState> => {
     roomState,
     camera,
   })
-  roomLoader("tiledRoom")
+  roomLoader("hallway")
 
   return {
     app,
