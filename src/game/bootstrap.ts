@@ -30,19 +30,20 @@ const createUncappedLoopScheduler = () => ({
 })
 
 const E2E_FIXED_DT_SECONDS = 1 / 120
+const SIMULATION_DT_SECONDS = 1 / 60
 
 export const createGameLoop = (state: GameState) => {
   const params = getSearchParams()
   const isE2E = params.has("e2e")
   const loop = createLoop({
     world: state.world,
+    simulationDtSeconds: isE2E ? E2E_FIXED_DT_SECONDS : SIMULATION_DT_SECONDS,
     ...(isE2E
       ? {
-          fixedDtSeconds: E2E_FIXED_DT_SECONDS,
           ...createUncappedLoopScheduler(),
         }
       : {}),
-    systems: [
+    simulationSystems: [
       createInputSystem(state.player, state.input),
       createMovementSystem(state.player, state.roomState.collisionWalls),
       createTeleportSystem(
@@ -51,6 +52,20 @@ export const createGameLoop = (state: GameState) => {
         state.roomLoader,
       ),
       createTimeSystem(state.gameTime),
+      createFixtureTargetingSystem(state.player, state.roomState),
+      createFixtureCleaningSystem(
+        state.player,
+        state.cleaningInput,
+        state.roomState,
+      ),
+      createInteractionSystem(
+        state.player,
+        state.input,
+        state.roomState,
+        state.bellSound,
+      ),
+    ],
+    renderSystems: [
       createNightOverlaySystem(state.gameTime, state.nightOverlayStore, {
         sizeProvider: () => ({
           width: state.app.screen.width,
@@ -63,12 +78,6 @@ export const createGameLoop = (state: GameState) => {
         state.roomState,
         state.renderStore.fixtureStore,
       ),
-      createFixtureTargetingSystem(state.player, state.roomState),
-      createFixtureCleaningSystem(
-        state.player,
-        state.cleaningInput,
-        state.roomState,
-      ),
       createCleaningProgressSystem(
         state.player,
         state.roomState,
@@ -78,12 +87,6 @@ export const createGameLoop = (state: GameState) => {
         state.player,
         state.promptStore,
         state.roomState,
-      ),
-      createInteractionSystem(
-        state.player,
-        state.input,
-        state.roomState,
-        state.bellSound,
       ),
       createTimeDisplaySystem(state.gameTime, state.timeDisplayStore),
     ],

@@ -4,8 +4,9 @@ export type System = (world: GameWorld, dt: number) => void
 
 type LoopOptions = {
   world: GameWorld
-  systems: System[]
-  fixedDtSeconds?: number
+  simulationSystems: System[]
+  renderSystems?: System[]
+  simulationDtSeconds?: number
   now?: () => number
   scheduleFrame?: (cb: (time: number) => void) => number
   cancelScheduledFrame?: (id: number) => void
@@ -13,24 +14,33 @@ type LoopOptions = {
 
 export const createLoop = ({
   world,
-  systems,
-  fixedDtSeconds,
+  simulationSystems,
+  renderSystems = [],
+  simulationDtSeconds = 1 / 60,
   now = () => performance.now(),
   scheduleFrame = (cb) => requestAnimationFrame(cb),
   cancelScheduledFrame = (id) => cancelAnimationFrame(id),
 }: LoopOptions) => {
   let lastTimeMs: number | undefined
   let rafId: number | undefined
+  let accumulatorSeconds = 0
 
-  const runSystems = (dt: number) => {
+  const runSystems = (systems: System[], dt: number) => {
     for (const system of systems) system(world, dt)
   }
 
   const step = (timeMs = now()) => {
-    const dt =
-      fixedDtSeconds ?? (lastTimeMs === undefined ? 0 : (timeMs - lastTimeMs) / 1000)
+    const frameDtSeconds =
+      lastTimeMs === undefined ? 0 : (timeMs - lastTimeMs) / 1000
     lastTimeMs = timeMs
-    runSystems(dt)
+    accumulatorSeconds += frameDtSeconds
+
+    while (accumulatorSeconds >= simulationDtSeconds) {
+      runSystems(simulationSystems, simulationDtSeconds)
+      accumulatorSeconds -= simulationDtSeconds
+    }
+
+    runSystems(renderSystems, frameDtSeconds)
   }
 
   const tick = (timeMs: number) => {
@@ -41,6 +51,7 @@ export const createLoop = ({
   const start = () => {
     if (rafId !== undefined) return
     lastTimeMs = undefined
+    accumulatorSeconds = 0
     rafId = scheduleFrame(tick)
   }
 

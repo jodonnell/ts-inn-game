@@ -466,20 +466,23 @@ describe("game bootstrap", () => {
 
     expect(vi.mocked(createLoop)).toHaveBeenCalledWith({
       world,
-      systems: [
+      simulationDtSeconds: 1 / 60,
+      simulationSystems: [
         inputSystem,
         movementSystem,
         teleportSystem,
         timeSystem,
+        fixtureTargetingSystem,
+        fixtureCleaningSystem,
+        interactionSystem,
+      ],
+      renderSystems: [
         nightOverlaySystem,
         cameraSystem,
         renderSystem,
         fixtureRenderSystem,
-        fixtureTargetingSystem,
-        fixtureCleaningSystem,
         cleaningProgressSystem,
         promptSystem,
-        interactionSystem,
         timeDisplaySystem,
       ],
     })
@@ -534,7 +537,7 @@ describe("game bootstrap", () => {
 
     expect(vi.mocked(createLoop)).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        fixedDtSeconds: 1 / 120,
+        simulationDtSeconds: 1 / 120,
         scheduleFrame: expect.any(Function),
         cancelScheduledFrame: expect.any(Function),
       }),
