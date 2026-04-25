@@ -174,12 +174,12 @@
                         {
                          "name":"teleport",
                          "type":"string",
-                         "value":"inn"
+                         "value":"hallway"
                         }, 
                         {
                          "name":"teleport_spawn",
                          "type":"string",
-                         "value":"pointA"
+                         "value":"a"
                         }],
                  "rotation":0,
                  "type":"",

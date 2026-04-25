@@ -36,10 +36,10 @@
                 6
             ],
             "scale": 1.5,
-            "selectedLayer": 5,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 209,
-                "y": 158.99999999999997
+                "x": 816.3333333333333,
+                "y": 255.66666666666663
             }
         },
         "indoors.tsx": {
@@ -91,6 +91,7 @@
     "project": "untitled.tiled-project",
     "property.type": "string",
     "recentFiles": [
+        "hallway.tmj",
         "room.tmx",
         "full-tileset.tsx",
         "indoors.tsx",
