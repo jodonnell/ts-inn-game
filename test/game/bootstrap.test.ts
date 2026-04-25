@@ -79,6 +79,22 @@ const map = vi.hoisted(() => ({
   ],
   tilesets: [{ firstgid: 1 }],
 }))
+const roomTmjMap = vi.hoisted(() => ({
+  width: 3,
+  height: 3,
+  tilewidth: 32,
+  tileheight: 32,
+  layers: [
+    {
+      type: "tilelayer",
+      name: "ground",
+      width: 3,
+      height: 3,
+      data: [1, 0, 0, 0, 0, 0, 0, 0, 0],
+    },
+  ],
+  tilesets: [{ firstgid: 1 }],
+}))
 const fixtureMaps = vi.hoisted(() => ({
   inn: {
     width: 1,
@@ -290,7 +306,9 @@ vi.mock("@/src/render/nightOverlay", () => ({
 }))
 
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
-vi.mock("@/assets/tiled/room.json", () => ({ default: map }))
+vi.mock("@/assets/tiled/room.tmj?raw", () => ({
+  default: JSON.stringify(roomTmjMap),
+}))
 vi.mock("@/assets/maps/room1.json", () => ({ default: map }))
 vi.mock("@/assets/tiled/hallway.tmj?raw", () => ({
   default: JSON.stringify(map),
@@ -339,7 +357,7 @@ describe("game bootstrap", () => {
 
     expect(vi.mocked(createRoomLoader)).toHaveBeenCalledWith(
       expect.objectContaining({
-        mapsByKey: { inn: map, room: map, room1: map, hallway: map },
+        mapsByKey: { inn: map, room: roomTmjMap, room1: map, hallway: map },
         player,
         tileSpriteFactories: {
           inn: tileSpriteFactory,

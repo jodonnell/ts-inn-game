@@ -33,7 +33,7 @@ import { createRoomLoader } from "@/src/game/roomLoader"
 import { createRoomState, type RoomState } from "@/src/game/roomState"
 import type { TiledMap } from "@/src/maps/tiled"
 import innMap from "@/assets/maps/inn.json"
-import roomMap from "@/assets/tiled/room.json"
+import roomMapJson from "@/assets/tiled/room.tmj?raw"
 import room1Map from "@/assets/maps/room1.json"
 import hallwayMapJson from "@/assets/tiled/hallway.tmj?raw"
 import bellSfx from "@/assets/sfx/bell.mp3"
@@ -63,6 +63,7 @@ export type GameState = {
 }
 
 const hallwayMap = JSON.parse(hallwayMapJson) as TiledMap
+const roomMap = JSON.parse(roomMapJson) as TiledMap
 
 const getSearchParams = () => {
   if (typeof window === "undefined") return new URLSearchParams()

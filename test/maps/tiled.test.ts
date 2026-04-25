@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import roomMap from "@/assets/tiled/room.json"
+import roomMapJson from "@/assets/tiled/room.tmj?raw"
 import hallwayMapJson from "@/assets/tiled/hallway.tmj?raw"
 import {
   buildTilePlacements,
@@ -14,6 +14,7 @@ import {
 } from "@/src/maps/tiled"
 
 const hallwayMap = JSON.parse(hallwayMapJson) as TiledMap
+const roomMap = JSON.parse(roomMapJson) as TiledMap
 
 describe("tiled map helpers", () => {
   it("builds tile placements from a layer and firstgid", () => {
@@ -442,15 +443,8 @@ describe("tiled map helpers", () => {
     ])
   })
 
-  it("routes the bedroom exit back to the hallway", () => {
-    expect(extractTeleportZones(roomMap)).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          targetMapKey: "hallway",
-          spawnId: "a",
-        }),
-      ]),
-    )
+  it("does not load old TMX bedroom exit objects from the room map", () => {
+    expect(extractTeleportZones(roomMap)).toEqual([])
   })
 
   it("extracts bed fixture placements from object properties", () => {
