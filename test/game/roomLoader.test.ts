@@ -100,6 +100,7 @@ describe("room loader", () => {
     expect(Position.y[player]).toBe(120)
     expect(roomState.collisionWalls).toEqual([
       { x: 40, y: 50, width: 30, height: 10 },
+      { x: 260, y: 96, width: 64, height: 32 },
     ])
     expect(roomState.teleportState.zones).toEqual([
       { x: 10, y: 20, width: 16, height: 16, targetMapKey: "inn" },
@@ -178,6 +179,60 @@ describe("room loader", () => {
       y: 248,
       width: 16,
       height: 8,
+    })
+  })
+
+  it("adds fixture bounds to room collision walls", () => {
+    const map: TiledMap = {
+      width: 1,
+      height: 1,
+      tilewidth: 32,
+      tileheight: 32,
+      layers: [
+        {
+          type: "objectgroup",
+          name: "fixtures",
+          objects: [
+            {
+              id: 1,
+              x: 416,
+              y: 224,
+              width: 64,
+              height: 64,
+              properties: [
+                { name: "fixtureType", type: "string", value: "bed" },
+                { name: "fixtureId", type: "string", value: "bed-1" },
+                { name: "durationMs", type: "int", value: 4000 },
+              ],
+            },
+          ],
+        },
+      ],
+      tilesets: [{ firstgid: 1 }],
+    }
+
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const loadRoom = createRoomLoader({
+      mapsByKey: { room1: map },
+      player,
+      mapContainer: {
+        addChild: vi.fn(),
+        removeChildren: vi.fn(),
+      },
+      tileSpriteFactories: { room1: vi.fn(() => ({ x: 0, y: 0 })) },
+      roomState,
+      fallbackCollisionWalls: [],
+    })
+
+    loadRoom("room1")
+
+    expect(roomState.collisionWalls).toContainEqual({
+      x: 416,
+      y: 224,
+      width: 64,
+      height: 64,
     })
   })
 

@@ -22,6 +22,7 @@ import { createTimeDisplayStore } from "@/src/render/timeDisplay"
 import {
   createPixiApp,
   createPixiRenderStore,
+  loadFixtureTextures,
   loadTilesetTextures,
   loadManagerSpritesheet,
   SAFE_FRAME_HEIGHT,
@@ -45,6 +46,7 @@ import hallwayMapJson from "@/assets/tiled/hallway.tmj?raw"
 import bellSfx from "@/assets/sfx/bell.mp3"
 import { createPixiMultiTilesetSpriteFactory } from "@/src/render/tilemap"
 import { getE2EMapFixture } from "@/src/test-fixtures/e2eMaps"
+import { getFixtureAssetSources } from "@/src/render/fixtureAssets"
 import type { Application } from "pixi.js"
 import { Container } from "pixi.js"
 import { Howl } from "howler"
@@ -85,6 +87,7 @@ export const initializeGame = async (): Promise<GameState> => {
   const assetBase = import.meta.env.DEV ? "../.." : "."
 
   const spritesheet = await loadManagerSpritesheet()
+  await loadFixtureTextures(getFixtureAssetSources())
   const worldContainer = new Container()
   const dialogContainer = new Container()
   const uiContainer = new Container()

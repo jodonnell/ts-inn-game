@@ -19,7 +19,7 @@ describe("fixture interaction helpers", () => {
     ).toEqual({
       x: 116,
       y: 128,
-      radius: 16,
+      radius: 32,
       offsetY: 16,
       bounds: {
         x: 100,
@@ -41,7 +41,7 @@ describe("fixture interaction helpers", () => {
     ).toEqual({
       x: 464,
       y: 304,
-      radius: 16,
+      radius: 32,
       offsetY: 16,
       bounds: {
         x: 384,
@@ -60,14 +60,14 @@ describe("fixture interaction helpers", () => {
       height: 160,
     })
 
-    expect(isWithinInteractionRange(368, 304, interaction)).toBe(true)
-    expect(isWithinInteractionRange(560, 304, interaction)).toBe(true)
-    expect(isWithinInteractionRange(464, 208, interaction)).toBe(true)
-    expect(isWithinInteractionRange(464, 400, interaction)).toBe(true)
-    expect(isWithinInteractionRange(367, 304, interaction)).toBe(false)
-    expect(isWithinInteractionRange(561, 304, interaction)).toBe(false)
-    expect(isWithinInteractionRange(464, 207, interaction)).toBe(false)
-    expect(isWithinInteractionRange(464, 401, interaction)).toBe(false)
+    expect(isWithinInteractionRange(352, 304, interaction)).toBe(true)
+    expect(isWithinInteractionRange(576, 304, interaction)).toBe(true)
+    expect(isWithinInteractionRange(464, 192, interaction)).toBe(true)
+    expect(isWithinInteractionRange(464, 416, interaction)).toBe(true)
+    expect(isWithinInteractionRange(351, 304, interaction)).toBe(false)
+    expect(isWithinInteractionRange(577, 304, interaction)).toBe(false)
+    expect(isWithinInteractionRange(464, 191, interaction)).toBe(false)
+    expect(isWithinInteractionRange(464, 417, interaction)).toBe(false)
   })
 
   it("returns the active fixture when the id matches", () => {

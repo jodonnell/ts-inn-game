@@ -505,13 +505,29 @@ describe("tiled map helpers", () => {
         expect.objectContaining({
           id: "bed-1",
           type: "bed",
-          x: 384,
+          x: 416,
           y: 224,
-          width: 160,
-          height: 160,
+          width: 64,
+          height: 64,
         }),
       ]),
     )
+  })
+
+  it("does not render the bedroom bed as static room tiles", () => {
+    const oldBedTileColumns = new Set([13, 14, 15])
+    const oldBedTileRows = new Set([7, 8, 9])
+    const oldBedStaticTiles = roomMap.layers
+      .filter((layer) => layer.type === "tilelayer" && layer.name !== "bottom")
+      .flatMap((layer) =>
+        layer.data.filter((gid, index) => {
+          const x = index % roomMap.width
+          const y = Math.floor(index / roomMap.width)
+          return gid !== 0 && oldBedTileColumns.has(x) && oldBedTileRows.has(y)
+        }),
+      )
+
+    expect(oldBedStaticTiles).toEqual([])
   })
 
   it("applies object layer offsets to extracted coordinates", () => {

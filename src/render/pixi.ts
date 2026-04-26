@@ -3,6 +3,7 @@ import {
   Application,
   Assets,
   Container,
+  Rectangle,
   SCALE_MODES,
   Sprite,
   Spritesheet,
@@ -16,6 +17,8 @@ import type {
   FixtureRenderStore,
   FixtureSpriteLike,
 } from "@/src/render/fixtureRender"
+import type { FixtureAsset } from "@/src/render/fixtureAssets"
+import { getFixtureAssetKey } from "@/src/render/fixtureAssets"
 import type { NpcRenderStore } from "@/src/render/npcRender"
 import type { TiledTilesetRef } from "@/src/maps/tiled"
 import { parseTilesetImageSource } from "@/src/maps/tiled"
@@ -147,6 +150,10 @@ export const loadManagerSpritesheet = async (): Promise<Spritesheet> => {
   return spritesheet
 }
 
+export const loadFixtureTextures = async (sources: string[]): Promise<void> => {
+  await Promise.all([...new Set(sources)].map((source) => Assets.load(source)))
+}
+
 const resolvePath = (basePath: string, relativePath: string) => {
   if (
     relativePath.startsWith("http://") ||
@@ -262,6 +269,21 @@ export const createPixiRenderStore = (
     }
     return texture
   }
+  const getFixtureTexture = (asset: FixtureAsset): Texture => {
+    const texture = Texture.from(asset.source)
+    if (!texture) {
+      throw new Error(`Missing fixture texture source: ${asset.source}`)
+    }
+    return new Texture({
+      source: texture.source,
+      frame: new Rectangle(
+        asset.frame.x,
+        asset.frame.y,
+        asset.frame.width,
+        asset.frame.height,
+      ),
+    })
+  }
 
   return {
     sprites,
@@ -280,18 +302,21 @@ export const createPixiRenderStore = (
     },
     fixtureStore: {
       sprites: fixtureSprites,
-      createSprite: (assetId) => {
-        const sprite = new Sprite(Texture.from(assetId)) as Sprite &
+      createSprite: (asset) => {
+        const sprite = new Sprite(getFixtureTexture(asset)) as Sprite &
           FixtureSpriteLike
         sprite.anchor.set(0.5, 1)
-        sprite.assetId = assetId
-        sprite.setAsset = (nextAssetId) => {
-          sprite.texture = Texture.from(nextAssetId)
+        sprite.assetKey = getFixtureAssetKey(asset)
+        sprite.setAsset = (nextAsset) => {
+          sprite.texture = getFixtureTexture(nextAsset)
         }
         return sprite
       },
       addSprite: (sprite) => {
         container.addChild(sprite as Sprite)
+      },
+      removeSprite: (sprite) => {
+        container.removeChild(sprite as Sprite)
       },
     },
     npcStore: {

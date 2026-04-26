@@ -1,11 +1,22 @@
 import { describe, expect, it } from "vitest"
 import { getFixtureAsset } from "@/src/render/fixtureAssets"
-import bedAsset from "@/assets/tiled/bed.png"
+import bathroomTileset from "@/assets/spritesheets/bathroom_tileset.png"
 
 describe("fixture assets", () => {
-  it("uses the imported bed asset URL for every current bed state", () => {
-    expect(getFixtureAsset({ type: "bed", state: "dirty" })).toBe(bedAsset)
-    expect(getFixtureAsset({ type: "bed", state: "cleaning" })).toBe(bedAsset)
-    expect(getFixtureAsset({ type: "bed", state: "clean" })).toBe(bedAsset)
+  it("uses bathroom tileset frames for the messy bed until cleaning finishes, then the clean bed", () => {
+    const messyBed = {
+      source: bathroomTileset,
+      frame: { x: 0, y: 96, width: 64, height: 64 },
+    }
+    const cleanBed = {
+      source: bathroomTileset,
+      frame: { x: 64, y: 96, width: 64, height: 64 },
+    }
+
+    expect(getFixtureAsset({ type: "bed", state: "dirty" })).toEqual(messyBed)
+    expect(getFixtureAsset({ type: "bed", state: "cleaning" })).toEqual(
+      messyBed,
+    )
+    expect(getFixtureAsset({ type: "bed", state: "clean" })).toEqual(cleanBed)
   })
 })

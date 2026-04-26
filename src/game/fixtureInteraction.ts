@@ -12,7 +12,7 @@ export type InteractionPoint = {
   }
 }
 
-const FIXTURE_INTERACTION_RADIUS = 16
+const FIXTURE_INTERACTION_RADIUS = 32
 
 type FixtureBounds = {
   x: number

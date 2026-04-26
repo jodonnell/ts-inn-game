@@ -66,6 +66,30 @@ describe("fixture targeting system", () => {
     expect(roomState.activeFixtureId).toBeNull()
   })
 
+  it("selects a bed from just outside its collision buffer", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 448, y: 305 })
+    const roomState = createRoomState()
+    roomState.replaceFixtures([
+      {
+        id: "bed-1",
+        type: "bed",
+        x: 416,
+        y: 224,
+        width: 64,
+        height: 64,
+        durationMs: 4000,
+        state: "dirty",
+        progressMs: 0,
+      },
+    ])
+
+    const system = createFixtureTargetingSystem(player, roomState)
+    system(world, 0)
+
+    expect(roomState.activeFixtureId).toBe("bed-1")
+  })
+
   it("ignores clean fixtures", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 110, y: 110 })

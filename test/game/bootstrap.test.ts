@@ -34,9 +34,14 @@ import {
 } from "@/src/render/nightOverlay"
 import { createGameInputState } from "@/src/input/actions"
 import { createInputFlushSystem, createInputRouter } from "@/src/input/router"
-import { createPixiApp, createPixiRenderStore } from "@/src/render/pixi"
+import {
+  createPixiApp,
+  createPixiRenderStore,
+  loadFixtureTextures,
+} from "@/src/render/pixi"
 import { createGamepadInputAdapter } from "@/src/input/gamepad"
 import { createKeyboardInputAdapter } from "@/src/input/keyboard"
+import bathroomTileset from "@/assets/spritesheets/bathroom_tileset.png"
 import { Container } from "pixi.js"
 
 const loopStart = vi.fn()
@@ -287,6 +292,7 @@ vi.mock("@/src/render/pixi", () => ({
     destroy: vi.fn(),
   })),
   loadManagerSpritesheet: vi.fn(async () => ({})),
+  loadFixtureTextures: vi.fn(async () => {}),
   loadTilesetTextures: vi.fn(async () => []),
   createPixiRenderStore: vi.fn(() => ({
     sprites: new Map(),
@@ -296,6 +302,7 @@ vi.mock("@/src/render/pixi", () => ({
       sprites: new Map(),
       createSprite: vi.fn(),
       addSprite: vi.fn(),
+      removeSprite: vi.fn(),
     },
     npcStore: {
       sprites: new Map(),
@@ -440,6 +447,9 @@ describe("game bootstrap", () => {
       expect.any(Object),
       actorContainer,
     )
+    expect(vi.mocked(loadFixtureTextures)).toHaveBeenCalledWith([
+      bathroomTileset,
+    ])
     expect(vi.mocked(createCleaningProgressStore)).toHaveBeenCalledWith(
       worldContainer,
     )

@@ -137,10 +137,18 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     Position.x[player] = spawn.x
     Position.y[player] = spawn.y
 
+    const nextFixtures = buildRoomFixtures(map)
     const nextNpcs = getRoomNpcs(mapKey)
     const nextWalls = extractCollisionWalls(map)
+    const fixtureWalls = nextFixtures.map(({ x, y, width, height }) => ({
+      x,
+      y,
+      width,
+      height,
+    }))
     const collisionWalls = [
       ...(nextWalls.length > 0 ? nextWalls : collisionFallback),
+      ...fixtureWalls,
       ...nextNpcs.map(getNpcCollisionWall),
     ]
     roomState.replaceCollisionWalls(collisionWalls)
@@ -149,7 +157,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
       findInteractionPoint(map, interactionKey) ?? interactionFallback
     roomState.replaceInteractionPoint(nextInteraction)
 
-    roomState.replaceFixtures(buildRoomFixtures(map))
+    roomState.replaceFixtures(nextFixtures)
     roomState.replaceNpcs(nextNpcs)
     roomState.replaceTeleportZones(extractTeleportZones(map))
 

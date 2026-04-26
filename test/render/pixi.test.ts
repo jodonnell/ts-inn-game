@@ -5,11 +5,14 @@ import {
   createPixiRenderStore,
   createSafeFrameLayout,
   createTilesetTextLoader,
+  loadFixtureTextures,
   loadTilesetTextures,
 } from "@/src/render/pixi"
 
 const assetsLoad = vi.hoisted(() => vi.fn(async () => {}))
-const textureFrom = vi.hoisted(() => vi.fn((path: string) => ({ path })))
+const textureFrom = vi.hoisted(() =>
+  vi.fn((path: string) => ({ path, source: { path } })),
+)
 
 vi.mock("pixi.js", () => {
   class Sprite {
@@ -44,14 +47,28 @@ vi.mock("pixi.js", () => {
     y = 0
     scale = { x: 1, y: 1 }
   }
+  class Rectangle {
+    constructor(
+      public x: number,
+      public y: number,
+      public width: number,
+      public height: number,
+    ) {}
+  }
+  class Texture {
+    static from = textureFrom
+
+    constructor(public options: unknown) {}
+  }
   return {
     Application,
     AnimatedSprite,
     Assets: { load: assetsLoad },
     Container,
+    Rectangle,
     SCALE_MODES: { NEAREST: "nearest" },
     Sprite,
-    Texture: { from: textureFrom },
+    Texture,
     TextureStyle: { defaultOptions: { scaleMode: "linear" } },
   }
 })
@@ -155,7 +172,13 @@ describe("pixi app", () => {
     expect(assetsLoad).toHaveBeenCalledWith("/assets/maps/tiles.png")
     expect(textureFrom).toHaveBeenCalledWith("/assets/maps/tiles.png")
     expect(textures).toEqual([
-      { firstgid: 1, texture: { path: "/assets/maps/tiles.png" } },
+      {
+        firstgid: 1,
+        texture: {
+          path: "/assets/maps/tiles.png",
+          source: { path: "/assets/maps/tiles.png" },
+        },
+      },
     ])
   })
 
@@ -196,26 +219,57 @@ describe("pixi app", () => {
     ).resolves.toBeNull()
   })
 
+  it("preloads fixture texture sources before fixture sprites are created", async () => {
+    await loadFixtureTextures(["bathroom-tileset"])
+
+    expect(assetsLoad).toHaveBeenCalledWith("bathroom-tileset")
+  })
+
   it("creates fixture sprites that can swap assets", () => {
     const addChild = vi.fn()
+    const removeChild = vi.fn()
     const store = createPixiRenderStore(
       {} as never,
       { textures: {} } as never,
-      { addChild } as never,
+      { addChild, removeChild } as never,
     )
 
-    const sprite = store.fixtureStore.createSprite("bed-dirty")
+    const sprite = store.fixtureStore.createSprite({
+      source: "bathroom-tileset",
+      frame: { x: 0, y: 96, width: 64, height: 64 },
+    })
     store.fixtureStore.sprites.set("bed-1", sprite)
     store.fixtureStore.addSprite(sprite)
 
-    expect(textureFrom).toHaveBeenCalledWith("bed-dirty")
+    expect(textureFrom).toHaveBeenCalledWith("bathroom-tileset")
     expect(addChild).toHaveBeenCalledWith(sprite)
-    expect(sprite.assetId).toBe("bed-dirty")
+    expect(sprite.assetKey).toBe("bathroom-tileset:0,96,64,64")
+    expect(sprite.texture).toEqual(
+      expect.objectContaining({
+        options: {
+          source: { path: "bathroom-tileset" },
+          frame: { x: 0, y: 96, width: 64, height: 64 },
+        },
+      }),
+    )
 
-    sprite.setAsset("bed-clean")
+    sprite.setAsset({
+      source: "bathroom-tileset",
+      frame: { x: 64, y: 96, width: 64, height: 64 },
+    })
 
-    expect(textureFrom).toHaveBeenCalledWith("bed-clean")
-    expect(sprite.texture).toEqual({ path: "bed-clean" })
+    expect(sprite.texture).toEqual(
+      expect.objectContaining({
+        options: {
+          source: { path: "bathroom-tileset" },
+          frame: { x: 64, y: 96, width: 64, height: 64 },
+        },
+      }),
+    )
+
+    store.fixtureStore.removeSprite(sprite)
+
+    expect(removeChild).toHaveBeenCalledWith(sprite)
   })
 
   it("enables depth sorting on the actor container", () => {
