@@ -7,7 +7,7 @@ import {
 import { createGameWorld } from "@/src/ecs/world"
 
 describe("conversation", () => {
-  it("opens a hello dialog and locks input when starting an npc conversation", () => {
+  it("opens the default npc greeting and locks input when starting an npc conversation", () => {
     const state = createConversationState()
     const input = {
       pushContext: vi.fn(),
@@ -27,7 +27,9 @@ describe("conversation", () => {
     })
 
     expect(state.isOpen).toBe(true)
-    expect(state.message).toBe("Hello!")
+    expect(state.message).toBe(
+      "Hi, my name is Chief!  I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!",
+    )
     expect(input.pushContext).toHaveBeenCalledWith("dialog")
   })
 

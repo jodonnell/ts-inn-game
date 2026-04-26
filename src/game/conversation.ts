@@ -36,7 +36,8 @@ export const createConversationState = (): ConversationState => {
   return state
 }
 
-const DEFAULT_NPC_GREETING = "Hello!"
+const DEFAULT_NPC_GREETING =
+  "Hi, my name is Chief!  I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!"
 
 export const createConversationStarter = (
   state: ConversationState = createConversationState(),

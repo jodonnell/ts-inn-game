@@ -17,7 +17,8 @@ test("shows and dismisses npc dialog when interacting with the manager", async (
 
   await expect.poll(async () => getConversation(page)).toEqual({
     isOpen: true,
-    message: "Hello!",
+    message:
+      "Hi, my name is Chief!  I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!",
   })
 
   await page.keyboard.press("e")
