@@ -8,7 +8,7 @@ const resources = {
         npcs: {
           manager: {
             greeting:
-              "Hi, my name is Chief!  I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!",
+              "Chief: I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!",
           },
         },
       },
@@ -20,7 +20,7 @@ const resources = {
         npcs: {
           manager: {
             greeting:
-              "Hola, me llamo Chief! Tengo tanta hambre para el almuerzo que tal vez coma almendras cubiertas de chocolate con un whisky de 10 oz para acompaniarlas!",
+              "Chief: Tengo tanta hambre para el almuerzo que tal vez coma almendras cubiertas de chocolate con un whisky de 10 oz para acompaniarlas!",
           },
         },
       },

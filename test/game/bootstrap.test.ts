@@ -506,7 +506,7 @@ describe("game bootstrap", () => {
     })
 
     expect(state.conversationState.message).toBe(
-      "Hola, me llamo Chief! Tengo tanta hambre para el almuerzo que tal vez coma almendras cubiertas de chocolate con un whisky de 10 oz para acompaniarlas!",
+      "Chief: Tengo tanta hambre para el almuerzo que tal vez coma almendras cubiertas de chocolate con un whisky de 10 oz para acompaniarlas!",
     )
 
     globalThis.window = originalWindow
