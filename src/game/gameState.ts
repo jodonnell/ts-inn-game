@@ -35,6 +35,7 @@ import {
   createConversationStarter,
   createConversationState,
 } from "@/src/game/conversation"
+import { createGameText, getGameLocale } from "@/src/game/localization"
 import { createConversationDialogStore } from "@/src/render/conversationDialog"
 import type { TiledMap } from "@/src/maps/tiled"
 import innMap from "@/assets/maps/inn.json"
@@ -114,9 +115,14 @@ export const initializeGame = async (): Promise<GameState> => {
   const roomState = createRoomState()
   const bellSound = new Howl({ src: [bellSfx] })
   const conversationState = createConversationState()
+  const params = getSearchParams()
+  const locale = getGameLocale(
+    params.get("locale") ?? globalThis.window?.navigator?.language,
+  )
   const conversationStarter = createConversationStarter(
     conversationState,
     input,
+    createGameText(locale),
   )
   const mapContainer = new Container()
   const actorContainer = new Container()
@@ -131,7 +137,6 @@ export const initializeGame = async (): Promise<GameState> => {
     room1: room1Map,
     hallway: hallwayMap,
   }
-  const params = getSearchParams()
   const fixtureName = params.has("e2e") ? params.get("fixture") : null
   const mapsByKey = fixtureName
     ? (getE2EMapFixture(fixtureName) ?? defaultMapsByKey)

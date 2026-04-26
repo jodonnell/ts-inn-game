@@ -488,6 +488,30 @@ describe("game bootstrap", () => {
     globalThis.window = originalWindow
   })
 
+  it("uses the requested locale for conversation text", async () => {
+    const originalWindow = globalThis.window
+    globalThis.window = {
+      location: { search: "?locale=es" },
+    } as typeof window
+
+    const state = await initializeGame()
+    state.conversationStarter.startConversation({
+      id: "manager",
+      name: "Manager",
+      mapKey: "hallway",
+      x: 352,
+      y: 256,
+      width: 32,
+      height: 32,
+    })
+
+    expect(state.conversationState.message).toBe(
+      "Hola, me llamo Chief! Tengo tanta hambre para el almuerzo que tal vez coma almendras cubiertas de chocolate con un whisky de 10 oz para acompaniarlas!",
+    )
+
+    globalThis.window = originalWindow
+  })
+
   it("wires map rendering and gameplay systems into the loop", async () => {
     const state = await initializeGame()
 

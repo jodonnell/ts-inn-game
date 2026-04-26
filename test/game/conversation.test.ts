@@ -5,6 +5,7 @@ import {
   createConversationSystem,
 } from "@/src/game/conversation"
 import { createGameWorld } from "@/src/ecs/world"
+import { createGameText } from "@/src/game/localization"
 
 describe("conversation", () => {
   it("opens the default npc greeting and locks input when starting an npc conversation", () => {
@@ -31,6 +32,32 @@ describe("conversation", () => {
       "Hi, my name is Chief!  I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!",
     )
     expect(input.pushContext).toHaveBeenCalledWith("dialog")
+  })
+
+  it("opens the npc greeting for the selected locale", () => {
+    const state = createConversationState()
+    const input = {
+      pushContext: vi.fn(),
+    }
+    const starter = createConversationStarter(
+      state,
+      input,
+      createGameText("es"),
+    )
+
+    starter.startConversation({
+      id: "manager",
+      name: "Manager",
+      mapKey: "hallway",
+      x: 352,
+      y: 256,
+      width: 32,
+      height: 32,
+    })
+
+    expect(state.message).toBe(
+      "Hola, me llamo Chief! Tengo tanta hambre para el almuerzo que tal vez coma almendras cubiertas de chocolate con un whisky de 10 oz para acompaniarlas!",
+    )
   })
 
   it("closes the dialog and unlocks input when interact is pressed", () => {

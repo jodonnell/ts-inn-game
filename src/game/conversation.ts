@@ -1,6 +1,7 @@
 import type { RoomNpc } from "@/src/game/roomState"
 import type { GameWorld } from "@/src/ecs/world"
 import type { InputContext } from "@/src/input/router"
+import { createGameText, type GameText } from "@/src/game/localization"
 
 export type ConversationStarter = {
   startConversation: (npc: RoomNpc) => void
@@ -36,16 +37,13 @@ export const createConversationState = (): ConversationState => {
   return state
 }
 
-const DEFAULT_NPC_GREETING =
-  "Hi, my name is Chief!  I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!"
-
 export const createConversationStarter = (
   state: ConversationState = createConversationState(),
   input?: Pick<ConversationInput, "pushContext">,
+  text: GameText = createGameText(),
 ): ConversationStarter => ({
   startConversation: (npc) => {
-    void npc
-    state.open(DEFAULT_NPC_GREETING)
+    state.open(text.npcGreeting(npc))
     input?.pushContext("dialog")
   },
 })
