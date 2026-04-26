@@ -4,6 +4,7 @@ import { createGameWorld } from "@/src/ecs/world"
 import { spawnPlayer } from "@/src/ecs/entities/player"
 import { Position } from "@/src/ecs/components"
 import { createRoomState } from "@/src/game/roomState"
+import { createConversationState } from "@/src/game/conversation"
 
 describe("game test hooks", () => {
   it("sets the player position", () => {
@@ -76,6 +77,50 @@ describe("game test hooks", () => {
 
     expect(Position.x[player]).toBe(400)
     expect(Position.y[player]).toBe(240)
+  })
+
+  it("moves the player to an npc interaction point", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    roomState.replaceNpcs([
+      {
+        id: "manager",
+        name: "Manager",
+        mapKey: "hallway",
+        x: 352,
+        y: 256,
+        width: 32,
+        height: 32,
+      },
+    ])
+    const roomLoader = vi.fn(() => true)
+    const api = createGameTestApi({ player, roomState, roomLoader })
+
+    expect(api.movePlayerToNpc("manager")).toBe(true)
+
+    expect(Position.x[player]).toBe(352)
+    expect(Position.y[player]).toBe(240)
+  })
+
+  it("reports conversation state", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 0, y: 0 })
+    const roomState = createRoomState()
+    const roomLoader = vi.fn(() => true)
+    const conversationState = createConversationState()
+    conversationState.open("Hello!")
+    const api = createGameTestApi({
+      player,
+      roomState,
+      roomLoader,
+      conversationState,
+    })
+
+    expect(api.getConversation()).toEqual({
+      isOpen: true,
+      message: "Hello!",
+    })
   })
 
   it("reports fixture cleaning state", () => {

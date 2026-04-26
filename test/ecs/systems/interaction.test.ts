@@ -43,6 +43,25 @@ describe("interaction system", () => {
     expect(sound.play).not.toHaveBeenCalled()
   })
 
+  it("does not consume interaction input when no interaction target is in range", () => {
+    const world = createGameWorld()
+    const player = spawnPlayer(world, { x: 10, y: 10 })
+    const input = { consume: vi.fn(() => true) }
+    const roomState = createRoomState()
+    roomState.replaceInteractionPoint({
+      x: 0,
+      y: 0,
+      radius: 1,
+      bounds: { x: 0, y: 0, width: 0, height: 0 },
+    })
+    const sound = { play: vi.fn() }
+
+    const system = createInteractionSystem(player, input, roomState, sound)
+    system(world, 0)
+
+    expect(input.consume).not.toHaveBeenCalled()
+  })
+
   it("does not play the bell sound when a fixture is currently targeted", () => {
     const world = createGameWorld()
     const player = spawnPlayer(world, { x: 0, y: 0 })

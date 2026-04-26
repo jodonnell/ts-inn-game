@@ -2,19 +2,23 @@ import {
   type InteractionPoint,
   isWithinInteractionRange,
 } from "@/src/game/fixtureInteraction"
-import { getNpcCollisionWall } from "@/src/game/npcs"
 import type { RoomNpc } from "@/src/game/roomState"
 
-const NPC_INTERACTION_RADIUS = 16
+const NPC_INTERACTION_RADIUS = 32
 
 export const getNpcInteractionPoint = (npc: RoomNpc): InteractionPoint => {
-  const feet = getNpcCollisionWall(npc)
+  const bounds = {
+    x: npc.x - npc.width / 2,
+    y: npc.y - npc.height,
+    width: npc.width,
+    height: npc.height,
+  }
   return {
-    x: feet.x + feet.width / 2,
-    y: feet.y + feet.height / 2,
+    x: bounds.x + bounds.width / 2,
+    y: bounds.y + bounds.height / 2,
     radius: NPC_INTERACTION_RADIUS,
     offsetY: npc.height,
-    bounds: feet,
+    bounds,
   }
 }
 

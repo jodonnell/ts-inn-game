@@ -1,4 +1,5 @@
 import type { GameInputState, InputAction } from "@/src/input/actions"
+import type { GameWorld } from "@/src/ecs/world"
 
 export type InputContext = "gameplay" | "menu" | "dialog" | "modalOverlay"
 
@@ -16,7 +17,7 @@ const inputActions: InputAction[] = [
 const allowedActionsByContext: Record<InputContext, Set<InputAction>> = {
   gameplay: new Set(inputActions),
   menu: new Set(["pause", "confirm", "cancel"]),
-  dialog: new Set(["pause", "confirm", "cancel"]),
+  dialog: new Set(["interact"]),
   modalOverlay: new Set(["pause", "cancel"]),
 }
 
@@ -28,9 +29,14 @@ const movementActions = {
 } as const
 
 export type RoutedGameInputState = GameInputState & {
+  flushQueuedActions: () => void
   getActiveContext: () => InputContext
   popContext: () => void
   pushContext: (context: Exclude<InputContext, "gameplay">) => void
+}
+
+export type InputFlushState = {
+  flushQueuedActions: () => void
 }
 
 export const createInputRouter = (
@@ -120,6 +126,11 @@ export const createInputRouter = (
   })
 
   const pushContext = (context: Exclude<InputContext, "gameplay">) => {
+    sync()
+    for (const action of held) {
+      suppressedHeld.add(action)
+      queued.delete(action)
+    }
     contexts.push(context)
     sync()
   }
@@ -129,9 +140,15 @@ export const createInputRouter = (
     sync()
   }
 
+  const flushQueuedActions = () => {
+    sync()
+    queued.clear()
+  }
+
   return {
     consume,
     dispose: input.dispose,
+    flushQueuedActions,
     getActiveContext,
     getMovement,
     isHeld,
@@ -140,3 +157,10 @@ export const createInputRouter = (
     update,
   }
 }
+
+export const createInputFlushSystem =
+  (input: InputFlushState) => (_world: GameWorld, _dt: number) => {
+    void _world
+    void _dt
+    input.flushQueuedActions()
+  }

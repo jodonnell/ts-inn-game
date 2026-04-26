@@ -43,7 +43,15 @@ export const startGame = async () => {
   if (import.meta.env.MODE !== "production" && typeof window !== "undefined") {
     const params = getSearchParams()
     if (params.has("e2e")) {
-      installGameTestApi(state, window)
+      installGameTestApi(
+        {
+          player: state.player,
+          roomState: state.roomState,
+          roomLoader: state.roomLoader,
+          conversationState: state.conversationState,
+        },
+        window,
+      )
     }
   }
 

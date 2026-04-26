@@ -5,7 +5,9 @@ import {
   getPlayerPosition,
   gotoGame,
   movePlayerToFixture,
+  setPlayerPosition,
   holdKeyUntil,
+  getConversation,
 } from "@/e2e/helpers/gameTestApi"
 
 describe("gameTestApi", () => {
@@ -59,6 +61,26 @@ describe("gameTestApi", () => {
     expect(await getFixtureState(page as never, "bed-1")).toEqual({
       state: "clean",
       progressMs: 4000,
+    })
+  })
+
+  it("sets the player position and reads conversation state", async () => {
+    const page = {
+      evaluate: vi
+        .fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ isOpen: true, message: "Hello!" }),
+    }
+
+    await setPlayerPosition(page as never, 352, 288)
+
+    expect(page.evaluate).toHaveBeenCalledWith(expect.any(Function), {
+      x: 352,
+      y: 288,
+    })
+    expect(await getConversation(page as never)).toEqual({
+      isOpen: true,
+      message: "Hello!",
     })
   })
 

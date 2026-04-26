@@ -22,13 +22,18 @@ import { createNpcRenderSystem } from "@/src/render/npcRender"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { installGameTestApi } from "@/src/game/testHooks"
+import { createConversationSystem } from "@/src/game/conversation"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
+import {
+  createConversationDialogStore,
+  createConversationDialogSystem,
+} from "@/src/render/conversationDialog"
 import {
   createNightOverlayStore,
   createNightOverlaySystem,
 } from "@/src/render/nightOverlay"
 import { createGameInputState } from "@/src/input/actions"
-import { createInputRouter } from "@/src/input/router"
+import { createInputFlushSystem, createInputRouter } from "@/src/input/router"
 import { createPixiApp, createPixiRenderStore } from "@/src/render/pixi"
 import { createGamepadInputAdapter } from "@/src/input/gamepad"
 import { createKeyboardInputAdapter } from "@/src/input/keyboard"
@@ -52,10 +57,13 @@ const cleaningProgressSystem = vi.fn()
 const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const interactionSystem = vi.fn()
+const conversationSystem = vi.fn()
 const timeSystem = vi.fn()
 const timeState = { minutes: 0 }
 const timeDisplaySystem = vi.fn()
+const conversationDialogSystem = vi.fn()
 const nightOverlaySystem = vi.fn()
+const inputFlushSystem = vi.fn()
 const tileSpriteFactory = vi.fn()
 const loadRoom = vi.fn()
 const map = vi.hoisted(() => ({
@@ -151,11 +159,13 @@ vi.mock("@/src/input/actions", () => ({
 }))
 
 vi.mock("@/src/input/router", () => ({
+  createInputFlushSystem: vi.fn(() => inputFlushSystem),
   createInputRouter: vi.fn((input) => ({
     ...input,
     pushContext: vi.fn(),
     popContext: vi.fn(),
     getActiveContext: vi.fn(() => "gameplay"),
+    flushQueuedActions: vi.fn(),
   })),
 }))
 
@@ -201,6 +211,15 @@ vi.mock("@/src/ecs/systems/time", () => ({
   createGameTimeState: vi.fn(() => timeState),
   createTimeSystem: vi.fn(() => timeSystem),
 }))
+
+vi.mock("@/src/game/conversation", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/src/game/conversation")>()
+  return {
+    ...actual,
+    createConversationSystem: vi.fn(() => conversationSystem),
+  }
+})
 
 vi.mock("@/src/render/playerRender", () => ({
   createPlayerRenderSystem: vi.fn(() => renderSystem),
@@ -317,6 +336,15 @@ vi.mock("@/src/render/nightOverlay", () => ({
   createNightOverlaySystem: vi.fn(() => nightOverlaySystem),
 }))
 
+vi.mock("@/src/render/conversationDialog", () => ({
+  createConversationDialogStore: vi.fn(() => ({
+    dialog: null,
+    createDialog: vi.fn(),
+    addDialog: vi.fn(),
+  })),
+  createConversationDialogSystem: vi.fn(() => conversationDialogSystem),
+}))
+
 vi.mock("@/assets/maps/inn.json", () => ({ default: map }))
 vi.mock("@/assets/tiled/room.tmj?raw", () => ({
   default: JSON.stringify(roomTmjMap),
@@ -428,6 +456,19 @@ describe("game bootstrap", () => {
 
     expect(safeFrame.addChild).not.toHaveBeenCalledWith(uiContainer)
     expect(app.stage.addChild).toHaveBeenCalledWith(uiContainer)
+  })
+
+  it("mounts the conversation dialog inside the safe frame", async () => {
+    await initializeGame()
+
+    const [dialogContainer] = vi.mocked(createConversationDialogStore).mock
+      .calls[0]
+    const createPixiAppResult =
+      await vi.mocked(createPixiApp).mock.results[0].value
+    const { safeFrame, app } = createPixiAppResult
+
+    expect(safeFrame.addChild).toHaveBeenCalledWith(dialogContainer)
+    expect(app.stage.addChild).not.toHaveBeenCalledWith(dialogContainer)
   })
 
   it("uses e2e fixture maps when requested by query string", async () => {
@@ -560,6 +601,10 @@ describe("game bootstrap", () => {
       }),
     )
 
+    expect(vi.mocked(createConversationDialogStore)).toHaveBeenCalledWith(
+      expect.any(Container),
+    )
+
     const [{ fixtureStore, npcStore }] = vi
       .mocked(createPixiRenderStore)
       .mock.results.map((result) => result.value)
@@ -585,17 +630,40 @@ describe("game bootstrap", () => {
       loadRoom,
     )
 
+    expect(vi.mocked(createConversationSystem)).toHaveBeenCalledWith(
+      expect.objectContaining({ isOpen: false, message: "" }),
+      expect.objectContaining({
+        consume: expect.any(Function),
+        popContext: expect.any(Function),
+      }),
+    )
+    expect(vi.mocked(createConversationDialogSystem)).toHaveBeenCalledWith(
+      expect.objectContaining({ isOpen: false, message: "" }),
+      expect.objectContaining({
+        dialog: null,
+        createDialog: expect.any(Function),
+        addDialog: expect.any(Function),
+      }),
+    )
+    expect(vi.mocked(createInputFlushSystem)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        flushQueuedActions: expect.any(Function),
+      }),
+    )
+
     expect(vi.mocked(createLoop)).toHaveBeenCalledWith({
       world,
       simulationDtSeconds: 1 / 60,
       simulationSystems: [
         inputSystem,
+        conversationSystem,
         movementSystem,
+        interactionSystem,
         teleportSystem,
         timeSystem,
         fixtureTargetingSystem,
         fixtureCleaningSystem,
-        interactionSystem,
+        inputFlushSystem,
       ],
       renderSystems: [
         nightOverlaySystem,
@@ -606,6 +674,7 @@ describe("game bootstrap", () => {
         cleaningProgressSystem,
         promptSystem,
         timeDisplaySystem,
+        conversationDialogSystem,
       ],
     })
   })

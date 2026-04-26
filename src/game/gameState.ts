@@ -31,7 +31,11 @@ import {
 import { createNightOverlayStore } from "@/src/render/nightOverlay"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { createRoomState, type RoomState } from "@/src/game/roomState"
-import { createConversationStarter } from "@/src/game/conversation"
+import {
+  createConversationStarter,
+  createConversationState,
+} from "@/src/game/conversation"
+import { createConversationDialogStore } from "@/src/render/conversationDialog"
 import type { TiledMap } from "@/src/maps/tiled"
 import innMap from "@/assets/maps/inn.json"
 import roomMapJson from "@/assets/tiled/room.tmj?raw"
@@ -56,11 +60,13 @@ export type GameState = {
   promptStore: ReturnType<typeof createPromptStore>
   timeDisplayStore: ReturnType<typeof createTimeDisplayStore>
   nightOverlayStore: ReturnType<typeof createNightOverlayStore>
+  conversationDialogStore: ReturnType<typeof createConversationDialogStore>
   gameTime: GameTimeState
   roomState: RoomState
   roomLoader: ReturnType<typeof createRoomLoader>
   renderStore: ReturnType<typeof createPixiRenderStore>
   bellSound: InteractionSound
+  conversationState: ReturnType<typeof createConversationState>
   conversationStarter: ReturnType<typeof createConversationStarter>
 }
 
@@ -79,9 +85,11 @@ export const initializeGame = async (): Promise<GameState> => {
 
   const spritesheet = await loadManagerSpritesheet()
   const worldContainer = new Container()
+  const dialogContainer = new Container()
   const uiContainer = new Container()
   const overlayContainer = new Container()
   safeFrame.addChild(worldContainer)
+  safeFrame.addChild(dialogContainer)
   app.stage.addChild(overlayContainer)
   app.stage.addChild(uiContainer)
   const world = createGameWorld()
@@ -101,10 +109,15 @@ export const initializeGame = async (): Promise<GameState> => {
   const promptStore = createPromptStore(worldContainer)
   const timeDisplayStore = createTimeDisplayStore(uiContainer)
   const nightOverlayStore = createNightOverlayStore(overlayContainer)
+  const conversationDialogStore = createConversationDialogStore(dialogContainer)
   const gameTime = createGameTimeState()
   const roomState = createRoomState()
   const bellSound = new Howl({ src: [bellSfx] })
-  const conversationStarter = createConversationStarter()
+  const conversationState = createConversationState()
+  const conversationStarter = createConversationStarter(
+    conversationState,
+    input,
+  )
   const mapContainer = new Container()
   const actorContainer = new Container()
   const foregroundMapContainer = new Container()
@@ -171,11 +184,13 @@ export const initializeGame = async (): Promise<GameState> => {
     promptStore,
     timeDisplayStore,
     nightOverlayStore,
+    conversationDialogStore,
     gameTime,
     roomState,
     roomLoader,
     renderStore,
     bellSound,
+    conversationState,
     conversationStarter,
   }
 }

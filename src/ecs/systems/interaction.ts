@@ -32,13 +32,12 @@ export const createInteractionSystem =
   (_world: GameWorld, _dt: number) => {
     void _world
     void _dt
-    if (!input.consume("interact")) return
-
     const playerX = Position.x[player]
     const playerY = Position.y[player]
     if (roomState.activeFixtureId) return
     const npc = findNpcInInteractionRange(playerX, playerY, roomState.npcs)
     if (npc) {
+      if (!input.consume("interact")) return
       roomState.setActiveNpcId(npc.id)
       conversation.startConversation(npc)
       return
@@ -47,6 +46,7 @@ export const createInteractionSystem =
     const interaction = getCurrentInteractionPoint(roomState)
 
     if (isWithinInteractionRange(playerX, playerY, interaction)) {
+      if (!input.consume("interact")) return
       sound.play()
     }
   }

@@ -15,23 +15,27 @@ describe("npc interaction helpers", () => {
     height: 32,
   }
 
-  it("builds an interaction point from an npc feet hitbox", () => {
+  it("builds an interaction point around the npc sprite", () => {
     expect(getNpcInteractionPoint(manager)).toEqual({
       x: 352,
-      y: 252,
-      radius: 16,
+      y: 240,
+      radius: 32,
       offsetY: 32,
       bounds: {
-        x: 344,
-        y: 248,
-        width: 16,
-        height: 8,
+        x: 336,
+        y: 224,
+        width: 32,
+        height: 32,
       },
     })
   })
 
   it("finds the first npc in interaction range", () => {
     expect(findNpcInInteractionRange(352, 264, [manager])).toBe(manager)
+  })
+
+  it("finds an npc from a normal standing distance below them", () => {
+    expect(findNpcInInteractionRange(352, 288, [manager])).toBe(manager)
   })
 
   it("returns null when no npc is in interaction range", () => {

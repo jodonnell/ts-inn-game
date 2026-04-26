@@ -8,6 +8,7 @@ import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import type { RenderSystem, SimulationSystem } from "@/src/ecs/systems/loop"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createTimeSystem } from "@/src/ecs/systems/time"
+import { createConversationSystem } from "@/src/game/conversation"
 import type { GameState } from "@/src/game/gameState"
 import { createCameraFollowSystem } from "@/src/render/camera"
 import { createCleaningProgressSystem } from "@/src/render/cleaningProgress"
@@ -17,6 +18,8 @@ import { createNightOverlaySystem } from "@/src/render/nightOverlay"
 import { createNpcRenderSystem } from "@/src/render/npcRender"
 import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import { createTimeDisplaySystem } from "@/src/render/timeDisplay"
+import { createConversationDialogSystem } from "@/src/render/conversationDialog"
+import { createInputFlushSystem } from "@/src/input/router"
 
 export type GameSystems = {
   simulationSystems: SimulationSystem[]
@@ -26,7 +29,15 @@ export type GameSystems = {
 export const createGameSystems = (state: GameState): GameSystems => ({
   simulationSystems: [
     createInputSystem(state.player, state.input),
+    createConversationSystem(state.conversationState, state.input),
     createMovementSystem(state.player, state.roomState.collisionWalls),
+    createInteractionSystem(
+      state.player,
+      state.input,
+      state.roomState,
+      state.bellSound,
+      state.conversationStarter,
+    ),
     createTeleportSystem(
       state.player,
       state.roomState.teleportState,
@@ -40,13 +51,7 @@ export const createGameSystems = (state: GameState): GameSystems => ({
       state.cleaningInput,
       state.roomState,
     ),
-    createInteractionSystem(
-      state.player,
-      state.input,
-      state.roomState,
-      state.bellSound,
-      state.conversationStarter,
-    ),
+    createInputFlushSystem(state.input),
   ],
   renderSystems: [
     createNightOverlaySystem(state.gameTime, state.nightOverlayStore, {
@@ -70,5 +75,9 @@ export const createGameSystems = (state: GameState): GameSystems => ({
       state.roomState,
     ),
     createTimeDisplaySystem(state.gameTime, state.timeDisplayStore),
+    createConversationDialogSystem(
+      state.conversationState,
+      state.conversationDialogStore,
+    ),
   ],
 })

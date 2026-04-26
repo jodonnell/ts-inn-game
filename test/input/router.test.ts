@@ -110,4 +110,59 @@ describe("input router", () => {
 
     input.dispose()
   })
+
+  it("only allows interact while a dialog is open", () => {
+    const baseInput = createGameInputState({
+      adapters: [createKeyboardInputAdapter({ target: window })],
+    })
+    const input = createInputRouter(baseInput)
+
+    input.pushContext("dialog")
+    dispatchKey(window, "keydown", "w")
+    dispatchKey(window, "keydown", "e")
+    dispatchKey(window, "keydown", "Escape")
+    dispatchKey(window, "keydown", "Enter")
+    dispatchKey(window, "keydown", "Backspace")
+
+    expect(input.getMovement()).toEqual({ x: 0, y: 0 })
+    expect(input.consume("interact")).toBe(true)
+    expect(input.consume("pause")).toBe(false)
+    expect(input.consume("confirm")).toBe(false)
+    expect(input.consume("cancel")).toBe(false)
+
+    input.dispose()
+  })
+
+  it("suppresses actions that are held while a dialog opens until release", () => {
+    const baseInput = createGameInputState({
+      adapters: [createKeyboardInputAdapter({ target: window })],
+    })
+    const input = createInputRouter(baseInput)
+
+    dispatchKey(window, "keydown", "e")
+    input.pushContext("dialog")
+
+    expect(input.consume("interact")).toBe(false)
+
+    dispatchKey(window, "keyup", "e")
+    dispatchKey(window, "keydown", "e")
+
+    expect(input.consume("interact")).toBe(true)
+
+    input.dispose()
+  })
+
+  it("can flush unconsumed queued actions at the end of a simulation tick", () => {
+    const baseInput = createGameInputState({
+      adapters: [createKeyboardInputAdapter({ target: window })],
+    })
+    const input = createInputRouter(baseInput)
+
+    dispatchKey(window, "keydown", "e")
+    input.flushQueuedActions()
+
+    expect(input.consume("interact")).toBe(false)
+
+    input.dispose()
+  })
 })

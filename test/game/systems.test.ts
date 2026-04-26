@@ -10,6 +10,7 @@ import { createFixtureTargetingSystem } from "@/src/ecs/systems/fixtureTargeting
 import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createTimeSystem } from "@/src/ecs/systems/time"
+import { createConversationSystem } from "@/src/game/conversation"
 import { createCameraFollowSystem } from "@/src/render/camera"
 import { createCleaningProgressSystem } from "@/src/render/cleaningProgress"
 import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
@@ -18,6 +19,8 @@ import { createPlayerRenderSystem } from "@/src/render/playerRender"
 import { createNightOverlaySystem } from "@/src/render/nightOverlay"
 import { createNpcRenderSystem } from "@/src/render/npcRender"
 import { createTimeDisplaySystem } from "@/src/render/timeDisplay"
+import { createConversationDialogSystem } from "@/src/render/conversationDialog"
+import { createInputFlushSystem } from "@/src/input/router"
 
 const inputSystem = vi.fn()
 const movementSystem = vi.fn()
@@ -26,6 +29,7 @@ const timeSystem = vi.fn()
 const fixtureTargetingSystem = vi.fn()
 const fixtureCleaningSystem = vi.fn()
 const interactionSystem = vi.fn()
+const conversationSystem = vi.fn()
 const nightOverlaySystem = vi.fn()
 const cameraSystem = vi.fn()
 const playerRenderSystem = vi.fn()
@@ -34,6 +38,8 @@ const npcRenderSystem = vi.fn()
 const cleaningProgressSystem = vi.fn()
 const promptSystem = vi.fn()
 const timeDisplaySystem = vi.fn()
+const conversationDialogSystem = vi.fn()
+const inputFlushSystem = vi.fn()
 
 vi.mock("@/src/ecs/systems/movement", () => ({
   createInputSystem: vi.fn(() => inputSystem),
@@ -58,6 +64,10 @@ vi.mock("@/src/ecs/systems/teleport", () => ({
 
 vi.mock("@/src/ecs/systems/time", () => ({
   createTimeSystem: vi.fn(() => timeSystem),
+}))
+
+vi.mock("@/src/game/conversation", () => ({
+  createConversationSystem: vi.fn(() => conversationSystem),
 }))
 
 vi.mock("@/src/render/camera", () => ({
@@ -92,6 +102,14 @@ vi.mock("@/src/render/timeDisplay", () => ({
   createTimeDisplaySystem: vi.fn(() => timeDisplaySystem),
 }))
 
+vi.mock("@/src/render/conversationDialog", () => ({
+  createConversationDialogSystem: vi.fn(() => conversationDialogSystem),
+}))
+
+vi.mock("@/src/input/router", () => ({
+  createInputFlushSystem: vi.fn(() => inputFlushSystem),
+}))
+
 describe("game systems", () => {
   it("builds simulation and render systems separately", () => {
     const state = {
@@ -102,6 +120,7 @@ describe("game systems", () => {
         isHeld: vi.fn(),
         update: vi.fn(),
         dispose: vi.fn(),
+        flushQueuedActions: vi.fn(),
       },
       roomState: {
         collisionWalls: [],
@@ -112,6 +131,7 @@ describe("game systems", () => {
       gameTime: { minutes: 0, daysPassed: 0 },
       cleaningInput: { isHeld: vi.fn() },
       bellSound: { play: vi.fn() },
+      conversationState: {},
       conversationStarter: { startConversation: vi.fn() },
       nightOverlayStore: {},
       app: { screen: { width: 800, height: 600 } },
@@ -120,18 +140,21 @@ describe("game systems", () => {
       cleaningProgressStore: {},
       promptStore: {},
       timeDisplayStore: {},
+      conversationDialogStore: {},
     } as unknown as GameState
 
     const systems = createGameSystems(state)
 
     expect(systems.simulationSystems).toEqual([
       inputSystem,
+      conversationSystem,
       movementSystem,
+      interactionSystem,
       teleportSystem,
       timeSystem,
       fixtureTargetingSystem,
       fixtureCleaningSystem,
-      interactionSystem,
+      inputFlushSystem,
     ])
     expect(systems.renderSystems).toEqual([
       nightOverlaySystem,
@@ -142,6 +165,7 @@ describe("game systems", () => {
       cleaningProgressSystem,
       promptSystem,
       timeDisplaySystem,
+      conversationDialogSystem,
     ])
 
     const [, , nightOverlayOptions] =
@@ -152,6 +176,10 @@ describe("game systems", () => {
     })
 
     expect(vi.mocked(createInputSystem)).toHaveBeenCalledWith(1, state.input)
+    expect(vi.mocked(createConversationSystem)).toHaveBeenCalledWith(
+      state.conversationState,
+      state.input,
+    )
     expect(vi.mocked(createMovementSystem)).toHaveBeenCalledWith(
       1,
       state.roomState.collisionWalls,
@@ -179,6 +207,7 @@ describe("game systems", () => {
       state.bellSound,
       state.conversationStarter,
     )
+    expect(vi.mocked(createInputFlushSystem)).toHaveBeenCalledWith(state.input)
     expect(vi.mocked(createCameraFollowSystem)).toHaveBeenCalledWith(
       1,
       state.camera,
@@ -208,6 +237,10 @@ describe("game systems", () => {
     expect(vi.mocked(createTimeDisplaySystem)).toHaveBeenCalledWith(
       state.gameTime,
       state.timeDisplayStore,
+    )
+    expect(vi.mocked(createConversationDialogSystem)).toHaveBeenCalledWith(
+      state.conversationState,
+      state.conversationDialogStore,
     )
   })
 })
