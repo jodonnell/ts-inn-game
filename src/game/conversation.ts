@@ -127,6 +127,7 @@ export const createConversationSystem =
   (
     state: ConversationState,
     input: Pick<ConversationInput, "consume" | "popContext">,
+    onClose: () => void = () => {},
   ) =>
   (_world: GameWorld, _dt: number) => {
     void _world
@@ -143,5 +144,8 @@ export const createConversationSystem =
     if (!input.consume("interact")) return
 
     state.select()
-    if (!state.isOpen) input.popContext()
+    if (!state.isOpen) {
+      input.popContext()
+      onClose()
+    }
   }

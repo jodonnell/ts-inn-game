@@ -78,6 +78,22 @@ describe("conversation", () => {
     expect(input.popContext).toHaveBeenCalledTimes(1)
   })
 
+  it("notifies when the dialog closes", () => {
+    const world = createGameWorld()
+    const state = createConversationState()
+    state.open("Hello!")
+    const input = {
+      consume: vi.fn((action: string) => action === "interact"),
+      popContext: vi.fn(),
+    }
+    const onClose = vi.fn()
+
+    const system = createConversationSystem(state, input, onClose)
+    system(world, 0)
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
   it("waits for interact before closing an open dialog", () => {
     const world = createGameWorld()
     const state = createConversationState()

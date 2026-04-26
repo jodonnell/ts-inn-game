@@ -83,4 +83,27 @@ describe("npc schedule", () => {
     )
     expect(roomState.npcs).toEqual([scheduleState.manager])
   })
+
+  it("stops moving the manager while they are the active npc", () => {
+    const roomState = createRoomState()
+    const gameTime = createGameTimeState(4 * 60)
+    const scheduleState = createManagerScheduleState()
+    roomState.setActiveNpcId("manager")
+    const system = createNpcScheduleSystem({
+      gameTime,
+      roomState,
+      scheduleState,
+      getCurrentMapKey: () => "hallway",
+    })
+
+    system({ entities: [] }, 1)
+
+    expect(scheduleState.manager).toEqual(
+      expect.objectContaining({
+        mapKey: "hallway",
+        x: 544,
+        y: 256,
+      }),
+    )
+  })
 })

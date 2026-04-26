@@ -680,7 +680,15 @@ describe("game bootstrap", () => {
         consume: expect.any(Function),
         popContext: expect.any(Function),
       }),
+      expect.any(Function),
     )
+    const [, , onConversationClose] =
+      vi.mocked(createConversationSystem).mock.calls[0] ?? []
+    const [{ roomState }] =
+      vi.mocked(createNpcScheduleSystem).mock.calls[0] ?? []
+    roomState.setActiveNpcId("manager")
+    onConversationClose()
+    expect(roomState.activeNpcId).toBeNull()
     expect(vi.mocked(createConversationDialogSystem)).toHaveBeenCalledWith(
       expect.objectContaining({ isOpen: false, message: "" }),
       expect.objectContaining({

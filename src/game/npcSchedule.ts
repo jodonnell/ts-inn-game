@@ -149,6 +149,8 @@ export const createNpcScheduleSystem =
   }: NpcScheduleOptions) =>
   (world: GameWorld, dt: number) => {
     void world
-    updateManagerSchedule(scheduleState, gameTime, dt)
+    if (roomState.activeNpcId !== scheduleState.manager.id) {
+      updateManagerSchedule(scheduleState, gameTime, dt)
+    }
     projectManagerIntoCurrentRoom(roomState, scheduleState, getCurrentMapKey())
   }

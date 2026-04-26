@@ -132,6 +132,7 @@ describe("game systems", () => {
         collisionWalls: [],
         teleportState: { zones: [] },
         fixtures: [],
+        setActiveNpcId: vi.fn(),
       },
       roomLoader: vi.fn(),
       managerSchedule: {},
@@ -187,7 +188,12 @@ describe("game systems", () => {
     expect(vi.mocked(createConversationSystem)).toHaveBeenCalledWith(
       state.conversationState,
       state.input,
+      expect.any(Function),
     )
+    const [, , onConversationClose] =
+      vi.mocked(createConversationSystem).mock.calls[0] ?? []
+    onConversationClose()
+    expect(state.roomState.setActiveNpcId).toHaveBeenCalledWith(null)
     expect(vi.mocked(createMovementSystem)).toHaveBeenCalledWith(
       1,
       state.roomState.collisionWalls,

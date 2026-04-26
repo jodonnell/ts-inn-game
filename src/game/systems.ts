@@ -30,7 +30,9 @@ export type GameSystems = {
 export const createGameSystems = (state: GameState): GameSystems => ({
   simulationSystems: [
     createInputSystem(state.player, state.input),
-    createConversationSystem(state.conversationState, state.input),
+    createConversationSystem(state.conversationState, state.input, () => {
+      state.roomState.setActiveNpcId(null)
+    }),
     createMovementSystem(state.player, state.roomState.collisionWalls),
     createInteractionSystem(
       state.player,
