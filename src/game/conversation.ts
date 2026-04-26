@@ -16,13 +16,24 @@ export type ConversationInput = {
 
 type ConversationMode = "message" | "choices"
 
+export type DialogChoice = {
+  label: string
+  next: DialogNode
+}
+
+export type DialogNode = {
+  choices?: DialogChoice[]
+  message: string
+}
+
 export type ConversationState = {
   choices: string[]
   isOpen: boolean
   isChoosing: boolean
   message: string
   selectedChoiceIndex: number
-  open: (message: string, choices?: string[]) => void
+  open: (message: string) => void
+  openNode: (node: DialogNode) => void
   close: () => void
   moveChoice: (delta: number) => void
   select: () => void
@@ -40,10 +51,21 @@ export const getConversationDisplayText = (state: ConversationState) =>
 
 export const createConversationState = (): ConversationState => {
   let mode: ConversationMode = "message"
+  let currentNode: DialogNode | null = null
 
   const showChoices = () => {
     mode = "choices"
     state.isChoosing = true
+    state.selectedChoiceIndex = 0
+  }
+
+  const setNode = (node: DialogNode) => {
+    currentNode = node
+    state.isOpen = true
+    state.isChoosing = false
+    state.message = node.message
+    mode = "message"
+    state.choices = node.choices?.map((choice) => choice.label) ?? []
     state.selectedChoiceIndex = 0
   }
 
@@ -53,15 +75,10 @@ export const createConversationState = (): ConversationState => {
     isChoosing: false,
     message: "",
     selectedChoiceIndex: 0,
-    open: (message, nextChoices = []) => {
-      state.isOpen = true
-      state.isChoosing = false
-      state.message = message
-      mode = "message"
-      state.choices = nextChoices
-      state.selectedChoiceIndex = 0
-    },
+    open: (message) => setNode({ message }),
+    openNode: setNode,
     close: () => {
+      currentNode = null
       state.isOpen = false
       state.isChoosing = false
       state.message = ""
@@ -81,6 +98,13 @@ export const createConversationState = (): ConversationState => {
         showChoices()
         return
       }
+      if (mode === "choices") {
+        const nextNode = currentNode?.choices?.[state.selectedChoiceIndex]?.next
+        if (nextNode) {
+          setNode(nextNode)
+          return
+        }
+      }
       state.close()
     },
   }
@@ -94,7 +118,7 @@ export const createConversationStarter = (
   text: GameText = createGameText(),
 ): ConversationStarter => ({
   startConversation: (npc) => {
-    state.open(text.npcGreeting(npc), text.npcResponses(npc))
+    state.openNode(text.npcDialog(npc))
     input?.pushContext("dialog")
   },
 })

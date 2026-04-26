@@ -44,6 +44,13 @@ test("shows npc response choices after the manager greeting", async ({
   await page.keyboard.press("e")
 
   await expect.poll(async () => getConversation(page)).toEqual({
+    isOpen: true,
+    message: "Chief: Thank u bubby, treat me gentle!  *Gulp gulp gulp*",
+  })
+
+  await page.keyboard.press("e")
+
+  await expect.poll(async () => getConversation(page)).toEqual({
     isOpen: false,
     message: "",
   })

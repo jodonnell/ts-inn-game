@@ -94,7 +94,7 @@ describe("conversation", () => {
     expect(input.popContext).not.toHaveBeenCalled()
   })
 
-  it("advances the chief greeting to response choices before closing", () => {
+  it("advances the chief greeting to response choices", () => {
     const world = createGameWorld()
     const state = createConversationState()
     const input = {
@@ -126,7 +126,85 @@ describe("conversation", () => {
       ].join("\n"),
     )
     expect(input.popContext).not.toHaveBeenCalled()
+  })
 
+  it("shows chief's vegetable reply before closing", () => {
+    const world = createGameWorld()
+    const state = createConversationState()
+    const input = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+      consume: vi.fn((action: string) => action === "interact"),
+    }
+    const starter = createConversationStarter(state, input)
+    const system = createConversationSystem(state, input)
+
+    starter.startConversation({
+      id: "manager",
+      name: "Manager",
+      mapKey: "hallway",
+      x: 352,
+      y: 256,
+      width: 32,
+      height: 32,
+    })
+
+    system(world, 0)
+    system(world, 0)
+
+    expect(state.isOpen).toBe(true)
+    expect(state.isChoosing).toBe(false)
+    expect(getConversationDisplayText(state)).toBe(
+      "Chief: Chiiiiiiiiii!  I'm 147.3 and proud of it!",
+    )
+    expect(input.popContext).not.toHaveBeenCalled()
+
+    system(world, 0)
+
+    expect(state.isOpen).toBe(false)
+    expect(input.popContext).toHaveBeenCalledTimes(1)
+  })
+
+  it("shows chief's favor reply before closing", () => {
+    const world = createGameWorld()
+    const state = createConversationState()
+    let pressed: string | null = "interact"
+    const input = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+      consume: vi.fn((action: string) => {
+        if (pressed !== action) return false
+        pressed = null
+        return true
+      }),
+    }
+    const starter = createConversationStarter(state, input)
+    const system = createConversationSystem(state, input)
+
+    starter.startConversation({
+      id: "manager",
+      name: "Manager",
+      mapKey: "hallway",
+      x: 352,
+      y: 256,
+      width: 32,
+      height: 32,
+    })
+
+    system(world, 0)
+    pressed = "moveDown"
+    system(world, 0)
+    pressed = "interact"
+    system(world, 0)
+
+    expect(state.isOpen).toBe(true)
+    expect(state.isChoosing).toBe(false)
+    expect(getConversationDisplayText(state)).toBe(
+      "Chief: Thank u bubby, treat me gentle!  *Gulp gulp gulp*",
+    )
+    expect(input.popContext).not.toHaveBeenCalled()
+
+    pressed = "interact"
     system(world, 0)
 
     expect(state.isOpen).toBe(false)
