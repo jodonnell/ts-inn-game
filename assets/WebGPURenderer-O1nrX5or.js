@@ -1,0 +1,1 @@
+import{n as e}from"./index-BFyFgj2i.js";export{e as WebGPURenderer};
