@@ -11,6 +11,7 @@ import { createInteractionSystem } from "@/src/ecs/systems/interaction"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createTimeSystem } from "@/src/ecs/systems/time"
 import { createConversationSystem } from "@/src/game/conversation"
+import { createNpcScheduleSystem } from "@/src/game/npcSchedule"
 import { createCameraFollowSystem } from "@/src/render/camera"
 import { createCleaningProgressSystem } from "@/src/render/cleaningProgress"
 import { createFixtureRenderSystem } from "@/src/render/fixtureRender"
@@ -30,6 +31,7 @@ const fixtureTargetingSystem = vi.fn()
 const fixtureCleaningSystem = vi.fn()
 const interactionSystem = vi.fn()
 const conversationSystem = vi.fn()
+const npcScheduleSystem = vi.fn()
 const nightOverlaySystem = vi.fn()
 const cameraSystem = vi.fn()
 const playerRenderSystem = vi.fn()
@@ -68,6 +70,10 @@ vi.mock("@/src/ecs/systems/time", () => ({
 
 vi.mock("@/src/game/conversation", () => ({
   createConversationSystem: vi.fn(() => conversationSystem),
+}))
+
+vi.mock("@/src/game/npcSchedule", () => ({
+  createNpcScheduleSystem: vi.fn(() => npcScheduleSystem),
 }))
 
 vi.mock("@/src/render/camera", () => ({
@@ -128,6 +134,7 @@ describe("game systems", () => {
         fixtures: [],
       },
       roomLoader: vi.fn(),
+      managerSchedule: {},
       gameTime: { minutes: 0, daysPassed: 0 },
       cleaningInput: { isHeld: vi.fn() },
       bellSound: { play: vi.fn() },
@@ -152,6 +159,7 @@ describe("game systems", () => {
       interactionSystem,
       teleportSystem,
       timeSystem,
+      npcScheduleSystem,
       fixtureTargetingSystem,
       fixtureCleaningSystem,
       inputFlushSystem,
@@ -191,6 +199,12 @@ describe("game systems", () => {
       state.roomLoader,
     )
     expect(vi.mocked(createTimeSystem)).toHaveBeenCalledWith(state.gameTime)
+    expect(vi.mocked(createNpcScheduleSystem)).toHaveBeenCalledWith({
+      gameTime: state.gameTime,
+      roomState: state.roomState,
+      scheduleState: state.managerSchedule,
+      getCurrentMapKey: state.roomLoader.getCurrentMapKey,
+    })
     expect(vi.mocked(createFixtureTargetingSystem)).toHaveBeenCalledWith(
       1,
       state.roomState,

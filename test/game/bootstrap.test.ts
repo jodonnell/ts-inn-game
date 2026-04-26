@@ -23,6 +23,7 @@ import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createRoomLoader } from "@/src/game/roomLoader"
 import { installGameTestApi } from "@/src/game/testHooks"
 import { createConversationSystem } from "@/src/game/conversation"
+import { createNpcScheduleSystem } from "@/src/game/npcSchedule"
 import { createTimeDisplayStore } from "@/src/render/timeDisplay"
 import {
   createConversationDialogStore,
@@ -63,6 +64,7 @@ const cameraSystem = vi.fn()
 const promptSystem = vi.fn()
 const interactionSystem = vi.fn()
 const conversationSystem = vi.fn()
+const npcScheduleSystem = vi.fn()
 const timeSystem = vi.fn()
 const timeState = { minutes: 0 }
 const timeDisplaySystem = vi.fn()
@@ -223,6 +225,14 @@ vi.mock("@/src/game/conversation", async (importOriginal) => {
   return {
     ...actual,
     createConversationSystem: vi.fn(() => conversationSystem),
+  }
+})
+
+vi.mock("@/src/game/npcSchedule", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/src/game/npcSchedule")>()
+  return {
+    ...actual,
+    createNpcScheduleSystem: vi.fn(() => npcScheduleSystem),
   }
 })
 
@@ -684,6 +694,14 @@ describe("game bootstrap", () => {
         flushQueuedActions: expect.any(Function),
       }),
     )
+    expect(vi.mocked(createNpcScheduleSystem)).toHaveBeenCalledWith({
+      gameTime: timeState,
+      roomState: expect.any(Object),
+      scheduleState: expect.objectContaining({
+        manager: expect.objectContaining({ id: "manager" }),
+      }),
+      getCurrentMapKey: loadRoom.getCurrentMapKey,
+    })
 
     expect(vi.mocked(createLoop)).toHaveBeenCalledWith({
       world,
@@ -695,6 +713,7 @@ describe("game bootstrap", () => {
         interactionSystem,
         teleportSystem,
         timeSystem,
+        npcScheduleSystem,
         fixtureTargetingSystem,
         fixtureCleaningSystem,
         inputFlushSystem,

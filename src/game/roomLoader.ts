@@ -13,7 +13,6 @@ import {
   createDefaultCollisionWalls,
   createDisabledInteractionPoint,
 } from "@/src/game/fixtures"
-import { getNpcCollisionWall, getRoomNpcs } from "@/src/game/npcs"
 import type { CameraLike, CameraRect } from "@/src/render/camera"
 import type { RoomFixture, RoomState } from "@/src/game/roomState"
 import type { TileSpriteFactory, TileSpriteLike } from "@/src/render/tilemap"
@@ -138,7 +137,6 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     Position.y[player] = spawn.y
 
     const nextFixtures = buildRoomFixtures(map)
-    const nextNpcs = getRoomNpcs(mapKey)
     const nextWalls = extractCollisionWalls(map)
     const fixtureWalls = nextFixtures.map(({ x, y, width, height }) => ({
       x,
@@ -149,7 +147,6 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     const collisionWalls = [
       ...(nextWalls.length > 0 ? nextWalls : collisionFallback),
       ...fixtureWalls,
-      ...nextNpcs.map(getNpcCollisionWall),
     ]
     roomState.replaceCollisionWalls(collisionWalls)
 
@@ -158,7 +155,7 @@ export const createRoomLoader = <TSprite extends TileSpriteLike>({
     roomState.replaceInteractionPoint(nextInteraction)
 
     roomState.replaceFixtures(nextFixtures)
-    roomState.replaceNpcs(nextNpcs)
+    roomState.replaceNpcs([])
     roomState.replaceTeleportZones(extractTeleportZones(map))
 
     return true

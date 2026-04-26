@@ -51,6 +51,49 @@ describe("npc render system", () => {
     )
   })
 
+  it("plays the manager walking animation while an npc position changes", () => {
+    const world = createGameWorld()
+    const roomState = createRoomState()
+    roomState.replaceNpcs([
+      {
+        id: "manager",
+        name: "Manager",
+        mapKey: "hallway",
+        x: 352,
+        y: 192,
+        width: 32,
+        height: 32,
+      },
+    ])
+    const play = vi.fn()
+    const stop = vi.fn()
+    const setFrames = vi.fn()
+    const system = createNpcRenderSystem(roomState, {
+      sprites: new Map(),
+      createAnimatedSprite: vi.fn(() => ({
+        x: 0,
+        y: 0,
+        play,
+        stop,
+        setFrames,
+      })),
+      addSprite: vi.fn(),
+      removeSprite: vi.fn(),
+    })
+
+    system(world, 0)
+    roomState.npcs[0].x = 320
+    system(world, 0)
+
+    expect(setFrames).toHaveBeenCalledWith([
+      "0023-manager-all-frames_leftwalk_0001.png",
+      "0024-manager-all-frames_leftwalk_0002.png",
+      "0025-manager-all-frames_leftwalk_0003.png",
+      "0026-manager-all-frames_leftwalk_0004.png",
+    ])
+    expect(play).toHaveBeenCalledTimes(1)
+  })
+
   it("removes npc sprites that are no longer in the current room", () => {
     const world = createGameWorld()
     const roomState = createRoomState()

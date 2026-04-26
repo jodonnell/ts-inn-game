@@ -1,6 +1,10 @@
 import type { GameWorld } from "@/src/ecs/world"
 import type { RoomState } from "@/src/game/roomState"
-import { getManagerAnimationFrames } from "@/src/render/managerAnimation"
+import {
+  getManagerAnimationFrames,
+  selectManagerAnimationState,
+  type ManagerDirection,
+} from "@/src/render/managerAnimation"
 import type { SpriteLike } from "@/src/render/playerRender"
 
 export type NpcRenderStore = {
@@ -10,14 +14,15 @@ export type NpcRenderStore = {
   removeSprite: (sprite: SpriteLike) => void
 }
 
-const MANAGER_IDLE_FRAMES = getManagerAnimationFrames({
-  action: "idle",
-  direction: "front",
-})
+export const createNpcRenderSystem = (
+  roomState: RoomState,
+  store: NpcRenderStore,
+) => {
+  const lastPositions = new Map<string, { x: number; y: number }>()
+  const lastDirections = new Map<string, ManagerDirection>()
+  const lastAnimationKeys = new Map<string, string>()
 
-export const createNpcRenderSystem =
-  (roomState: RoomState, store: NpcRenderStore) =>
-  (world: GameWorld, _dt: number) => {
+  return (world: GameWorld, _dt: number) => {
     void world
     void _dt
 
@@ -26,20 +31,49 @@ export const createNpcRenderSystem =
       if (!currentNpcIds.has(npcId)) {
         store.removeSprite(sprite)
         store.sprites.delete(npcId)
+        lastPositions.delete(npcId)
+        lastDirections.delete(npcId)
+        lastAnimationKeys.delete(npcId)
       }
     }
 
     for (const npc of roomState.npcs) {
       let sprite = store.sprites.get(npc.id)
+      const previousPosition = lastPositions.get(npc.id)
+      const velocity = previousPosition
+        ? {
+            x: npc.x - previousPosition.x,
+            y: npc.y - previousPosition.y,
+          }
+        : { x: 0, y: 0 }
+      const animationState = selectManagerAnimationState(
+        velocity,
+        lastDirections.get(npc.id) ?? "front",
+      )
+      lastDirections.set(npc.id, animationState.direction)
+      const nextFrames = getManagerAnimationFrames(animationState)
+      const nextAnimationKey = `${animationState.action}-${animationState.direction}`
+
       if (!sprite) {
-        sprite = store.createAnimatedSprite(MANAGER_IDLE_FRAMES)
+        sprite = store.createAnimatedSprite(nextFrames)
         store.sprites.set(npc.id, sprite)
         store.addSprite(sprite)
+        lastAnimationKeys.set(npc.id, nextAnimationKey)
+      } else if (lastAnimationKeys.get(npc.id) !== nextAnimationKey) {
+        sprite.setFrames(nextFrames)
+        lastAnimationKeys.set(npc.id, nextAnimationKey)
       }
 
-      sprite.stop()
+      if (animationState.action === "walk") {
+        sprite.play()
+      } else {
+        sprite.stop()
+      }
+
       sprite.x = npc.x
       sprite.y = npc.y
       sprite.zIndex = npc.y
+      lastPositions.set(npc.id, { x: npc.x, y: npc.y })
     }
   }
+}

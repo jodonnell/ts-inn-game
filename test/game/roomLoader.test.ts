@@ -134,7 +134,7 @@ describe("room loader", () => {
     expect(mapContainer.addChild).toHaveBeenCalledTimes(1)
   })
 
-  it("adds the hallway manager npc and their collision wall", () => {
+  it("does not add scheduled npcs or their collision walls while loading a room", () => {
     const map: TiledMap = {
       width: 20,
       height: 12,
@@ -163,18 +163,8 @@ describe("room loader", () => {
 
     expect(loadRoom("hallway")).toBe(true)
 
-    expect(roomState.npcs).toEqual([
-      {
-        id: "manager",
-        name: "Manager",
-        mapKey: "hallway",
-        x: 704,
-        y: 256,
-        width: 32,
-        height: 32,
-      },
-    ])
-    expect(roomState.collisionWalls).toContainEqual({
+    expect(roomState.npcs).toEqual([])
+    expect(roomState.collisionWalls).not.toContainEqual({
       x: 696,
       y: 248,
       width: 16,

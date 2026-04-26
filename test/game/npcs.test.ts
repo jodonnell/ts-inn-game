@@ -1,20 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { HALLWAY_MANAGER_NPC, getRoomNpcs } from "@/src/game/npcs"
+import { getNpcCollisionWall } from "@/src/game/npcs"
 
-describe("npc registry", () => {
-  it("stores the manager position on the hallway map", () => {
-    expect(HALLWAY_MANAGER_NPC).toEqual(
-      expect.objectContaining({
+describe("npc helpers", () => {
+  it("builds a small collision wall around an npc's feet", () => {
+    expect(
+      getNpcCollisionWall({
         id: "manager",
+        name: "Manager",
         mapKey: "hallway",
-        x: 704,
+        x: 544,
         y: 256,
+        width: 32,
+        height: 32,
       }),
-    )
-  })
-
-  it("returns npcs for their owning map only", () => {
-    expect(getRoomNpcs("hallway")).toEqual([HALLWAY_MANAGER_NPC])
-    expect(getRoomNpcs("room")).toEqual([])
+    ).toEqual({
+      x: 536,
+      y: 248,
+      width: 16,
+      height: 8,
+    })
   })
 })

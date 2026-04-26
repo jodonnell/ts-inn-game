@@ -9,6 +9,7 @@ import type { RenderSystem, SimulationSystem } from "@/src/ecs/systems/loop"
 import { createTeleportSystem } from "@/src/ecs/systems/teleport"
 import { createTimeSystem } from "@/src/ecs/systems/time"
 import { createConversationSystem } from "@/src/game/conversation"
+import { createNpcScheduleSystem } from "@/src/game/npcSchedule"
 import type { GameState } from "@/src/game/gameState"
 import { createCameraFollowSystem } from "@/src/render/camera"
 import { createCleaningProgressSystem } from "@/src/render/cleaningProgress"
@@ -45,6 +46,12 @@ export const createGameSystems = (state: GameState): GameSystems => ({
       state.roomLoader,
     ),
     createTimeSystem(state.gameTime),
+    createNpcScheduleSystem({
+      gameTime: state.gameTime,
+      roomState: state.roomState,
+      scheduleState: state.managerSchedule,
+      getCurrentMapKey: state.roomLoader.getCurrentMapKey,
+    }),
     createFixtureTargetingSystem(state.player, state.roomState),
     createFixtureCleaningSystem(
       state.player,

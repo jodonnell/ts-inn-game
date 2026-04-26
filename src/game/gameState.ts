@@ -36,6 +36,10 @@ import {
   createConversationStarter,
   createConversationState,
 } from "@/src/game/conversation"
+import {
+  createManagerScheduleState,
+  type ManagerScheduleState,
+} from "@/src/game/npcSchedule"
 import { createGameText, getGameLocale } from "@/src/game/localization"
 import { createConversationDialogStore } from "@/src/render/conversationDialog"
 import type { TiledMap } from "@/src/maps/tiled"
@@ -71,6 +75,7 @@ export type GameState = {
   bellSound: InteractionSound
   conversationState: ReturnType<typeof createConversationState>
   conversationStarter: ReturnType<typeof createConversationStarter>
+  managerSchedule: ManagerScheduleState
 }
 
 const hallwayMap = JSON.parse(hallwayMapJson) as TiledMap
@@ -118,6 +123,7 @@ export const initializeGame = async (): Promise<GameState> => {
   const roomState = createRoomState()
   const bellSound = new Howl({ src: [bellSfx] })
   const conversationState = createConversationState()
+  const managerSchedule = createManagerScheduleState()
   const params = getSearchParams()
   const locale = getGameLocale(
     params.get("locale") ?? globalThis.window?.navigator?.language,
@@ -200,5 +206,6 @@ export const initializeGame = async (): Promise<GameState> => {
     bellSound,
     conversationState,
     conversationStarter,
+    managerSchedule,
   }
 }
