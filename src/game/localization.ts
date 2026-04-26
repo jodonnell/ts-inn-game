@@ -9,6 +9,10 @@ const resources = {
           manager: {
             greeting:
               "Chief: I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!",
+            responses: [
+              "Maybe you should eat some vegetables and row!",
+              "Chief anything you do I am 100% in favor of!",
+            ],
           },
         },
       },
@@ -21,6 +25,10 @@ const resources = {
           manager: {
             greeting:
               "Chief: Tengo tanta hambre para el almuerzo que tal vez coma almendras cubiertas de chocolate con un whisky de 10 oz para acompaniarlas!",
+            responses: [
+              "¡Quizás deberías comer algunas verduras y remar!",
+              "¡Jefe, cualquier cosa que hagas, estoy 100% a favor!",
+            ],
           },
         },
       },
@@ -39,6 +47,7 @@ export const getGameLocale = (
 
 export type GameText = {
   npcGreeting: (npc: Pick<RoomNpc, "id">) => string
+  npcResponses: (npc: Pick<RoomNpc, "id">) => string[]
 }
 
 export const createGameText = (locale: GameLocale = "en"): GameText => {
@@ -58,6 +67,13 @@ export const createGameText = (locale: GameLocale = "en"): GameText => {
     npcGreeting: (npc) =>
       i18n.t(`conversation.npcs.${npc.id}.greeting`, {
         defaultValue: i18n.t("conversation.npcs.manager.greeting"),
+      }),
+    npcResponses: (npc) =>
+      i18n.t(`conversation.npcs.${npc.id}.responses`, {
+        defaultValue: i18n.t("conversation.npcs.manager.responses", {
+          returnObjects: true,
+        }),
+        returnObjects: true,
       }),
   }
 }

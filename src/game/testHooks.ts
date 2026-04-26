@@ -1,7 +1,10 @@
 import { Position } from "@/src/ecs/components"
 import { getFixtureInteractionPoint } from "@/src/game/fixtureInteraction"
 import { getNpcInteractionPoint } from "@/src/game/npcInteraction"
-import type { ConversationState } from "@/src/game/conversation"
+import {
+  getConversationDisplayText,
+  type ConversationState,
+} from "@/src/game/conversation"
 import type { RoomState } from "@/src/game/roomState"
 import type { FixtureState } from "@/src/game/roomState"
 
@@ -63,7 +66,9 @@ export const createGameTestApi = (state: GameTestState): GameTestApi => ({
   }),
   getConversation: () => ({
     isOpen: state.conversationState?.isOpen ?? false,
-    message: state.conversationState?.message ?? "",
+    message: state.conversationState
+      ? getConversationDisplayText(state.conversationState)
+      : "",
   }),
   getFixtureState: (fixtureId) => {
     const fixture =

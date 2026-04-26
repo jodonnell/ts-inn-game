@@ -3,6 +3,7 @@ import {
   createConversationStarter,
   createConversationState,
   createConversationSystem,
+  getConversationDisplayText,
 } from "@/src/game/conversation"
 import { createGameWorld } from "@/src/ecs/world"
 import { createGameText } from "@/src/game/localization"
@@ -91,5 +92,94 @@ describe("conversation", () => {
 
     expect(state.isOpen).toBe(true)
     expect(input.popContext).not.toHaveBeenCalled()
+  })
+
+  it("advances the chief greeting to response choices before closing", () => {
+    const world = createGameWorld()
+    const state = createConversationState()
+    const input = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+      consume: vi.fn((action: string) => action === "interact"),
+    }
+    const starter = createConversationStarter(state, input)
+    const system = createConversationSystem(state, input)
+
+    starter.startConversation({
+      id: "manager",
+      name: "Manager",
+      mapKey: "hallway",
+      x: 352,
+      y: 256,
+      width: 32,
+      height: 32,
+    })
+
+    system(world, 0)
+
+    expect(state.isOpen).toBe(true)
+    expect(state.isChoosing).toBe(true)
+    expect(getConversationDisplayText(state)).toBe(
+      [
+        "> Maybe you should eat some vegetables and row!",
+        "  Chief anything you do I am 100% in favor of!",
+      ].join("\n"),
+    )
+    expect(input.popContext).not.toHaveBeenCalled()
+
+    system(world, 0)
+
+    expect(state.isOpen).toBe(false)
+    expect(input.popContext).toHaveBeenCalledTimes(1)
+  })
+
+  it("moves the selected chief response with up and down input", () => {
+    const world = createGameWorld()
+    const state = createConversationState()
+    let pressed: string | null = "interact"
+    const input = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+      consume: vi.fn((action: string) => {
+        if (pressed !== action) return false
+        pressed = null
+        return true
+      }),
+    }
+    const starter = createConversationStarter(state, input)
+    const system = createConversationSystem(state, input)
+
+    starter.startConversation({
+      id: "manager",
+      name: "Manager",
+      mapKey: "hallway",
+      x: 352,
+      y: 256,
+      width: 32,
+      height: 32,
+    })
+
+    system(world, 0)
+    pressed = "moveDown"
+    system(world, 0)
+
+    expect(state.selectedChoiceIndex).toBe(1)
+    expect(getConversationDisplayText(state)).toBe(
+      [
+        "  Maybe you should eat some vegetables and row!",
+        "> Chief anything you do I am 100% in favor of!",
+      ].join("\n"),
+    )
+
+    pressed = "moveUp"
+    system(world, 0)
+
+    expect(state.selectedChoiceIndex).toBe(0)
+    expect(getConversationDisplayText(state)).toBe(
+      [
+        "> Maybe you should eat some vegetables and row!",
+        "  Chief anything you do I am 100% in favor of!",
+      ].join("\n"),
+    )
   })
 })

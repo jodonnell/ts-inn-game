@@ -17,7 +17,7 @@ const inputActions: InputAction[] = [
 const allowedActionsByContext: Record<InputContext, Set<InputAction>> = {
   gameplay: new Set(inputActions),
   menu: new Set(["pause", "confirm", "cancel"]),
-  dialog: new Set(["interact"]),
+  dialog: new Set(["moveUp", "moveDown", "interact"]),
   modalOverlay: new Set(["pause", "cancel"]),
 }
 
@@ -118,11 +118,15 @@ export const createInputRouter = (
 
   const getMovement = () => ({
     x:
-      (isHeld(movementActions.right) ? 1 : 0) -
-      (isHeld(movementActions.left) ? 1 : 0),
+      getActiveContext() === "gameplay"
+        ? (isHeld(movementActions.right) ? 1 : 0) -
+          (isHeld(movementActions.left) ? 1 : 0)
+        : 0,
     y:
-      (isHeld(movementActions.down) ? 1 : 0) -
-      (isHeld(movementActions.up) ? 1 : 0),
+      getActiveContext() === "gameplay"
+        ? (isHeld(movementActions.down) ? 1 : 0) -
+          (isHeld(movementActions.up) ? 1 : 0)
+        : 0,
   })
 
   const pushContext = (context: Exclude<InputContext, "gameplay">) => {

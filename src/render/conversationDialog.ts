@@ -1,6 +1,9 @@
 import { Container, Graphics, Text } from "pixi.js"
 import type { GameWorld } from "@/src/ecs/world"
-import type { ConversationState } from "@/src/game/conversation"
+import {
+  getConversationDisplayText,
+  type ConversationState,
+} from "@/src/game/conversation"
 
 export type ConversationDialogLike = {
   x: number
@@ -113,7 +116,7 @@ export const createConversationDialogSystem =
 
     dialog.x = DIALOG_X
     dialog.y = DIALOG_Y
-    dialog.text = state.message
+    dialog.text = getConversationDisplayText(state)
     dialog.visible = true
     dialog.layout?.()
   }

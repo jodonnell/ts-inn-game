@@ -6,7 +6,7 @@ import {
   setPlayerPosition,
 } from "@/e2e/helpers/gameTestApi"
 
-test("shows and dismisses npc dialog when interacting with the manager", async ({
+test("shows npc response choices after the manager greeting", async ({
   page,
 }) => {
   await gotoGame(page)
@@ -19,6 +19,26 @@ test("shows and dismisses npc dialog when interacting with the manager", async (
     isOpen: true,
     message:
       "Chief: I'm so hungry for lunch maybe I'll eat some chocolate covered almonds with a 10oz whiskey to wash it down!",
+  })
+
+  await page.keyboard.press("e")
+
+  await expect.poll(async () => getConversation(page)).toEqual({
+    isOpen: true,
+    message: [
+      "> Maybe you should eat some vegetables and row!",
+      "  Chief anything you do I am 100% in favor of!",
+    ].join("\n"),
+  })
+
+  await page.keyboard.press("ArrowDown")
+
+  await expect.poll(async () => getConversation(page)).toEqual({
+    isOpen: true,
+    message: [
+      "  Maybe you should eat some vegetables and row!",
+      "> Chief anything you do I am 100% in favor of!",
+    ].join("\n"),
   })
 
   await page.keyboard.press("e")

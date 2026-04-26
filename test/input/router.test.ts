@@ -111,24 +111,46 @@ describe("input router", () => {
     input.dispose()
   })
 
-  it("only allows interact while a dialog is open", () => {
+  it("only allows dialog actions while a dialog is open", () => {
     const baseInput = createGameInputState({
       adapters: [createKeyboardInputAdapter({ target: window })],
     })
     const input = createInputRouter(baseInput)
 
     input.pushContext("dialog")
-    dispatchKey(window, "keydown", "w")
+    dispatchKey(window, "keydown", "ArrowUp")
+    dispatchKey(window, "keydown", "ArrowDown")
+    dispatchKey(window, "keydown", "ArrowLeft")
+    dispatchKey(window, "keydown", "ArrowRight")
     dispatchKey(window, "keydown", "e")
     dispatchKey(window, "keydown", "Escape")
     dispatchKey(window, "keydown", "Enter")
     dispatchKey(window, "keydown", "Backspace")
 
+    expect(input.consume("moveUp")).toBe(true)
+    expect(input.consume("moveDown")).toBe(true)
+    expect(input.consume("moveLeft")).toBe(false)
+    expect(input.consume("moveRight")).toBe(false)
     expect(input.getMovement()).toEqual({ x: 0, y: 0 })
     expect(input.consume("interact")).toBe(true)
     expect(input.consume("pause")).toBe(false)
     expect(input.consume("confirm")).toBe(false)
     expect(input.consume("cancel")).toBe(false)
+
+    input.dispose()
+  })
+
+  it("does not expose dialog navigation as gameplay movement", () => {
+    const baseInput = createGameInputState({
+      adapters: [createKeyboardInputAdapter({ target: window })],
+    })
+    const input = createInputRouter(baseInput)
+
+    input.pushContext("dialog")
+    dispatchKey(window, "keydown", "ArrowDown")
+
+    expect(input.consume("moveDown")).toBe(true)
+    expect(input.getMovement()).toEqual({ x: 0, y: 0 })
 
     input.dispose()
   })
