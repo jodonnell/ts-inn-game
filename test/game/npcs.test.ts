@@ -7,7 +7,7 @@ describe("npc registry", () => {
       expect.objectContaining({
         id: "manager",
         mapKey: "hallway",
-        x: 352,
+        x: 704,
         y: 256,
       }),
     )

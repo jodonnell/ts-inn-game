@@ -5,7 +5,7 @@ export const HALLWAY_MANAGER_NPC: RoomNpc = {
   id: "manager",
   name: "Manager",
   mapKey: "hallway",
-  x: 352,
+  x: 704,
   y: 256,
   width: 32,
   height: 32,

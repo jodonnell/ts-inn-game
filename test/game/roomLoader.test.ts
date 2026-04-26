@@ -167,14 +167,14 @@ describe("room loader", () => {
         id: "manager",
         name: "Manager",
         mapKey: "hallway",
-        x: 352,
+        x: 704,
         y: 256,
         width: 32,
         height: 32,
       },
     ])
     expect(roomState.collisionWalls).toContainEqual({
-      x: 344,
+      x: 696,
       y: 248,
       width: 16,
       height: 8,
